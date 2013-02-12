@@ -1,0 +1,191 @@
+.pooch-stage {
+  position: relative;
+  width: 800px;
+  height: 400px;
+  margin: 8px auto 8px auto;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  overflow: hidden;
+}
+
+.pooch-title {
+  position: relative;
+  width: 800px;
+  height: 30px;
+  margin: 30px auto 12px auto;
+  font: 18px arial,helvetica,sans-serif;
+  font-weight: bold;
+  color: 666;
+  text-align: center;
+}
+
+.pooch-popup1 {
+  width: 220px;
+  background-color: #FFF;
+  padding: 10px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #BBB;
+}
+
+.pooch-popup1-title {
+  width: 220px;
+  float: left;
+  font: 14px arial,helvetica,sans-serif;
+  font-weight: bold;
+}
+
+.pooch-popup1-divider {
+  height: 1px;
+  width: 196px;
+  float: left;
+  background-color: #CCC;
+  margin: 10px 12px 6px 12px;
+}
+
+.pooch-popup1-head {
+  width: 220px;
+  float: left;
+  margin-top: 3px;
+  font: 13px arial,helvetica,sans-serif;
+  font-weight: bold;
+}
+
+.pooch-popup1-prop {
+  width: 140px;
+  float: left;
+  margin-top: 3px;
+  font: 12px arial,helvetica,sans-serif;
+}
+
+.pooch-popup1-val {
+  width: 80px;
+  float: left;
+  margin-top: 3px;
+  font: 12px arial,helvetica,sans-serif;
+  text-align: right;
+  font-weight: bold;
+}
+
+.pooch-popup1-heightAdj:after {
+  content: ".";
+  display: block;
+  height: 1px;
+  clear: both;
+  visibility: hidden;
+}
+
+.pooch-button-container {
+  position: relative;
+  width: 860px;
+  height: 30px;
+  margin: 8px auto 8px auto;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.pooch-button {
+  position: relative;
+  height: 30px;
+  width: 124px;
+  margin: 4px;
+  background-color: #FFF;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #BBB;
+  color: #666;
+  font: 14px arial,helvetica,sans-serif;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+
+.pooch-button:hover {
+  background-color: #EEE;
+  border-color: #999;
+  color: #333;
+  cursor: pointer;
+}
+
+.pooch-zoom-container {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 27px;
+  height: 130px;
+  padding: 2px;
+  background-color: white;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  z-index: 50;
+}
+
+.pooch-zoom-reset {
+  width: 15px;
+  height: 13px;
+  margin: 5px 5px 10px 5px;
+  padding-bottom: 10px;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: rgb(204, 204, 204);
+  background-image: url("../images/home.png");
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.pooch-zoom-slider {
+  position: relative;
+  width: 3px;
+  height: 34px;
+  margin: 7px 0px 9px 11px;
+  border-left-width: 1px;
+  border-left-style: solid;
+  border-left-color: rgb(204, 204, 204);
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: rgb(204, 204, 204);
+  background-color: rgb(221, 221, 221);
+  cursor: pointer;
+}
+
+.pooch-zoom-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 17px; 
+  margin-top: -9px; 
+  margin-left: -9px;
+  background-image: url("../images/handle.png");
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.pooch-zoom-zoomIn {
+  margin: 5px;
+  width: 17px;
+  height: 17px;
+  background-image: url("../images/zoomin.png");
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.pooch-zoom-zoomOut {
+  margin: 5px;
+  width: 17px;
+  height: 17px;
+  background-image: url("../images/zoomout.png");
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+
+

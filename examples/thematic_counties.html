@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="js/pooch.js"></script>
+    <script type="text/javascript" src="data/counties-shapes.js"></script>
+    <script type="text/javascript" src="data/counties-data.js"></script>
+    <script type="text/javascript" src="data/states-lines.js"></script>
+  </head>
+
+  <body>
+
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+
+    <script id="popupLayout1" type="text/html">
+      <div class="pooch-popup1">
+        <div class="pooch-popup1-title">data.CTYNAME, data.STNAME</div>
+        <div class="pooch-popup1-divider"></div>
+        <div class="pooch-popup1-head">exec {groupPopup.label} population</div>
+        <div class="pooch-popup1-prop">Males</div>
+        <div class="pooch-popup1-val">exec {pooch.formatNumber (data[groupPopup.male])}</div>
+        <div class="pooch-popup1-prop">Females</div>
+        <div class="pooch-popup1-val">exec{pooch.formatNumber (data[groupPopup.female])}</div>
+        <div class="pooch-popup1-prop">Total</div>
+        <div class="pooch-popup1-val">exec { var total = data[groupPopup.male] + data[groupPopup.male]; pooch.formatNumber (total) }</div>
+        <div class="pooch-popup1-heightAdj"></div>
+      </div>
+    </script>
+
+    <script id="pooch-zoom-layout" type="text/html">
+      <div class="pooch-zoom-container">
+        <div class="pooch-zoom-reset"></div>
+        <div class="pooch-zoom-zoomIn"></div>
+        <div class="pooch-zoom-slider">
+          <div class="pooch-zoom-handle"></div>
+        </div>
+        <div class="pooch-zoom-zoomOut"></div>
+      </div>
+    </script>
+    
+    <div class="pooch-title">U.S. County Population, by Race</div>
+    
+    <div class="pooch-stage"></div>
+
+    <script type="text/javascript">
+
+      var groupsFill  = ["165, 204, 226", "84, 155, 189", "8, 106, 148", "6, 77, 97"],
+          groupLen    = groupsFill.length,
+          groupPopup  = { male: "TOT_MALE", female: "TOT_FEMALE", label: "Total"},
+          limits      = [5000, 10000, 20000];
+
+      var zoomControl1  = pooch.zoomControl ("pooch-zoom-layout").reset (".pooch-zoom-reset")
+                                                                 .zoomIn (".pooch-zoom-zoomIn")
+                                                                 .zoomOut (".pooch-zoom-zoomOut")
+                                                                 .handle (".pooch-zoom-handle")
+                                                                 .slider (".pooch-zoom-slider")
+                                                                 .top (10)
+                                                                 .left (10);
+
+      var data1     = pooch.data ([counties_shapes, counties_data]).key ("FIPS");
+
+      var data2     = pooch.data ([states_lines]).key ("uniqueID");
+
+      var popup1    = pooch.popup ("popupLayout1");
+
+      var symbols1  = pooch.symbols ("poly").data (data1)
+                                            .shapePoints ("polygons")
+                                            .fillColor (function (sym, data) { return groupClasses (data.TOT_MALE, data.TOT_FEMALE); })
+                                            .strokeOpacity (0.2)
+                                            .drawFillHighlight (false)
+                                            .strokeColorHighlight ("255, 255, 255")
+                                            .strokeWidthHighlight (2)
+                                            .batch (true)
+                                            .popup (popup1);
+
+      var symbols2  = pooch.symbols ("poly").data (data2)
+                                            .shapePoints ("polylines")
+                                            .drawFill (false)
+                                            .strokeOpacity (0.4)
+                                            .strokeWidth (2)
+                                            .interactive (false);
+
+      var chart1    = pooch.chart (".pooch-stage").symbols ([symbols1, symbols2])
+                                                  .height (400)
+                                                  .width (800)
+                                                  .bounds (symbols1)
+                                                  .zoomControl (zoomControl1);
+
+      function groupClasses (male, female) 
+      {
+        var i     = groupLen,
+            total = male + female;
+
+        while (i--) if (i > 0 && total > limits[i - 1]) return groupsFill[i];
+        return groupsFill[0];
+      }                       
+
+      function filterRace (race)
+      {
+        switch (race)
+        {
+          case "all":
+            symbols1.fillColor (function (sym, data) { return groupClasses (data.TOT_MALE, data.TOT_FEMALE); });
+            groupPopup = { male: "TOT_MALE", female: "TOT_FEMALE", label: "Total"};
+            break;
+          case "asian":
+            symbols1.fillColor (function (sym, data) { return groupClasses (data.AA_MALE, data.AA_FEMALE); });
+            groupPopup = { male: "AA_MALE", female: "AA_FEMALE", label: "Asian"};
+            break;
+          case "white":
+            symbols1.fillColor (function (sym, data) { return groupClasses (data.WA_MALE, data.WA_FEMALE); });
+            groupPopup = { male: "WA_MALE", female: "WA_FEMALE", label: "White"};
+            break;
+          case "black":
+            symbols1.fillColor (function (sym, data) { return groupClasses (data.BA_MALE, data.BA_FEMALE); });
+            groupPopup = { male: "BA_MALE", female: "BA_FEMALE", label: "Black"};
+            break;
+          case "hispanic":
+            symbols1.fillColor (function (sym, data) { return groupClasses (data.H_MALE, data.H_FEMALE); });
+            groupPopup = { male: "H_MALE", female: "H_FEMALE", label: "Hispanic"};
+            break;
+          case "native american":
+            symbols1.fillColor (function (sym, data) { return groupClasses (data.IA_MALE, data.IA_FEMALE); });
+            groupPopup = { male: "IA_MALE", female: "IA_FEMALE", label: "Native American"};
+            break;
+          default:
+            symbols1.fillColor ("180, 180, 180");;
+        }
+
+        chart1.draw ();
+      }
+
+      chart1.draw ();
+
+    </script>
+
+    <div class="pooch-button-container">
+      <button class="pooch-button" onclick="filterRace ('all')">all</button>
+      <button class="pooch-button" onclick="filterRace ('asian')">asian</button>
+      <button class="pooch-button" onclick="filterRace ('white')">white</button>
+      <button class="pooch-button" onclick="filterRace ('black')">black</button>
+      <button class="pooch-button" onclick="filterRace ('hispanic')">hispanic</button>
+      <button class="pooch-button" onclick="filterRace ('native american')">native american</button>
+    </div>
+
+  </body>
+
+</html>
