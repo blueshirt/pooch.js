@@ -1,4 +1,4 @@
-pooch
+pooch.js
 =====
 
-Charting and mapping JavaScript library
+Mapping and charting JavaScript library
