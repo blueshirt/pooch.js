@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script type="text/javascript" src="js/pooch.js"></script>
+    <script type="text/javascript" src="../src/pooch.js"></script>
     <script type="text/javascript" src="data/counties-shapes.js"></script>
     <script type="text/javascript" src="data/counties-data.js"></script>
     <script type="text/javascript" src="data/states-lines.js"></script>
@@ -17,11 +17,11 @@
         <div class="pooch-popup1-divider"></div>
         <div class="pooch-popup1-head">exec {groupPopup.label} population</div>
         <div class="pooch-popup1-prop">Males</div>
-        <div class="pooch-popup1-val">exec {pooch.formatNumber (data[groupPopup.male])}</div>
+        <div class="pooch-popup1-val">exec {pooch.helpers.formatNumber (data[groupPopup.male])}</div>
         <div class="pooch-popup1-prop">Females</div>
-        <div class="pooch-popup1-val">exec{pooch.formatNumber (data[groupPopup.female])}</div>
+        <div class="pooch-popup1-val">exec {pooch.helpers.formatNumber (data[groupPopup.female])}</div>
         <div class="pooch-popup1-prop">Total</div>
-        <div class="pooch-popup1-val">exec { var total = data[groupPopup.male] + data[groupPopup.male]; pooch.formatNumber (total) }</div>
+        <div class="pooch-popup1-val">exec { var total = data[groupPopup.male] + data[groupPopup.male]; pooch.helpers.formatNumber (total) }</div>
         <div class="pooch-popup1-heightAdj"></div>
       </div>
     </script>

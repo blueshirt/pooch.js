@@ -2,101 +2,51 @@
 {
   pooch = { version: "0.0.1" , author: "Jeremy White"};
 
-  var _mouseEvent = function (domElem, e, func)
-  {
-    var domRect = domElem.getBoundingClientRect(),
-        left    = domRect.left, // + document.body.scrollLeft
-        top     = domRect.top; // + document.body.scrollTop
-    e.localX    = e.clientX - left;
-    e.localY    = e.clientY - top;
-    func (e);
-  };
-
-  var _camelize = function(str)
-  {
-    var parts = str.split('-'),
-        len   = parts.length;
-
-    if (len === 1) return parts[0];
-    var camelized = str.charAt(0) === '-' ? parts[0].charAt(0).toUpperCase () + parts[0].substring(1) : parts[0];
-    for (var i = 1; i < len; i++) camelized += parts[i].charAt(0).toUpperCase () + parts[i].substring(1);
-
-    return camelized;
-  };
-
   pooch.chart = function (id)
   {
-    var chart = new pooch_chart (id);
-    return chart;
-  };
-
-  pooch.symbols = function (shape)
-  {
-    var sym = new pooch_sym (shape);
-    return sym;
-  };
-
-  pooch.fetch = function (elem)
-  {
-    var fetch = pooch_fetch (elem);
-    return fetch;
-  };
-
-  pooch.map = function (elem, options)
-  {
-    pooch_baseMap = new pooch_map (elem, options);
-    return pooch_baseMap;
-  };
-
-  pooch_initMapAPIs = function ()
-  {
-    pooch_baseMap.loadMap ();
-  };
-
-  pooch.popup = function (elem)
-  {
-    var popup = new pooch_popup (elem);
-    return popup;
-  };
-
-  pooch.zoomControl = function (elem)
-  {
-    return new pooch_zoomControl (elem);
+    return new _chart (id);
   };
 
   pooch.data = function (obj)
   {
-    var data = new pooch_data (obj);
-    return data;
+    return new _data (obj);
   };
 
-  pooch.keyFromObj = function (obj)
+  pooch.fetch = function (elem)
   {
-    for (var key in obj) { if(obj.hasOwnProperty(key)) return key; }
-    return null;
+    return _fetch (elem);
   };
 
-  pooch.formatNumber = function(num)
+  pooch.map = function (elem, options)
   {
-    num = num.toString();
-    parts = num.toString().split('.');
-    parts[0] = parts[0].replace (/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
-    return parts.join('.');
+    return new pooch_map (elem, options);
   };
 
-  pooch.distanceToPoint = function (x1, y1, x2, y2)
+  pooch.popup = function (elem)
   {
-    return Math.sqrt((x1 -= x2) * x1 + (y1 -= y2) * y1);
+    return new _popup (elem);
   };
 
-  pooch_chart = function (id)
+  pooch.symbols = function (shape)
+  {
+    return new _symbol (shape);
+  };
+
+  pooch.zoomControl = function (elem)
+  {
+    return new _zoomControl (elem);
+  };
+
+  pooch.supportsCanvas = !!document.createElement('canvas').getContext;
+
+  var _chart = function (id)
   {
     var _chartScope   = this,
         _height       = 0,
         _width        = 0,
         _house        = null,
         _hasMap       = false,
-        _id           = "chart" + pooch_chartNdx,
+        _id           = "chart" + _chartNdx,
         _hasLayout    = false,
         _stepCnt      = 1,
         _stepTot      = 1,
@@ -138,7 +88,7 @@
 
     var _adjustLayout = function (obj)
     {
-      var attrKey = pooch.keyFromObj(obj),
+      var attrKey = pooch.helpers.keyFromObj(obj),
           px      = obj[attrKey] === 0 ? 0 : "px";
           cssObj  = {};
           ndxPre  = _layersPre.length,
@@ -149,7 +99,7 @@
 
       while (ndxPre--)
       {
-        var keyPre   = pooch.keyFromObj(_layersPre[ndxPre]),
+        var keyPre   = pooch.helpers.keyFromObj(_layersPre[ndxPre]),
             fetchPre = pooch.fetch("#pooch" + keyPre + "_" + _id);
 
         fetchPre.css(cssObj).dom()[attrKey] = obj[attrKey];
@@ -161,7 +111,7 @@
       {
         while (ndxMain--)
         {
-          var keyMain = pooch.keyFromObj(_layersMain[ndxMain]);
+          var keyMain = pooch.helpers.keyFromObj(_layersMain[ndxMain]);
           pooch.fetch("#pooch" + keyMain + "_" + _id).css(cssObj).dom()[attrKey] = obj[attrKey];
         }
       }
@@ -172,7 +122,7 @@
 
       while (ndxPost--)
       {
-        var keyPost = pooch.keyFromObj(_layersPost[ndxPost]);
+        var keyPost = pooch.helpers.keyFromObj(_layersPost[ndxPost]);
         pooch.fetch("#pooch" + keyPost + "_" + _id).css(cssObj).dom()[attrKey] = obj[attrKey];
       }
     };
@@ -227,7 +177,7 @@
       }
     };
 
-    var loopThroughPolys = function (shape, point)
+    var _loopThroughPolys = function (shape, point)
     {
       var pntInPoly = function (poly, pt)
           {
@@ -237,15 +187,9 @@
                 (c = !c);
             return c;
           };
-    //var count = 0;
-      //for (var sym in symObj)
-      //{
-        //console.log(symObj[sym]);
-        var borderLen = shape.length;
-        while (borderLen--) if (pntInPoly(shape[borderLen], point)) return true;
 
-      //}
-    
+      var borderLen = shape.length;
+      while (borderLen--) if (pntInPoly(shape[borderLen], point)) return true;
       return false;
     };
 
@@ -292,7 +236,7 @@
                   break;
 
                   case "poly":
-                    found = loopThroughPolys (sym[obj].shapePoints, [x, y]);
+                    found = _loopThroughPolys (sym[obj].shapePoints, [x, y]);
                     break;
 
                   default:
@@ -337,7 +281,7 @@
             {
               if (symsFnd[j].drawFill)
               {
-                var curDist = pooch.distanceToPoint (symsFnd[j].x, symsFnd[j].y, x, y);
+                var curDist = pooch.helpers.distanceToPoint (symsFnd[j].x, symsFnd[j].y, x, y);
               
                 if (curDist <= closestDist)
                 {
@@ -610,7 +554,7 @@
           {
             var sym       = isHlt ? hlt.key : _sym[i].datum (),
                 symObj    = isHlt ? hlt.obj : _sym[i],
-                symOrder  = isHlt ? [pooch.keyFromObj(hlt.key)] : symObj.order(),
+                symOrder  = isHlt ? [pooch.helpers.keyFromObj(hlt.key)] : symObj.order(),
                 orderLen  = isHlt ? 1 : symOrder.length,
                 symLayer  = symObj.layer ().toUpperCase (),
                 ctx       = isHlt ? symLayer === "MAIN" ? _ctxHltMain : _ctxHltBack : symLayer === "MAIN" ? _ctxMain : _ctxBack,
@@ -1128,7 +1072,7 @@
 
         while (ndxPre--)
         {
-          var keyPre = pooch.keyFromObj(_layersPre[ndxPre]);
+          var keyPre = pooch.helpers.keyFromObj(_layersPre[ndxPre]);
           closeElem = _layersPre[ndxPre][keyPre];
           layout.push("<" + _layersPre[ndxPre][keyPre] + " id='pooch" + keyPre + "_" +
                       _id + "' width='" + _width + "' height='" + _height +
@@ -1140,7 +1084,7 @@
         {
           while (ndxMain--)
           {
-            var keyMain = pooch.keyFromObj(_layersMain[ndxMain]);
+            var keyMain = pooch.helpers.keyFromObj(_layersMain[ndxMain]);
             layout.push("<" + _layersMain[ndxMain][keyMain] + " id='pooch" + keyMain + "_" +
                         _id + "' width='" + _width + "' height='" + _height +
                         "' style='position:absolute;top:0;left:0;width:" +
@@ -1162,7 +1106,7 @@
 
         while (ndxPost--)
         {
-          var keyPost = pooch.keyFromObj(_layersPost[ndxPost]);
+          var keyPost = pooch.helpers.keyFromObj(_layersPost[ndxPost]);
           layout.push("<" + _layersPost[ndxPost][keyPost] + " id='pooch" + keyPost + "_" +
                       _id + "' width='" + _width + "' height='" + _height +
                       "' style='position:absolute;top:0;left:0;width:" +
@@ -1176,7 +1120,7 @@
         _ctxMain         = pooch.fetch ("#pooch_main_" + _id).dom ().getContext ("2d");
         _ctxHltMain      = pooch.fetch ("#pooch_highlightMain_" + _id).dom ().getContext ("2d");
         _ctxHltBack      = pooch.fetch ("#pooch_highlightBack_" + _id).dom ().getContext ("2d");
-        _id              = "chart" + pooch_chartNdx++;
+        _id              = "chart" + _chartNdx++;
 
         var qLen = _funcQueue.length;
 
@@ -1194,7 +1138,7 @@
     return _chartScope;
   };
 
-  pooch_sym = function (shape)
+  _symbol = function (shape)
   {
     var _symScope = this;
 
@@ -1246,9 +1190,9 @@
     var _setLat = function (val)
     {
       var latID = val + "_pooch_proj_y";
-      for (var obj in _data.datum())
+      for (var obj in _info.datum())
       {
-        _data.datum()[obj][latID] = pooch.utility.latToMercator(_data.datum()[obj][val]);
+        _info.datum()[obj][latID] = pooch.helpers.latToMercator(_info.datum()[obj][val]);
       }
       _attrs.lat = function (sym, data) { return _chart.fit ({ dim:"height", val: data[latID] }); };
     };
@@ -1256,9 +1200,9 @@
     var _setLng = function (val)
     {
       var lngID = val + "_pooch_proj_x";
-      for (var obj in _data.datum())
+      for (var obj in _info.datum())
       {
-        _data.datum()[obj][lngID] = pooch.utility.lngToMercator(_data.datum()[obj][val]);
+        _info.datum()[obj][lngID] = pooch.helpers.lngToMercator(_info.datum()[obj][val]);
       }
       _attrs.lng = function (sym, data) { return _chart.fit ({ dim:"width", val: data[lngID] }); };
     };
@@ -1269,7 +1213,7 @@
 
       for (var sym in _symObj)
       {
-        var fillColor =  typeof _symScope.fillColor() === "string" ? _symScope.fillColor() : _symScope.fillColor()(_symObj[sym], _data.datum()[sym]);
+        var fillColor =  typeof _symScope.fillColor() === "string" ? _symScope.fillColor() : _symScope.fillColor()(_symObj[sym], _info.datum()[sym]);
         if (_batchObj.hasOwnProperty (fillColor)) _batchObj[fillColor].push (_symObj[sym].poochID);
         else  _batchObj[fillColor] = [_symObj[sym].poochID];
       }
@@ -1310,9 +1254,9 @@
 
     _symScope.data = function (obj)
     {
-      if (!arguments.length) return _data;
-      _data = obj;
-      _build (_data.keys());
+      if (!arguments.length) return _info;
+      _info = obj;
+      _build (_info.keys());
       var qLen = _funcQueue.length;
 
       while (qLen--)
@@ -1361,7 +1305,7 @@
     {
       if (!arguments.length) return _pop;
       _pop = obj;
-      _pop.data(_symScope, _data);
+      _pop.data(_symScope, _info);
       _interactive = true;
       return _symScope;
     };
@@ -1548,10 +1492,10 @@
       if (!arguments.length) return _attrs.lat;
       if (typeof val === "string")
       {
-        if (_data) _setLat (val);
+        if (_info) _setLat (val);
         else _funcQueue.push ( { func: _setLat, arg: val } );
       }
-      else _attrs.lat = pooch.utilities.latToMercator (val);
+      else _attrs.lat = pooch.helpers.latToMercator (val);
       return _symScope;
     };
 
@@ -1560,10 +1504,10 @@
       if (!arguments.length) return _attrs.lng;
       if (typeof val === "string")
       {
-        if (_data) _setLng (val);
+        if (_info) _setLng (val);
         else _funcQueue.push ( { func: _setLng, arg: val } );
       }
-      else _attrs.lng = pooch.utilities.lngToMercator (val);
+      else _attrs.lng = pooch.helpers.lngToMercator (val);
       return _symScope;
     };
 
@@ -1573,7 +1517,7 @@
       if (typeof val === "string")
       {
         _symScope.shapeData(val);
-        if (_data) _attrs.shapePoints = function (sym, data) { return _chart.fit ({sym: sym, val: data[val] }); };  //boundsObj: _boundsInView,
+        if (_info) _attrs.shapePoints = function (sym, data) { return _chart.fit ({sym: sym, val: data[val] }); };  //boundsObj: _boundsInView,
         else _funcQueue.push ( { func: _symScope.shapePoints, arg: val } );
       }
       else _attrs.shapePoints = val;
@@ -1629,7 +1573,7 @@
     var _symObj      = {},
         _bounds      = [Number.MAX_VALUE, Number.MIN_VALUE, Number.MIN_VALUE, Number.MAX_VALUE],
         //_boundsInView = {},
-        _data        = null,
+        _info        = null,
         _pop         = null,
         _order       = [],
         _layer       = "main",
@@ -1669,7 +1613,7 @@
     return _symScope;
   };
 
-  pooch_zoomControl= function (elem)
+  _zoomControl= function (elem)
   {
     var _zoomScope = this,
         _template  = null,
@@ -1844,13 +1788,13 @@
 
   };
 
-  pooch_popup = function (elem)
+  _popup = function (elem)
   {
     var _popupScope = this,
         _domElem    = null,
         _template   = null,
         _house      = null,
-        _data       = null,
+        _info       = null,
         _sym        = null,
         _x          = 0,
         _y          = 0,
@@ -1942,7 +1886,7 @@
         {
           var prop      = replace[i].chunk.exec (matches[j])[1].replace (/(?:(?:^|\n)\s+|\s+(?:$|\n))/g,'').replace (/\s+/g,' '),
               append    = (!replace[i].js) ? matches[j].substr(5, matches[j].length).match (/[^a-zA-Z0-9_]/) : "",
-              val       = replace[i].js ? replace[i].obj ? _data.datum ()[obj][eval (prop)] : eval (prop) : _data.datum ()[obj][prop],
+              val       = replace[i].js ? replace[i].obj ? _info.datum ()[obj][eval (prop)] : eval (prop) : _info.datum ()[obj][prop],
               appendVal = val + append;
           text          = text.replace (matches[j], appendVal);
 
@@ -1959,9 +1903,9 @@
 
     _popupScope.data = function (sym, data)
     {
-      if (!arguments.length) return _data;
+      if (!arguments.length) return _info;
       if (sym !== null && sym !== undefined) _sym = sym;
-      if (data !== null && data !== undefined) _data = data;
+      if (data !== null && data !== undefined) _info = data;
       return _popupScope;
     };
 
@@ -1982,100 +1926,71 @@
     return _popupScope;
   };
 
-  pooch_fetch = function (elem)
+  _data = function (obj)
   {
-    var _fetchScope = this,
-        _domElem = null;
+    var _dataScope =  this,
+        _dataOrig  =  [ null ],
+        _data      =  {},
+        _keySet    =  false;
 
-    _fetchScope.css = function (obj)
+    _dataScope.key = function (str)
     {
-      if (typeof obj === "string")
+      var dataLen  = _dataOrig.length,
+          longNdx  = 0,
+          loopLen  = 0,
+          keyNdxOf = [];
+
+      while (dataLen--)
       {
-        return _fetchScope.computedStyle (obj);
-      }
-      else
-      {
-        for (var key in obj)
+        var keyLen        = _dataOrig[dataLen][str].length;
+        keyNdxOf[dataLen] = {};
+
+        if (keyLen > loopLen)
         {
-          if (pooch_css2js[key] === undefined) _domElem.style[_camelize (key)] = obj[key];
-          else _domElem.style[pooch_css2js[key]] = obj[key];
+          longNdx = dataLen;
+          loopLen = keyLen;
+        }
+
+        while (keyLen--) keyNdxOf[dataLen][_dataOrig[dataLen][str][keyLen]] = keyLen;
+      }
+
+      while (loopLen--)
+      {
+        var key = _dataOrig[longNdx][str][loopLen];
+        _data[key] = {};
+        for (var obj in _dataOrig[longNdx]) { _data[key][obj] = _dataOrig[longNdx][obj][loopLen]; }
+        dataLen = _dataOrig.length;
+
+        while (dataLen--)
+        {
+          if (dataLen !== longNdx)
+          {
+            var matchNdx = keyNdxOf[dataLen][key];
+            for (var matchObj in _dataOrig[dataLen]) { _data[key][matchObj] = _dataOrig[dataLen][matchObj][matchNdx]; }
+          }
         }
       }
-      return _fetchScope;
+
+      _keySet = true;
+      return _dataScope;
     };
 
-    _fetchScope.dom = function ()
+    _dataScope.keys = function ()
     {
-      return _domElem;
+      var keys = {};
+      for (var obj in _data) { keys[obj] = {}; }
+      return keys;
     };
 
-    _fetchScope.computedStyle = function (prop)
+    _dataScope.datum = function (key, value)
     {
-      if (!arguments.length) return _fetchScope;
-      if (_domElem.currentStyle) return _domElem.currentStyle[prop];
-      else if (document.defaultView && document.defaultView.getComputedStyle) return document.defaultView.getComputedStyle(_domElem, "")[prop];
-      else return _domElem.style[prop];
+      //TODO allow key and value for individual entries
+      return _keySet ? _data : _dataOrig;
     };
 
-    _fetchScope.mouseover = function (func)
-    {
-      if (typeof func === "function")
-      {
-        _domElem.onmouseover = function (e) { _mouseEvent(_domElem, e, func); };
-      }
-      return _fetchScope;
-    };
-
-    _fetchScope.mousemove = function (func)
-    {
-      if (typeof func === "function")
-      {
-        _domElem.onmousemove = function (e) { _mouseEvent(_domElem, e, func); };
-      }
-      return _fetchScope;
-    };
-
-    _fetchScope.mousedown = function (func)
-    {
-      if (typeof func === "function")
-      {
-        _domElem.onmousedown = function (e) { _mouseEvent(_domElem, e, func); };
-      }
-      return _fetchScope;
-    };
-
-    _fetchScope.mouseout = function (func)
-    {
-      if (typeof func === "function")
-      {
-        _domElem.onmouseout = function (e) { _mouseEvent(_domElem, e, func); };
-      }
-      return _fetchScope;
-    };
-
-    _fetchScope.removeEvent = function (str)
-    {
-      if (typeof str === "string")
-      {
-
-      }
-      return _fetchScope;
-    };
-
-    if (!arguments.length || elem === undefined) return _fetchScope;
-
-    if (typeof elem === "string")
-    {
-      if (elem.substr (0, 1) === "#") _domElem = document.getElementById (elem.substr (1, elem.length));
-      else if (elem.substr (0, 1) === ".") _domElem = document.getElementsByClassName (elem.substr (1, elem.length))[0];
-      else if (document.getElementById (elem) !== null && document.getElementById (elem) !== undefined) document.getElementById (elem);
-    }
-    else if (elem.tagName || elem.nodeName)
-    {
-       _domElem = elem;
-    }
-
-    return _fetchScope;
+    if (!arguments.length) return _dataScope;
+    _dataOrig = obj;
+    return _dataScope;
   };
 
   pooch_map = function (house, options)
@@ -2290,7 +2205,7 @@
         _map              = new google.maps.Map (_house, mapOptions);
         _map.mapTypes.set ("poochStyle", customMapType);
         _map.setMapTypeId ("poochStyle");
-        _overlay = new pooch_google_overlay (_mapScope);
+        _overlay = new __google_overlay (_mapScope);
         //google.maps.event.addListener(that.map, 'zoom_changed', function (){nytg.delicious.map.zoomChanged ();});
 
       }
@@ -2347,7 +2262,7 @@
 
   };
 
-  pooch_google_overlay = function (mapObj, funcQueue)
+  var __google_overlay = function (mapObj, funcQueue)
   {
     var _overlayScope  = this,
         _bounds        = null,
@@ -2387,12 +2302,12 @@
       else if (nwLng < 0 && seLng < 0 && nwLng > seLng) adjChartW = -360 + nwLng;
       else if (nwLng > 0 && seLng > 0  && nwLng > seLng) adjChartW = nwLng - 360;
 
-      _chart.axisMinX (pooch.utility.lngToMercator (adjChartW))
-            .axisMaxX (pooch.utility.lngToMercator (seLng))
-            .axisMaxY (pooch.utility.latToMercator (chartNW.lat ()))
-            .axisMinY (pooch.utility.latToMercator (chartSE.lat ()));
+      _chart.axisMinX (pooch.helpers.lngToMercator (adjChartW))
+            .axisMaxX (pooch.helpers.lngToMercator (seLng))
+            .axisMaxY (pooch.helpers.latToMercator (chartNW.lat ()))
+            .axisMinY (pooch.helpers.latToMercator (chartSE.lat ()));
       
-      if (pooch_isSafari)
+      if (_isSafari)
       {
         pooch.fetch (_chart.house ()).css ({ display: "none" });
         _mapObj.draw ();
@@ -2456,75 +2371,136 @@
     _overlayScope.prototype.setMap (_map);
   };
 
-  pooch_data = function (obj)
+  _fetch = function (elem)
   {
-    var _dataScope =  this,
-        _dataOrig  =  [ null ],
-        _data      =  {},
-        _keySet    =  false;
+    var _fetchScope = this,
+        _domElem = null;
 
-    _dataScope.key = function (str)
+    _fetchScope.css = function (obj)
     {
-      var dataLen  = _dataOrig.length,
-          longNdx  = 0,
-          loopLen  = 0,
-          keyNdxOf = [];
+      var camelize  = function(str)
+                      {
+                        var parts = str.split('-'),
+                            len   = parts.length;
 
-      while (dataLen--)
+                        if (len === 1) return parts[0];
+                        var camelized = str.charAt(0) === '-' ? parts[0].charAt(0).toUpperCase () + parts[0].substring(1) : parts[0];
+                        for (var i = 1; i < len; i++) camelized += parts[i].charAt(0).toUpperCase () + parts[i].substring(1);
+
+                        return camelized;
+                      };
+
+      if (typeof obj === "string")
       {
-        var keyLen        = _dataOrig[dataLen][str].length;
-        keyNdxOf[dataLen] = {};
-
-        if (keyLen > loopLen)
-        {
-          longNdx = dataLen;
-          loopLen = keyLen;
-        }
-
-        while (keyLen--) keyNdxOf[dataLen][_dataOrig[dataLen][str][keyLen]] = keyLen;
+        return _fetchScope.computedStyle (obj);
       }
-
-      while (loopLen--)
+      else
       {
-        var key = _dataOrig[longNdx][str][loopLen];
-        _data[key] = {};
-        for (var obj in _dataOrig[longNdx]) { _data[key][obj] = _dataOrig[longNdx][obj][loopLen]; }
-        dataLen = _dataOrig.length;
-
-        while (dataLen--)
+        for (var key in obj)
         {
-          if (dataLen !== longNdx)
-          {
-            var matchNdx = keyNdxOf[dataLen][key];
-            for (var matchObj in _dataOrig[dataLen]) { _data[key][matchObj] = _dataOrig[dataLen][matchObj][matchNdx]; }
-          }
+          if (_css2js[key] === undefined) _domElem.style[camelize (key)] = obj[key];
+          else _domElem.style[_css2js[key]] = obj[key];
         }
       }
-
-      _keySet = true;
-      return _dataScope;
+      return _fetchScope;
     };
 
-    _dataScope.keys = function ()
+    _fetchScope.dom = function ()
     {
-      var keys = {};
-      for (var obj in _data) { keys[obj] = {}; }
-      return keys;
+      return _domElem;
     };
 
-    _dataScope.datum = function (key, value)
+    _fetchScope.computedStyle = function (prop)
     {
-      //TODO allow key and value for individual entries
-      return _keySet ? _data : _dataOrig;
+      if (!arguments.length) return _fetchScope;
+      if (_domElem.currentStyle) return _domElem.currentStyle[prop];
+      else if (document.defaultView && document.defaultView.getComputedStyle) return document.defaultView.getComputedStyle(_domElem, "")[prop];
+      else return _domElem.style[prop];
     };
 
-    if (!arguments.length) return _dataScope;
-    _dataOrig = obj;
-    return _dataScope;
+    _fetchScope.mouseover = function (func)
+    {
+      if (typeof func === "function")
+      {
+        _domElem.onmouseover = function (e) { _mouseEvent(_domElem, e, func); };
+      }
+      return _fetchScope;
+    };
+
+    _fetchScope.mousemove = function (func)
+    {
+      if (typeof func === "function")
+      {
+        _domElem.onmousemove = function (e) { _mouseEvent(_domElem, e, func); };
+      }
+      return _fetchScope;
+    };
+
+    _fetchScope.mousedown = function (func)
+    {
+      if (typeof func === "function")
+      {
+        _domElem.onmousedown = function (e) { _mouseEvent(_domElem, e, func); };
+      }
+      return _fetchScope;
+    };
+
+    _fetchScope.mouseout = function (func)
+    {
+      if (typeof func === "function")
+      {
+        _domElem.onmouseout = function (e) { _mouseEvent(_domElem, e, func); };
+      }
+      return _fetchScope;
+    };
+
+    _fetchScope.removeEvent = function (str)
+    {
+      if (typeof str === "string")
+      {
+
+      }
+      return _fetchScope;
+    };
+
+    if (!arguments.length || elem === undefined) return _fetchScope;
+
+    if (typeof elem === "string")
+    {
+      if (elem.substr (0, 1) === "#") _domElem = document.getElementById (elem.substr (1, elem.length));
+      else if (elem.substr (0, 1) === ".") _domElem = document.getElementsByClassName (elem.substr (1, elem.length))[0];
+      else if (document.getElementById (elem) !== null && document.getElementById (elem) !== undefined) document.getElementById (elem);
+    }
+    else if (elem.tagName || elem.nodeName)
+    {
+       _domElem = elem;
+    }
+
+    return _fetchScope;
   };
 
-  pooch.utility =
+  pooch.helpers =
   {
+
+    keyFromObj: function (obj)
+    {
+      for (var key in obj) { if(obj.hasOwnProperty(key)) return key; }
+      return null;
+    },
+
+    formatNumber: function(num)
+    {
+      num = num.toString();
+      parts = num.toString().split('.');
+      parts[0] = parts[0].replace (/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+      return parts.join('.');
+    },
+
+    distanceToPoint: function (x1, y1, x2, y2)
+    {
+      return Math.sqrt((x1 -= x2) * x1 + (y1 -= y2) * y1);
+    },
+
     latToMercator: function (val)
     {
       var rad    = val * (Math.PI / 180),
@@ -2546,15 +2522,29 @@
     }
   };
 
-  pooch.supportsCanvas = !!document.createElement('canvas').getContext;
+  window.pooch_initMapAPIs = function ()
+  {
+    pooch_baseMap.loadMap ();
+  };
+
   var pooch_baseMap    = null,
-      pooch_isSafari   = (typeof (navigator.vendor) === "object" && navigator.vendor.indexOf("Apple") !== -1) ? true : false;
-      pooch_chartNdx   = 0,
-      pooch_css2js     = { "float":"styleFloat",
+      _isSafari        = (typeof (navigator.vendor) === "object" && navigator.vendor.indexOf("Apple") !== -1) ? true : false;
+      _chartNdx        = 0,
+      _css2js          = { "float":"styleFloat",
                            "text-decoration: blink":"textDecorationBlink",
                            "text-decoration: line-through":"textDecorationLineThrough",
                            "text-decoration: none":"textDecorationNone",
                            "text-decoration: overline":"textDecorationOverline",
-                           "text-decoration: underline":"textDecorationUnderline" };
+                           "text-decoration: underline":"textDecorationUnderline" },
+
+      _mouseEvent      = function (domElem, e, func)
+                         {
+                           var domRect = domElem.getBoundingClientRect(),
+                               left    = domRect.left, // + document.body.scrollLeft
+                               top     = domRect.top; // + document.body.scrollTop
+                           e.localX    = e.clientX - left;
+                           e.localY    = e.clientY - top;
+                           func (e);
+                          };
 
 })();
