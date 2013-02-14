@@ -39,6 +39,460 @@
                                        .zoomControl (zoomControl1);
 </code></pre>
 
+<style> 
+  a {color:#505785;}
+  .arguments {color:#444;}
+  .optional {color: #AAA;}
+h3 {color:#B10000;}
+h2 {color:#B10000;}
+h1 {color:#B10000;}
+</style>
+
+pooch.js api doc
+=================================
+<br>
+The main components for the pooch.js javascript library are:
+
+pooch.**[chart()](#chart)**  
+pooch.**[data()](#data)**  
+pooch.**[fetch()](#fetch)**  
+pooch.**[helpers()](#helpers)**  
+pooch.**[map()](#map)**  
+pooch.**[popup()](#popup)**  
+pooch.**[symbols()](#symbols)**  
+pooch.**[zoomControl()](#zoomControl)**  
+
+<br>
+***
+<br>
+
+<a id="chart"/>
+pooch.chart ( <span class="arguments">*div*</span> )
+---------------
+
+<span class="arguments">***div***</span>  - string or dom element to use as a chart container
+
+Charts are the basis for all drawing in pooch.  Elements ([symbols](#symbols), [zoom controls](#zoomControl), etc.) are added to the chart and then [drawn](#chartDraw) and possibly animated.
+
+examples
+
+        var myChart = pooch.chart("#divID")';                     //sets the chart's container using a div's ID
+        var myChart = pooch.chart(".divClassName")';              //sets the chart's container using a div's class ID
+        var myChart = pooch.chart(pooch.fetch("#divID").dom())';  //sets the chart's container using a fetched div
+
+- **Properties and methods**   
+[.activeSymbol()](#chartActiveSymbol)  
+[.axisMaxX()](#chartAxisMaxX)  
+[.axisMinX()](#chartAxisMinX)  
+[.axisMaxY()](#chartAxisMaxY)  
+[.axisMinY()](#chartAxisMinY)  
+[.bounds()](#chartBounds)  
+[.draw()](#chartDraw)  
+[.fit()](#chartFit)  
+[.height()](#chartHeight)  
+[.house()](#chartHouse)  
+[.mousemove()](#chartMousemove)  
+[.mouseout()](#chartMouseOut)  
+[.mouseover()](#chartMouseover)  
+[.parentX()](#chartParentX)  
+[.parentY()](#chartParentY)  
+[.reset()](#chartReset)  
+[.symbols()](#chartSymbols)  
+[.width()](#chartWidth)  
+[.zoom()](#chartZoom)  
+[.zoomControl()](#chartControl)  
+[.zoomIn()](#chartZoomIn)  
+[.zoomMax()](#chartZoomMax)  
+[.zoomMin()](#chartZoomMin)  
+[.zoomOut()](#chartZoomOut)  
+
+<a id="chartActiveSymbol"/>
+### .activeSymbol( <span class="arguments">*symbols*, *key*</span> ) ###
+<span class="arguments">***symbols***</span>  - [symbols](#symbols) object containing the individual symbol to make active  
+<span class="arguments">***key***</span>  - string of the individual symbol name, defined in the [data key](#dataKey)
+
+Gets or sets the active symbol in the chart.
+
+examples
+
+        myChart.activeSymbol(symbols1, "montana");   //sets the active symbol
+        myChart.activeSymbol();                      //gets the active symbol
+
+<br>
+
+<a id="chartAxisMaxX"/>
+### .axisMaxX( <span class="arguments">*number*</span> ) ###
+<span class="arguments">***number***</span>  - integer to use as maximum x value
+
+Gets or sets the maximum x value (right) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the maximum x value to use for placing the chart's symbols. Zooming in or out will update this value.
+
+examples
+
+        myChart.axisMaxX(50000);   //sets the chart's maximum x value
+        myChart.axisMaxX();        //gets the chart's maximum x value
+
+<br>
+
+<a id="chartAxisMinX"/>
+### .axisMinX( <span class="arguments">*number*</span> ) ###
+<span class="arguments">***number***</span>  - integer to use as minimum x value
+
+Gets or sets the minimum x value (left) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the minimum x value to use for placing the chart's symbols. Zooming in or out will update this value.
+
+examples
+
+        myChart.axisMinX(0);   //sets the chart's minimum x value
+        myChart.axisMinX();    //gets the chart's minimum x value
+
+<br>
+
+
+<a id="chartAxisMaxY"/>
+### .axisMaxY( <span class="arguments">*number*</span> ) ###
+<span class="arguments">***number***</span>  - integer to use as maximum y value
+
+Gets or sets the maximum y value (top) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the maximum y value to use for placing the chart's symbols. Zooming in or out will update this value.
+
+examples
+
+        myChart.axisMaxY(3000);   //sets the chart's maximum y value
+        myChart.axisMaxY();       //gets the chart's maximum y value
+
+<br>
+
+<a id="chartAxisMinY"/>
+### .axisMinY( <span class="arguments">*number*</span> ) ###
+<span class="arguments">***number***</span>  - integer to use as minimum y value
+
+Gets or sets the minimum y value (bottom) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the minimum y value to use for placing the chart's symbols. Zooming in or out will update this value.
+
+examples
+
+        myChart.axisMinY(0);   //sets the chart's minimum y value
+        myChart.axisMinY();    //gets the chart's minimum y value
+
+<br>
+
+<a id="chartBounds"/>
+### .bounds( <span class="arguments">*symbols*</span> ) ###
+<span class="arguments">***symbols***</span>  - [symbols](#symbols) for framing the current chart view
+
+Gets or sets the viewable bounds of the chart.
+
+examples
+
+        myChart.bounds(symbols1);   //sets the viewable extent of the chart
+        myChart.bounds();           //gets the viewable extent of the chart
+
+<br>
+
+<a id="chartDraw"/>
+### .draw( <span class="arguments">*steps, layer*</span> ) ###
+<span class="arguments">***steps***</span> <span class="optional">*optional*</span> - number of tweening steps  
+<span class="arguments">***layer***</span> <span class="optional">*optional*</span> - string defining a [chart layer](#chartLayer) to draw, either "back" or "main"
+
+Draws the symbols and chart. Calling draw() with no arguments will draw all layers, and therefore all symbols, in one step. Passing in the number of steps will animate the symbols to their end state using the [symbol's easing](#symbolsEasing) property.  Valid values for the layer argument are "back" and "main."
+
+examples
+
+        myChart.draw();           //draws all layers in one step
+        myChart.draw(10);         //draws all layers in 10 steps, animating symbols from their start position to their end position
+        myChart.draw(5, "main");  //draws only the symbols on the main layer, in 5 steps
+
+<br>
+
+
+<a id="chartXXX"/>
+### .fit( <span class="arguments">*XXX*</span> ) ###
+<span class="arguments">***XXX***</span>  - XXX
+
+XXX
+
+examples
+
+        myChart.XXX(XXX);   //XXX
+
+<br>
+
+<a id="chartHeight"/>
+### .height( <span class="arguments">*number*</span> ) ###
+<span class="arguments">***number***</span>  - height of the chart
+
+Gets or sets the height of the chart.
+
+examples
+
+        myChart.height(800); //sets the height of the chart
+        myChart.height();    //gets the height of the chart
+<br>
+
+<a id="chartHouse"/>
+### .house( <span class="arguments">*element*</span> ) ###
+<span class="arguments">***element***</span>  - DOM element (div) or string of the container ID to house the chart
+
+Gets or sets the container for the chart. Typically, the chart is initialized with a container, but this method can also be used.  This method is the best way to retrieve the chart's container after initialization.
+
+examples
+
+        myChart.house("#divID")';                     //sets the chart's container using a div's ID
+        myChart.house(".divClassName")';              //sets the chart's container using a div's class ID
+        myChart.house(pooch.fetch("#divID").dom())';  //sets the chart's container using a fetched div
+        myChart.house();                              //gets the chart's containing DOM element (div)
+
+<br>
+
+
+<a id="chartMousemove"/>
+### .mousemove( <span class="arguments">*callback*</span> ) ###
+<span class="arguments">***callback***</span>  - function to call on mouse move
+
+Custom mouse event initializer which adds two new variables, localX and localY, to javaScipt's existing mousemove event. The custom variables are useful for tracking mouse movement while also taking into account the chart's scroll offsets and other layout attributes.
+
+examples
+
+        myChart.mousemove(myCallback);       //passes a callback function to trigger on mouse move
+
+        function myCallback(e)               //called when mouse moves on the chart
+        {
+          console.log(e.localX, e.localY);   //shows pooch's custom mouse event variables, localX and localY
+        }
+
+<br>
+
+
+<a id="chartMouseover"/>
+### .mouseover( <span class="arguments">*callback*</span> ) ###
+<span class="arguments">***callback***</span>  - function to call when the cursor enters the chart
+
+Custom mouse event initializer for when the cursor enters the chart.
+
+examples
+
+        myChart.mouseover(myCallback);   //passes a callback function to trigger on mouse over
+
+        function myCallback()
+        {
+          console.log("cursor is now over the chart");
+        }
+
+<br>
+
+
+<a id="chartMouseover"/>
+### .mouseout( <span class="arguments">*callback*</span> ) ###
+<span class="arguments">***callback***</span>  - function to call when the cursor leaves the chart
+
+Custom mouse event initializer for when the cursor leaves the chart.
+
+examples
+
+        myChart.mouseout(myCallback);   //passes a callback function to trigger on mouse out
+
+        function myCallback()
+        {
+          console.log("cursor has left the chart");
+        }
+
+<br>
+
+
+<a id="chartXXX"/>
+### .parentX( <span class="arguments">*XXX*</span> ) ###
+<span class="arguments">***XXX***</span>  - XXX
+
+XXX
+
+examples
+
+        myChart.XXX(XXX);   //XXX
+
+<br>
+
+
+<a id="chartXXX"/>
+### .parentY( <span class="arguments">*XXX*</span> ) ###
+<span class="arguments">***XXX***</span>  - XXX
+
+XXX
+
+examples
+
+        myChart.XXX(XXX);   //XXX
+
+<br>
+
+
+<a id="chartReset"/>
+### .reset(  ) ###
+
+Resets the chart's view to the default extent and zoom level.
+
+examples
+
+        myChart.reset();   //draws the chart at its default extent and zoom level 
+
+<br>
+
+
+<a id="chartSymbols"/>
+### .symbols( <span class="arguments">*array*</span> ) ###
+<span class="arguments">***array***</span>  - collection of [symbols](#symbols) to add to the chart
+
+Adds [symbols](#symbols) to the chart for display and animation.  The symbols are drawn in the order they are placed into the array, so the symbols at index 0 are drawn before the symbols at index 2.  Layering the the symbols is achieved using a combination of the symbol's order in the array and the [symbol's layer](#symbolsLayer) method.
+
+examples
+
+        myChart.symbols([mySymbols]);                            //adds a single set of symbols to the chart
+        myChart.symbols([mySymbols1, mySymbols2, mySymbols3]);   //adds multiple symbols to the chart
+
+<br>
+
+<a id="chartWidth"/>
+### .width( <span class="arguments">*number*</span> ) ###
+<span class="arguments">***number***</span>  - width of the chart
+
+Gets or sets the width of the chart.
+
+examples
+
+        myChart.width(800);   //sets the width of the chart
+        myChart.width();      //gets the width of the chart  
+
+<br>
+
+
+<a id="chartXXX"/>
+### .XXX( <span class="arguments">*XXX*</span> ) ###
+<span class="arguments">***XXX***</span>  - XXX
+
+XXX
+
+examples
+
+        myChart.XXX(XXX);   //XXX
+
+<br>
+
+
+<a id="chartXXX"/>
+### .XXX( <span class="arguments">*XXX*</span> ) ###
+<span class="arguments">***XXX***</span>  - XXX
+
+XXX
+
+examples
+
+        myChart.XXX(XXX);   //XXX
+
+<br>
+
+
+<a id="chartXXX"/>
+### .XXX( <span class="arguments">*XXX*</span> ) ###
+<span class="arguments">***XXX***</span>  - XXX
+
+XXX
+
+examples
+
+        myChart.XXX(XXX);   //XXX
+
+<br>
+
+
+<a id="chartXXX"/>
+### .XXX( <span class="arguments">*XXX*</span> ) ###
+<span class="arguments">***XXX***</span>  - XXX
+
+XXX
+
+examples
+
+        myChart.XXX(XXX);   //XXX
+
+<br>
+
+
+<a id="chartXXX"/>
+### .XXX( <span class="arguments">*XXX*</span> ) ###
+<span class="arguments">***XXX***</span>  - XXX
+
+XXX
+
+examples
+
+        myChart.XXX(XXX);   //XXX
+
+<br>
+
+
+<a id="chartXXX"/>
+### .XXX( <span class="arguments">*XXX*</span> ) ###
+<span class="arguments">***XXX***</span>  - XXX
+
+XXX
+
+examples
+
+        myChart.XXX(XXX);   //XXX
+
+<br>
+***
+<br>
+
+<a id="data"/>
+pooch.data ( <span class="arguments">*object*</span> )
+---------------
+
+<br>
+***
+<br>
+
+<a id="fetch"/>
+pooch.fetch ( <span class="arguments">*id*</span> )
+---------------
+
+<br>
+***
+<br>
+
+<a id="helpers"/>
+pooch.helpers()
+---------------
+
+<br>
+***
+<br>
+
+<a id="map"/>
+pooch.map ( <span class="arguments">*div*</span> )
+---------------
+
+<br>
+***
+<br>
+
+<a id="popup"/>
+pooch.popup ( <span class="arguments">*id*</span> )
+---------------
+
+<br>
+***
+<br>
+
+<a id="symbols"/>
+pooch.symbols ( <span class="arguments">*shape*</span> )
+---------------
+
+<br>
+***
+<br>
+
+<a id="zoomControl"/>
+pooch.zoomControl ( <span class="arguments">*id*</span> )
+---------------
+
+
 <h3>More Info</h3>
 
 <p>Coming soon...</p>
