@@ -56,9 +56,447 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 
 
-<h3>More Info</h3>
+<p><br></p>
 
-<p>Coming soon...</p>
+<hr />
+
+<p><br></p>
+
+<p><a id="chart"/></p>
+
+<h2>pooch.chart ( <span class="arguments"><em>div</em></span> )</h2>
+
+<p><span class="arguments"><strong><em>div</em></strong></span>  - string or dom element to use as a chart container</p>
+
+<p>Charts are the basis for all drawing in pooch.  Elements (<a href="#symbols">symbols</a>, <a href="#zoomControl">zoom controls</a>, etc.) are added to the chart and then <a href="#chartDraw">drawn</a> and possibly animated.</p>
+
+<p>examples</p>
+
+<pre><code>    var myChart = pooch.chart("#divID")';                     //sets the chart's container using a div's ID
+    var myChart = pooch.chart(".divClassName")';              //sets the chart's container using a div's class ID
+    var myChart = pooch.chart(pooch.fetch("#divID").dom())';  //sets the chart's container using a fetched div
+</code></pre>
+
+<ul>
+<li><strong>Properties and methods</strong> <br />
+<a href="#chartActiveSymbol">.activeSymbol()</a> <br />
+<a href="#chartAxisMaxX">.axisMaxX()</a> <br />
+<a href="#chartAxisMinX">.axisMinX()</a> <br />
+<a href="#chartAxisMaxY">.axisMaxY()</a> <br />
+<a href="#chartAxisMinY">.axisMinY()</a> <br />
+<a href="#chartBounds">.bounds()</a> <br />
+<a href="#chartDraw">.draw()</a> <br />
+<a href="#chartFit">.fit()</a> <br />
+<a href="#chartHeight">.height()</a> <br />
+<a href="#chartHouse">.house()</a> <br />
+<a href="#chartMousemove">.mousemove()</a> <br />
+<a href="#chartMouseOut">.mouseout()</a> <br />
+<a href="#chartMouseover">.mouseover()</a> <br />
+<a href="#chartReset">.reset()</a> <br />
+<a href="#chartSymbols">.symbols()</a> <br />
+<a href="#chartWidth">.width()</a> <br />
+<a href="#chartZoom">.zoom()</a> <br />
+<a href="#chartControl">.zoomControl()</a> <br />
+<a href="#chartZoomIn">.zoomIn()</a> <br />
+<a href="#chartZoomLevels">.zoomLevels()</a> <br />
+<a href="#chartZoomOut">.zoomOut()</a>  </li>
+</ul>
+
+<p><a id="chartActiveSymbol"/></p>
+
+<h3>.activeSymbol( <span class="arguments"><em>symbols</em>, <em>key</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>symbols</em></strong></span>  - <a href="#symbols">symbols</a> object containing the individual symbol to make active <br />
+<span class="arguments"><strong><em>key</em></strong></span>  - string of the individual symbol name, defined in the <a href="#dataKey">data key</a></p>
+
+<p>Gets or sets the active symbol in the chart.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.activeSymbol(symbols1, "montana");   //sets the active symbol
+    myChart.activeSymbol();                      //gets the active symbol
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartAxisMaxX"/></p>
+
+<h3>.axisMaxX( <span class="arguments"><em>number</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>number</em></strong></span>  - integer to use as maximum x value</p>
+
+<p>Gets or sets the maximum x value (right) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the maximum x value to use for placing the chart's symbols. Zooming in or out will update this value.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.axisMaxX(50000);   //sets the chart's maximum x value
+    myChart.axisMaxX();        //gets the chart's maximum x value
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartAxisMinX"/></p>
+
+<h3>.axisMinX( <span class="arguments"><em>number</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>number</em></strong></span>  - integer to use as minimum x value</p>
+
+<p>Gets or sets the minimum x value (left) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the minimum x value to use for placing the chart's symbols. Zooming in or out will update this value.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.axisMinX(0);   //sets the chart's minimum x value
+    myChart.axisMinX();    //gets the chart's minimum x value
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartAxisMaxY"/></p>
+
+<h3>.axisMaxY( <span class="arguments"><em>number</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>number</em></strong></span>  - integer to use as maximum y value</p>
+
+<p>Gets or sets the maximum y value (top) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the maximum y value to use for placing the chart's symbols. Zooming in or out will update this value.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.axisMaxY(3000);   //sets the chart's maximum y value
+    myChart.axisMaxY();       //gets the chart's maximum y value
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartAxisMinY"/></p>
+
+<h3>.axisMinY( <span class="arguments"><em>number</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>number</em></strong></span>  - integer to use as minimum y value</p>
+
+<p>Gets or sets the minimum y value (bottom) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the minimum y value to use for placing the chart's symbols. Zooming in or out will update this value.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.axisMinY(0);   //sets the chart's minimum y value
+    myChart.axisMinY();    //gets the chart's minimum y value
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartBounds"/></p>
+
+<h3>.bounds( <span class="arguments"><em>symbols</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>symbols</em></strong></span>  - <a href="#symbols">symbols</a> for framing the current chart view</p>
+
+<p>Gets or sets the viewable bounds of the chart.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.bounds(symbols1);   //sets the viewable extent of the chart
+    myChart.bounds();           //gets the viewable extent of the chart
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartDraw"/></p>
+
+<h3>.draw( <span class="arguments"><em>steps, layer</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>steps</em></strong></span> <span class="optional"><em>optional</em></span> - number of tweening steps <br />
+<span class="arguments"><strong><em>layer</em></strong></span> <span class="optional"><em>optional</em></span> - string defining which <a href="#chartLayer">chart layer</a> to draw, either "back" or "main"</p>
+
+<p>Draws the symbols and chart. Calling draw() with no arguments will draw all layers, and therefore all symbols, in one step. Passing in the number of steps will animate the symbols to their end state using the <a href="#symbolsEasing">symbol's easing</a> property.  Valid values for the layer argument are "back" and "main."</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.draw();           //draws all layers in one step
+    myChart.draw(10);         //draws all layers in 10 steps, animating symbols from their start position to their end position
+    myChart.draw(5, "main");  //draws only the symbols on the main layer, in 5 steps
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartXXX"/></p>
+
+<h3>.fit( <span class="arguments"><em>XXX</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>XXX</em></strong></span>  - XXX</p>
+
+<p>XXX</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.XXX(XXX);   //XXX
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartHeight"/></p>
+
+<h3>.height( <span class="arguments"><em>number</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>number</em></strong></span>  - height of the chart</p>
+
+<p>Gets or sets the height of the chart.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.height(800); //sets the height of the chart
+    myChart.height();    //gets the height of the chart
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartHouse"/></p>
+
+<h3>.house( <span class="arguments"><em>element</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>element</em></strong></span>  - DOM element (div) or string of the container ID to house the chart</p>
+
+<p>Gets or sets the container for the chart. Typically, the chart is initialized with a container, but this method can also be used.  This method is the best way to retrieve the chart's container after initialization.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.house("#divID")';                     //sets the chart's container using a div's ID
+    myChart.house(".divClassName")';              //sets the chart's container using a div's class ID
+    myChart.house(pooch.fetch("#divID").dom())';  //sets the chart's container using a fetched div
+    myChart.house();                              //gets the chart's containing DOM element (div)
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartMousemove"/></p>
+
+<h3>.mousemove( <span class="arguments"><em>callback</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>callback</em></strong></span>  - function to call on mouse move</p>
+
+<p>Custom mouse event initializer which adds two new variables, localX and localY, to javaScipt's existing mousemove event. The custom variables are useful for tracking mouse movement while also taking into account the chart's scroll offsets and other layout attributes.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.mousemove(myCallback);       //passes a callback function to trigger on mouse move
+
+    function myCallback(e)               //called when mouse moves on the chart
+    {
+      console.log(e.localX, e.localY);   //shows pooch's custom mouse event variables, localX and localY
+    }
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartMouseover"/></p>
+
+<h3>.mouseover( <span class="arguments"><em>callback</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>callback</em></strong></span>  - function to call when the cursor enters the chart</p>
+
+<p>Custom mouse event initializer for when the cursor enters the chart.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.mouseover(myCallback);   //passes a callback function to trigger on mouse over
+
+    function myCallback()
+    {
+      console.log("cursor is now over the chart");
+    }
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartMouseover"/></p>
+
+<h3>.mouseout( <span class="arguments"><em>callback</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>callback</em></strong></span>  - function to call when the cursor leaves the chart</p>
+
+<p>Custom mouse event initializer for when the cursor leaves the chart.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.mouseout(myCallback);   //passes a callback function to trigger on mouse out
+
+    function myCallback()
+    {
+      console.log("cursor has left the chart");
+    }
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartReset"/></p>
+
+<h3>.reset(  )</h3>
+
+<p>Resets the chart's view to the default extent and zoom level.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.reset();   //draws the chart at its default extent and zoom level 
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartSymbols"/></p>
+
+<h3>.symbols( <span class="arguments"><em>array</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>array</em></strong></span>  - collection of <a href="#symbols">symbols</a> to add to the chart</p>
+
+<p>Adds <a href="#symbols">symbols</a> to the chart for display and animation.  The symbols are drawn in the order they are placed into the array, so the symbols at index 0 are drawn before the symbols at index 2.  Layering of the symbols is achieved using a combination of the symbol's order in the array and the <a href="#symbolsLayer">symbol's layer</a> method.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.symbols([mySymbols]);                            //adds a single set of symbols to the chart
+    myChart.symbols([mySymbols1, mySymbols2, mySymbols3]);   //adds multiple symbols to the chart
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartWidth"/></p>
+
+<h3>.width( <span class="arguments"><em>number</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>number</em></strong></span>  - width of the chart</p>
+
+<p>Gets or sets the width of the chart.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.width(800);   //sets the width of the chart
+    myChart.width();      //gets the width of the chart  
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartZoom"/></p>
+
+<h3>.zoom( <span class="arguments"><em>level</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>level</em></strong></span>  - index of the <a href="#chartZoomLevels">zoom levels</a> array</p>
+
+<p>Gets or sets the zoom level for the chart. The level index starts at 0. The <a href="#chartZoomLevels">zoom levels</a> array may contain several levels that you define, and the five default levels are [1, 2, 4, 8, 16].</p>
+
+<p>examples</p>
+
+<pre><code>                       //assumes a zoom level array of [1, 2, 4, 8, 16]  
+    myChart.zoom(3);   //sets the zoom level to 3 (8 times original size, in this case)
+    myChart.zoom();    //gets the zoom level
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartZoomIn"/></p>
+
+<h3>.zoomIn()</h3>
+
+<p>Zooms the chart in one <a href="#chartZoomLevels">zoom level</a>.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.zoomIn();   //zooms the chart in
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartZoomLevels"/></p>
+
+<h3>.zoomLevels( <span class="arguments"><em>array</em></span> )</h3>
+
+<p><span class="arguments"><strong><em>array</em></strong></span>  - array of zoom levels </p>
+
+<p>Gets or sets the array of zoom levels for the chart. The array may contain several levels that you define, and the five default levels are [1, 2, 4, 8, 16]. The levels can be called through the <a href="#chartZoom">zoom</a> method.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.zoomLevels([1, 4, 16, 48]);   //sets the zoom levels array to [1, 4, 16, 48]
+    myChart.zoomLevels();                 //gets the zoom levels array
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartZoomOut"/></p>
+
+<h3>.zoomOut()</h3>
+
+<p>Zooms the chart out one <a href="#chartZoomLevels">zoom level</a>.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.zoomOut();   //zooms the chart out
+</code></pre>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="data"/></p>
+
+<h2>pooch.data ( <span class="arguments"><em>object</em></span> )</h2>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="fetch"/></p>
+
+<h2>pooch.fetch ( <span class="arguments"><em>id</em></span> )</h2>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="helpers"/></p>
+
+<h2>pooch.helpers</h2>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="map"/></p>
+
+<h2>pooch.map ( <span class="arguments"><em>div</em></span> )</h2>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="popup"/></p>
+
+<h2>pooch.popup ( <span class="arguments"><em>id</em></span> )</h2>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="symbols"/></p>
+
+<h2>pooch.symbols ( <span class="arguments"><em>shape</em></span> )</h2>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="zoomControl"/></p>
+
+<h2>pooch.zoomControl ( <span class="arguments"><em>id</em></span> )</h2>
 
 <h3>Authors and Contributors</h3>
 
