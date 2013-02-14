@@ -71,13 +71,29 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <hr />
 
-<h1>pooch.js api documentation</h1>
+<h1>pooch.js api doc</h1>
+
+<p><br>
+The main components for the pooch.js javascript library are:</p>
+
+<p>pooch.<strong><a href="#chart">chart()</a></strong> <br />
+pooch.<strong><a href="#data">data()</a></strong> <br />
+pooch.<strong><a href="#fetch">fetch()</a></strong> <br />
+pooch.<strong><a href="#helpers">helpers</a></strong> <br />
+pooch.<strong><a href="#map">map()</a></strong> <br />
+pooch.<strong><a href="#popup">popup()</a></strong> <br />
+pooch.<strong><a href="#symbols">symbols()</a></strong> <br />
+pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
+
+<p><br></p>
+
+<hr />
 
 <p><br></p>
 
 <p><a id="chart"/></p>
 
-<h2>pooch.chart ( <span class="arguments"><em>div</em></span> )</h2>
+<h2>pooch.chart ( <em><span class="arguments">div</em></span> )</h2>
 
 <p><strong><em><span class="arguments">div</span></em></strong>  - string or dom element to use as a chart container</p>
 
@@ -117,7 +133,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartActiveSymbol"/></p>
 
-<h3>.activeSymbol( <span class="arguments"><em>symbols</em>, <em>key</em></span> )</h3>
+<h3>.activeSymbol( <em><span class="arguments">symbols</em>, <em>key</em></span> )</h3>
 
 <p><strong><em><span class="arguments">symbols</span></em></strong>  - <a href="#symbols">symbols</a> object containing the individual symbol to make active <br />
 <strong><em><span class="arguments">key</span></em></strong>  - string of the individual symbol name, defined in the <a href="#dataKey">data key</a></p>
@@ -134,7 +150,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartAxisMaxX"/></p>
 
-<h3>.axisMaxX( <span class="arguments"><em>number</em></span> )</h3>
+<h3>.axisMaxX( <em><span class="arguments">number</em></span> )</h3>
 
 <p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as maximum x value</p>
 
@@ -150,7 +166,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartAxisMinX"/></p>
 
-<h3>.axisMinX( <span class="arguments"><em>number</em></span> )</h3>
+<h3>.axisMinX( <em><span class="arguments">number</em></span> )</h3>
 
 <p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as minimum x value</p>
 
@@ -166,7 +182,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartAxisMaxY"/></p>
 
-<h3>.axisMaxY( <span class="arguments"><em>number</em></span> )</h3>
+<h3>.axisMaxY( <em><span class="arguments">number</em></span> )</h3>
 
 <p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as maximum y value</p>
 
@@ -182,7 +198,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartAxisMinY"/></p>
 
-<h3>.axisMinY( <span class="arguments"><em>number</em></span> )</h3>
+<h3>.axisMinY( <em><span class="arguments">number</em></span> )</h3>
 
 <p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as minimum y value</p>
 
@@ -198,7 +214,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartBounds"/></p>
 
-<h3>.bounds( <span class="arguments"><em>symbols</em></span> )</h3>
+<h3>.bounds( <em><span class="arguments">symbols</em></span> )</h3>
 
 <p><strong><em><span class="arguments">symbols</span></em></strong>  - <a href="#symbols">symbols</a> for framing the current chart view</p>
 
@@ -214,7 +230,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartDraw"/></p>
 
-<h3>.draw( <span class="arguments"><em>steps, layer</em></span> )</h3>
+<h3>.draw( <em><span class="arguments">steps, layer</em></span> )</h3>
 
 <p><strong><em><span class="arguments">steps</span></em></strong> <span class="optional"><em>optional</em></span> - number of tweening steps <br />
 <strong><em><span class="arguments">layer</span></em></strong> <span class="optional"><em>optional</em></span> - string defining which <a href="#chartLayer">chart layer</a> to draw, either "back" or "main"</p>
@@ -232,7 +248,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartXXX"/></p>
 
-<h3>.fit( <span class="arguments"><em>XXX</em></span> )</h3>
+<h3>.fit( <em><span class="arguments">XXX</em></span> )</h3>
 
 <p><strong><em><span class="arguments">XXX</span></em></strong>  - XXX</p>
 
@@ -247,7 +263,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartHeight"/></p>
 
-<h3>.height( <span class="arguments"><em>number</em></span> )</h3>
+<h3>.height( <em><span class="arguments">number</em></span> )</h3>
 
 <p><strong><em><span class="arguments">number</span></em></strong>  - height of the chart</p>
 
@@ -263,7 +279,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartHouse"/></p>
 
-<h3>.house( <span class="arguments"><em>element</em></span> )</h3>
+<h3>.house( <em><span class="arguments">element</em></span> )</h3>
 
 <p><strong><em><span class="arguments">element</span></em></strong>  - DOM element (div) or string of the container ID to house the chart</p>
 
@@ -281,7 +297,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartMousemove"/></p>
 
-<h3>.mousemove( <span class="arguments"><em>callback</em></span> )</h3>
+<h3>.mousemove( <em><span class="arguments">callback</em></span> )</h3>
 
 <p><strong><em><span class="arguments">callback</span></em></strong>  - function to call on mouse move</p>
 
@@ -301,7 +317,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartMouseover"/></p>
 
-<h3>.mouseover( <span class="arguments"><em>callback</em></span> )</h3>
+<h3>.mouseover( <em><span class="arguments">callback</em></span> )</h3>
 
 <p><strong><em><span class="arguments">callback</span></em></strong>  - function to call when the cursor enters the chart</p>
 
@@ -321,7 +337,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartMouseover"/></p>
 
-<h3>.mouseout( <span class="arguments"><em>callback</em></span> )</h3>
+<h3>.mouseout( <em><span class="arguments">callback</em></span> )</h3>
 
 <p><strong><em><span class="arguments">callback</span></em></strong>  - function to call when the cursor leaves the chart</p>
 
@@ -354,7 +370,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartSymbols"/></p>
 
-<h3>.symbols( <span class="arguments"><em>array</em></span> )</h3>
+<h3>.symbols( <em><span class="arguments">array</em></span> )</h3>
 
 <p><strong><em><span class="arguments">array</span></em></strong>  - collection of <a href="#symbols">symbols</a> to add to the chart</p>
 
@@ -370,7 +386,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartWidth"/></p>
 
-<h3>.width( <span class="arguments"><em>number</em></span> )</h3>
+<h3>.width( <em><span class="arguments">number</em></span> )</h3>
 
 <p><strong><em><span class="arguments">number</span></em></strong>  - width of the chart</p>
 
@@ -386,7 +402,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartZoom"/></p>
 
-<h3>.zoom( <span class="arguments"><em>level</em></span> )</h3>
+<h3>.zoom( <em><span class="arguments">level</em></span> )</h3>
 
 <p><strong><em><span class="arguments">level</span></em></strong>  - index of the <a href="#chartZoomLevels">zoom levels</a> array</p>
 
@@ -416,7 +432,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="chartZoomLevels"/></p>
 
-<h3>.zoomLevels( <span class="arguments"><em>array</em></span> )</h3>
+<h3>.zoomLevels( <em><span class="arguments">array</em></span> )</h3>
 
 <p><strong><em><span class="arguments">array</span></em></strong>  - array of zoom levels </p>
 
@@ -449,7 +465,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="data"/></p>
 
-<h2>pooch.data ( <span class="arguments"><em>object</em></span> )</h2>
+<h2>pooch.data ( <em><span class="arguments">object</em></span> )</h2>
 
 <p><br></p>
 
@@ -459,7 +475,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="fetch"/></p>
 
-<h2>pooch.fetch ( <span class="arguments"><em>id</em></span> )</h2>
+<h2>pooch.fetch ( <em><span class="arguments">id</em></span> )</h2>
 
 <p><br></p>
 
@@ -479,7 +495,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="map"/></p>
 
-<h2>pooch.map ( <span class="arguments"><em>div</em></span> )</h2>
+<h2>pooch.map ( <em><span class="arguments">div</em></span> )</h2>
 
 <p><br></p>
 
@@ -489,7 +505,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="popup"/></p>
 
-<h2>pooch.popup ( <span class="arguments"><em>id</em></span> )</h2>
+<h2>pooch.popup ( <em><span class="arguments">id</em></span> )</h2>
 
 <p><br></p>
 
@@ -499,7 +515,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="symbols"/></p>
 
-<h2>pooch.symbols ( <span class="arguments"><em>shape</em></span> )</h2>
+<h2>pooch.symbols ( <em><span class="arguments">shape</em></span> )</h2>
 
 <p><br></p>
 
@@ -509,7 +525,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <p><a id="zoomControl"/></p>
 
-<h2>pooch.zoomControl ( <span class="arguments"><em>id</em></span> )</h2>
+<h2>pooch.zoomControl ( <em><span class="arguments">id</em></span> )</h2>
 
 <h3>Authors and Contributors</h3>
 
