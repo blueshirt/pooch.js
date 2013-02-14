@@ -617,6 +617,7 @@
           _stepCnt      = 1;
           var k         = _sym.length;
           while (k--) if (!isHlt) _sym[k].state (true);
+          if (_zoomControl) _zoomControl.update ();
           _isAnimating  = false;
         }
       }
@@ -982,7 +983,6 @@
       _setCenter ();
       _setUnitsPerPx ();
       _drawSym ();
-      _zoomControl.update ();
       return _chartScope;
     };
 
@@ -2315,16 +2315,16 @@
       {
         _mapObj.draw ();
         pooch.fetch (_chart.house ()).css ({ top: divPix.y + "px", left: divPix.x + "px", display: "block" });
-        _mapObj.zoom (_map.getZoom ());
-        _mapObj.zoomControl ().update ();
+        //_mapObj.zoom (_map.getZoom ());
+        //_mapObj.zoomControl ().update ();
       }
     };
 
     var _moveAndDraw = function (divPix)
     {
       pooch.fetch (_chart.house ()).css ({ top: divPix.y + "px", left: divPix.x + "px", display: "block" });
-      _mapObj.zoom (_map.getZoom ());
-      _mapObj.zoomControl ().update ();
+      //_mapObj.zoom (_map.getZoom ());
+      //_mapObj.zoomControl ().update ();
     };
 
     _overlayScope.bounds = function (obj)
