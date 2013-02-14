@@ -770,6 +770,7 @@
 
     _chartScope.bounds = function (arr)
     {
+      //TODO get this working for a symbol object that is not a shape, and also set the _bound var
       if (!arguments.length) return _bounds;
       if (arr.length)
       {
