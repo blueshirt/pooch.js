@@ -59,7 +59,7 @@
 
 <p><br></p>
 
-<p><a id="chart"/></a></p>
+<p><a id="chart"></a></p>
 
 <h2>pooch.chart ( <em><span class="arguments">div</span></em> )</h2>
 
@@ -83,12 +83,11 @@
 <a href="#chartAxisMinY">.axisMinY()</a> <br />
 <a href="#chartBounds">.bounds()</a> <br />
 <a href="#chartDraw">.draw()</a> <br />
-<a href="#chartFit">.fit()</a> <br />
 <a href="#chartHeight">.height()</a> <br />
 <a href="#chartHouse">.house()</a> <br />
-<a href="#chartMousemove">.mousemove()</a> <br />
-<a href="#chartMouseOut">.mouseout()</a> <br />
-<a href="#chartMouseover">.mouseover()</a> <br />
+<a href="#chartMouseMove">.mouseMove()</a> <br />
+<a href="#chartMouseOut">.mouseOut()</a> <br />
+<a href="#chartMouseOver">.mouseOver()</a> <br />
 <a href="#chartReset">.reset()</a> <br />
 <a href="#chartSymbols">.symbols()</a> <br />
 <a href="#chartWidth">.width()</a> <br />
@@ -99,7 +98,7 @@
 <a href="#chartZoomOut">.zoomOut()</a>  </li>
 </ul>
 
-<p><a id="chartActiveSymbol"/></a></p>
+<p><a id="chartActiveSymbol"></a></p>
 
 <h3>.activeSymbol( <em><span class="arguments">symbols, key</span></em> )</h3>
 
@@ -116,7 +115,7 @@
 
 <p><br></p>
 
-<p><a id="chartAxisMaxX"/></a></p>
+<p><a id="chartAxisMaxX"></a></p>
 
 <h3>.axisMaxX( <em><span class="arguments">number</span></em> )</h3>
 
@@ -132,9 +131,9 @@
 
 <p><br></p>
 
-<p><a id="chartAxisMinX"/></a></p>
+<p><a id="chartAxisMinX"></a></p>
 
-<h3>.axisMinX( <em><span class="arguments">number</em></span> )</h3>
+<h3>.axisMinX( <em><span class="arguments">number</span></em> )</h3>
 
 <p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as minimum x value</p>
 
@@ -148,9 +147,9 @@
 
 <p><br></p>
 
-<p><a id="chartAxisMaxY"/></a></p>
+<p><a id="chartAxisMaxY"></a></p>
 
-<h3>.axisMaxY( <em><span class="arguments">number</em></span> )</h3>
+<h3>.axisMaxY( <em><span class="arguments">number</span></em> )</h3>
 
 <p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as maximum y value</p>
 
@@ -164,9 +163,9 @@
 
 <p><br></p>
 
-<p><a id="chartAxisMinY"/></a></p>
+<p><a id="chartAxisMinY"></a></p>
 
-<h3>.axisMinY( <em><span class="arguments">number</em></span> )</h3>
+<h3>.axisMinY( <em><span class="arguments">number</span></em> )</h3>
 
 <p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as minimum y value</p>
 
@@ -180,9 +179,9 @@
 
 <p><br></p>
 
-<p><a id="chartBounds"/></a></p>
+<p><a id="chartBounds"></a></p>
 
-<h3>.bounds( <em><span class="arguments">symbols</em></span> )</h3>
+<h3>.bounds( <em><span class="arguments">symbols</span></em> )</h3>
 
 <p><strong><em><span class="arguments">symbols</span></em></strong>  - <a href="#symbols">symbols</a> for framing the current chart view</p>
 
@@ -196,12 +195,12 @@
 
 <p><br></p>
 
-<p><a id="chartDraw"/></a></p>
+<p><a id="chartDraw"></a></p>
 
-<h3>.draw( <em><span class="arguments">steps, layer</em></span> )</h3>
+<h3>.draw( <em><span class="arguments">steps, layer</span></em> )</h3>
 
-<p><strong><em><span class="arguments">steps</span></em></strong> <span class="optional"><em>optional</em></span> - number of tweening steps <br />
-<strong><em><span class="arguments">layer</span></em></strong> <span class="optional"><em>optional</em></span> - string defining which <a href="#chartLayer">chart layer</a> to draw, either "back" or "main"</p>
+<p><strong><em><span class="arguments">steps</span></em></strong> <span class="optional"><em>optional</span></em> - number of tweening steps <br />
+<strong><em><span class="arguments">layer</span></em></strong> <span class="optional"><em>optional</span></em> - string defining which <a href="#chartLayer">chart layer</a> to draw, either "back" or "main"</p>
 
 <p>Draws the symbols and chart. Calling draw() with no arguments will draw all layers, and therefore all symbols, in one step. Passing in the number of steps will animate the symbols to their end state using the <a href="#symbolsEasing">symbol's easing</a> property.  Valid values for the layer argument are "back" and "main."</p>
 
@@ -214,24 +213,9 @@
 
 <p><br></p>
 
-<p><a id="chartXXX"/></a></p>
+<p><a id="chartHeight"></a></p>
 
-<h3>.fit( <em><span class="arguments">XXX</em></span> )</h3>
-
-<p><strong><em><span class="arguments">XXX</span></em></strong>  - XXX</p>
-
-<p>XXX</p>
-
-<p>examples</p>
-
-<pre><code>    myChart.XXX(XXX);   //XXX
-</code></pre>
-
-<p><br></p>
-
-<p><a id="chartHeight"/></a></p>
-
-<h3>.height( <em><span class="arguments">number</em></span> )</h3>
+<h3>.height( <em><span class="arguments">number</span></em> )</h3>
 
 <p><strong><em><span class="arguments">number</span></em></strong>  - height of the chart</p>
 
@@ -245,9 +229,9 @@
 
 <p><br></p>
 
-<p><a id="chartHouse"/></a></p>
+<p><a id="chartHouse"></a></p>
 
-<h3>.house( <em><span class="arguments">element</em></span> )</h3>
+<h3>.house( <em><span class="arguments">element</span></em> )</h3>
 
 <p><strong><em><span class="arguments">element</span></em></strong>  - DOM element (div) or string of the container ID to house the chart</p>
 
@@ -263,9 +247,9 @@
 
 <p><br></p>
 
-<p><a id="chartMousemove"/></a></a></p>
+<p><a id="chartMouseMove"></a></a></p>
 
-<h3>.mousemove( <em><span class="arguments">callback</em></span> )</h3>
+<h3>.mouseMove( <em><span class="arguments">callback</span></em> )</h3>
 
 <p><strong><em><span class="arguments">callback</span></em></strong>  - function to call on mouse move</p>
 
@@ -273,7 +257,7 @@
 
 <p>examples</p>
 
-<pre><code>    myChart.mousemove(myCallback);       //passes a callback function to trigger on mouse move
+<pre><code>    myChart.mouseMove(myCallback);       //passes a callback function to trigger on mouse move
 
     function myCallback(e)               //called when mouse moves on the chart
     {
@@ -283,9 +267,9 @@
 
 <p><br></p>
 
-<p><a id="chartMouseover"/></a></p>
+<p><a id="chartMouseOver"></a></p>
 
-<h3>.mouseover( <em><span class="arguments">callback</em></span> )</h3>
+<h3>.mouseOver( <em><span class="arguments">callback</span></em> )</h3>
 
 <p><strong><em><span class="arguments">callback</span></em></strong>  - function to call when the cursor enters the chart</p>
 
@@ -293,7 +277,7 @@
 
 <p>examples</p>
 
-<pre><code>    myChart.mouseover(myCallback);   //passes a callback function to trigger on mouse over
+<pre><code>    myChart.mouseOver(myCallback);   //passes a callback function to trigger on mouse over
 
     function myCallback()
     {
@@ -303,9 +287,9 @@
 
 <p><br></p>
 
-<p><a id="chartMouseover"/></a></p>
+<p><a id="chartMouseOut"></a></p>
 
-<h3>.mouseout( <em><span class="arguments">callback</em></span> )</h3>
+<h3>.mouseOut( <em><span class="arguments">callback</span></em> )</h3>
 
 <p><strong><em><span class="arguments">callback</span></em></strong>  - function to call when the cursor leaves the chart</p>
 
@@ -313,7 +297,7 @@
 
 <p>examples</p>
 
-<pre><code>    myChart.mouseout(myCallback);   //passes a callback function to trigger on mouse out
+<pre><code>    myChart.mouseOut(myCallback);   //passes a callback function to trigger on mouse out
 
     function myCallback()
     {
@@ -323,7 +307,7 @@
 
 <p><br></p>
 
-<p><a id="chartReset"/></a></a></p>
+<p><a id="chartReset"></a></a></p>
 
 <h3>.reset(  )</h3>
 
@@ -336,9 +320,9 @@
 
 <p><br></p>
 
-<p><a id="chartSymbols"/></a></p>
+<p><a id="chartSymbols"></a></p>
 
-<h3>.symbols( <em><span class="arguments">array</em></span> )</h3>
+<h3>.symbols( <em><span class="arguments">array</span></em> )</h3>
 
 <p><strong><em><span class="arguments">array</span></em></strong>  - collection of <a href="#symbols">symbols</a> to add to the chart</p>
 
@@ -352,9 +336,9 @@
 
 <p><br>
 </a>
-<a id="chartWidth"/></a></p>
+<a id="chartWidth"></a></p>
 
-<h3>.width( <em><span class="arguments">number</em></span> )</h3>
+<h3>.width( <em><span class="arguments">number</span></em> )</h3>
 
 <p><strong><em><span class="arguments">number</span></em></strong>  - width of the chart</p>
 
@@ -368,9 +352,9 @@
 
 <p><br></p>
 
-<p><a id="chartZoom"/></a></p>
+<p><a id="chartZoom"></a></p>
 
-<h3>.zoom( <em><span class="arguments">level</em></span> )</h3>
+<h3>.zoom( <em><span class="arguments">level</span></em> )</h3>
 
 <p><strong><em><span class="arguments">level</span></em></strong>  - index of the <a href="#chartZoomLevels">zoom levels</a> array</p>
 
@@ -385,7 +369,7 @@
 
 <p><br></p>
 
-<p><a id="chartZoomIn"/></a></p>
+<p><a id="chartZoomIn"></a></p>
 
 <h3>.zoomIn()</h3>
 
@@ -398,9 +382,9 @@
 
 <p><br></p>
 
-<p><a id="chartZoomLevels"/></a></p>
+<p><a id="chartZoomLevels"></a></p>
 
-<h3>.zoomLevels( <em><span class="arguments">array</em></span> )</h3>
+<h3>.zoomLevels( <em><span class="arguments">array</span></em> )</h3>
 
 <p><strong><em><span class="arguments">array</span></em></strong>  - array of zoom levels </p>
 
@@ -414,7 +398,7 @@
 
 <p><br></p>
 
-<p><a id="chartZoomOut"/></a></p>
+<p><a id="chartZoomOut"></a></p>
 
 <h3>.zoomOut()</h3>
 
@@ -431,19 +415,9 @@
 
 <p><br></p>
 
-<p><a id="data"/></a></p>
+<p><a id="data"></a></p>
 
-<h2>pooch.data ( <em><span class="arguments">object</em></span> )</h2>
-
-<p><br></p>
-
-<hr />
-
-<p><br></p>
-
-<p></a>id="fetch"/></a></p>
-
-<h2>pooch.fetch ( <em><span class="arguments">id</em></span> )</h2>
+<h2>pooch.data ( <em><span class="arguments">object</span></em> )</h2>
 
 <p><br></p>
 
@@ -451,7 +425,17 @@
 
 <p><br></p>
 
-<p><a id="helpers"/></a></p>
+<p><a id="fetch"></a></p>
+
+<h2>pooch.fetch ( <em><span class="arguments">id</span></em> )</h2>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="helpers"></a></p>
 
 <h2>pooch.helpers</h2>
 
@@ -461,19 +445,9 @@
 
 <p><br></p>
 
-<p><a id="map"/></a></p>
+<p><a id="map"></a></p>
 
-<h2>pooch.map ( <em><span class="arguments">div</em></span> )</h2>
-
-<p><br></p>
-
-<hr />
-
-<p><br></p>
-
-<p><a id="popup"/></a></p>
-
-<h2>pooch.popup ( <em><span class="arguments">id</em></span> )</h2>
+<h2>pooch.map ( <em><span class="arguments">div</span></em> )</h2>
 
 <p><br></p>
 
@@ -481,9 +455,9 @@
 
 <p><br></p>
 
-<p><a id="symbols"/></a></p>
+<p><a id="popup"></a></p>
 
-<h2>pooch.symbols ( <em><span class="arguments">shape</em></span> )</h2>
+<h2>pooch.popup ( <em><span class="arguments">id</span></em> )</h2>
 
 <p><br></p>
 
@@ -491,9 +465,19 @@
 
 <p><br></p>
 
-<p><a id="zoomControl"/></a></p>
+<p><a id="symbols"></a></p>
 
-<h2>pooch.zoomControl ( <em><span class="arguments">id</em></span> )</h2>
+<h2>pooch.symbols ( <em><span class="arguments">shape</span></em> )</h2>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="zoomControl"></a></p>
+
+<h2>pooch.zoomControl ( <em><span class="arguments">id</span></em> )</h2>
 
 <p><br></p>
 
