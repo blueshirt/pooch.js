@@ -53,6 +53,10 @@ a small {
   display:block;
 }
 
+a:hover {
+  text-decoration: underline;
+}
+
 .wrapper {
   width:940px;
   margin:0 auto;
