@@ -1,10 +1,17 @@
 @import url(https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700);
 
 body {
-  padding:50px;
+  padding:40px;
   font:14px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color:#777;
+  color:#333;
   font-weight:300;
+}
+
+.arguments {
+  color:#444;
+}
+.optional {
+  color: #AAA;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -21,20 +28,21 @@ h1, h2, h3 {
 }
 
 h1 {
+  color:#B10000;
   font-size:28px;
 }
 
-h2 {
-  color:#393939;
+h2, h3 {
+  color:#B10000;
 }
 
-h3, h4, h5, h6 {
+h4, h5, h6 {
   color:#494949;
 }
 
 a {
-  color:#39c;
-  font-weight:400;
+  color:#505785;
+  font-weight:600;
   text-decoration:none;
 }
 
