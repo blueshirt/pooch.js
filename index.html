@@ -11,8 +11,19 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    
+    <style> 
+      a {color:#505785; font-weight: normal;}
+      a:hover {text-decoration: underline;}
+      .arguments {color:#444;}
+      .optional {color: #AAA;}
+      h3 {color:#B10000;}
+      h2 {color:#B10000;}
+      h1 {color:#B10000;}
+    </style>
   </head>
   <body>
+
     <div class="wrapper">
       <header>
         <h1>pooch.js</h1>
@@ -60,7 +71,11 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <hr />
 
+<h1>pooch.js api documentation</h1>
+
 <p><br></p>
+
+<p><a id="chart"/></p>
 
 <h2>pooch.chart ( <span class="arguments"><em>div</em></span> )</h2>
 
@@ -104,8 +119,8 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.activeSymbol( <span class="arguments"><em>symbols</em>, <em>key</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>symbols</em></strong></span>  - <a href="#symbols">symbols</a> object containing the individual symbol to make active <br />
-<span class="arguments"><strong><em>key</em></strong></span>  - string of the individual symbol name, defined in the <a href="#dataKey">data key</a></p>
+<p><strong><em><span class="arguments">symbols</span></em></strong>  - <a href="#symbols">symbols</a> object containing the individual symbol to make active <br />
+<strong><em><span class="arguments">key</span></em></strong>  - string of the individual symbol name, defined in the <a href="#dataKey">data key</a></p>
 
 <p>Gets or sets the active symbol in the chart.</p>
 
@@ -121,7 +136,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.axisMaxX( <span class="arguments"><em>number</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>number</em></strong></span>  - integer to use as maximum x value</p>
+<p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as maximum x value</p>
 
 <p>Gets or sets the maximum x value (right) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the maximum x value to use for placing the chart's symbols. Zooming in or out will update this value.</p>
 
@@ -137,7 +152,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.axisMinX( <span class="arguments"><em>number</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>number</em></strong></span>  - integer to use as minimum x value</p>
+<p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as minimum x value</p>
 
 <p>Gets or sets the minimum x value (left) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the minimum x value to use for placing the chart's symbols. Zooming in or out will update this value.</p>
 
@@ -153,7 +168,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.axisMaxY( <span class="arguments"><em>number</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>number</em></strong></span>  - integer to use as maximum y value</p>
+<p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as maximum y value</p>
 
 <p>Gets or sets the maximum y value (top) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the maximum y value to use for placing the chart's symbols. Zooming in or out will update this value.</p>
 
@@ -169,7 +184,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.axisMinY( <span class="arguments"><em>number</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>number</em></strong></span>  - integer to use as minimum y value</p>
+<p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as minimum y value</p>
 
 <p>Gets or sets the minimum y value (bottom) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the minimum y value to use for placing the chart's symbols. Zooming in or out will update this value.</p>
 
@@ -185,7 +200,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.bounds( <span class="arguments"><em>symbols</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>symbols</em></strong></span>  - <a href="#symbols">symbols</a> for framing the current chart view</p>
+<p><strong><em><span class="arguments">symbols</span></em></strong>  - <a href="#symbols">symbols</a> for framing the current chart view</p>
 
 <p>Gets or sets the viewable bounds of the chart.</p>
 
@@ -201,8 +216,8 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.draw( <span class="arguments"><em>steps, layer</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>steps</em></strong></span> <span class="optional"><em>optional</em></span> - number of tweening steps <br />
-<span class="arguments"><strong><em>layer</em></strong></span> <span class="optional"><em>optional</em></span> - string defining which <a href="#chartLayer">chart layer</a> to draw, either "back" or "main"</p>
+<p><strong><em><span class="arguments">steps</span></em></strong> <span class="optional"><em>optional</em></span> - number of tweening steps <br />
+<strong><em><span class="arguments">layer</span></em></strong> <span class="optional"><em>optional</em></span> - string defining which <a href="#chartLayer">chart layer</a> to draw, either "back" or "main"</p>
 
 <p>Draws the symbols and chart. Calling draw() with no arguments will draw all layers, and therefore all symbols, in one step. Passing in the number of steps will animate the symbols to their end state using the <a href="#symbolsEasing">symbol's easing</a> property.  Valid values for the layer argument are "back" and "main."</p>
 
@@ -219,7 +234,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.fit( <span class="arguments"><em>XXX</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>XXX</em></strong></span>  - XXX</p>
+<p><strong><em><span class="arguments">XXX</span></em></strong>  - XXX</p>
 
 <p>XXX</p>
 
@@ -234,7 +249,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.height( <span class="arguments"><em>number</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>number</em></strong></span>  - height of the chart</p>
+<p><strong><em><span class="arguments">number</span></em></strong>  - height of the chart</p>
 
 <p>Gets or sets the height of the chart.</p>
 
@@ -250,7 +265,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.house( <span class="arguments"><em>element</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>element</em></strong></span>  - DOM element (div) or string of the container ID to house the chart</p>
+<p><strong><em><span class="arguments">element</span></em></strong>  - DOM element (div) or string of the container ID to house the chart</p>
 
 <p>Gets or sets the container for the chart. Typically, the chart is initialized with a container, but this method can also be used.  This method is the best way to retrieve the chart's container after initialization.</p>
 
@@ -268,7 +283,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.mousemove( <span class="arguments"><em>callback</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>callback</em></strong></span>  - function to call on mouse move</p>
+<p><strong><em><span class="arguments">callback</span></em></strong>  - function to call on mouse move</p>
 
 <p>Custom mouse event initializer which adds two new variables, localX and localY, to javaScipt's existing mousemove event. The custom variables are useful for tracking mouse movement while also taking into account the chart's scroll offsets and other layout attributes.</p>
 
@@ -288,7 +303,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.mouseover( <span class="arguments"><em>callback</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>callback</em></strong></span>  - function to call when the cursor enters the chart</p>
+<p><strong><em><span class="arguments">callback</span></em></strong>  - function to call when the cursor enters the chart</p>
 
 <p>Custom mouse event initializer for when the cursor enters the chart.</p>
 
@@ -308,7 +323,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.mouseout( <span class="arguments"><em>callback</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>callback</em></strong></span>  - function to call when the cursor leaves the chart</p>
+<p><strong><em><span class="arguments">callback</span></em></strong>  - function to call when the cursor leaves the chart</p>
 
 <p>Custom mouse event initializer for when the cursor leaves the chart.</p>
 
@@ -341,7 +356,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.symbols( <span class="arguments"><em>array</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>array</em></strong></span>  - collection of <a href="#symbols">symbols</a> to add to the chart</p>
+<p><strong><em><span class="arguments">array</span></em></strong>  - collection of <a href="#symbols">symbols</a> to add to the chart</p>
 
 <p>Adds <a href="#symbols">symbols</a> to the chart for display and animation.  The symbols are drawn in the order they are placed into the array, so the symbols at index 0 are drawn before the symbols at index 2.  Layering of the symbols is achieved using a combination of the symbol's order in the array and the <a href="#symbolsLayer">symbol's layer</a> method.</p>
 
@@ -357,7 +372,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.width( <span class="arguments"><em>number</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>number</em></strong></span>  - width of the chart</p>
+<p><strong><em><span class="arguments">number</span></em></strong>  - width of the chart</p>
 
 <p>Gets or sets the width of the chart.</p>
 
@@ -373,7 +388,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.zoom( <span class="arguments"><em>level</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>level</em></strong></span>  - index of the <a href="#chartZoomLevels">zoom levels</a> array</p>
+<p><strong><em><span class="arguments">level</span></em></strong>  - index of the <a href="#chartZoomLevels">zoom levels</a> array</p>
 
 <p>Gets or sets the zoom level for the chart. The level index starts at 0. The <a href="#chartZoomLevels">zoom levels</a> array may contain several levels that you define, and the five default levels are [1, 2, 4, 8, 16].</p>
 
@@ -403,7 +418,7 @@ pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
 <h3>.zoomLevels( <span class="arguments"><em>array</em></span> )</h3>
 
-<p><span class="arguments"><strong><em>array</em></strong></span>  - array of zoom levels </p>
+<p><strong><em><span class="arguments">array</span></em></strong>  - array of zoom levels </p>
 
 <p>Gets or sets the array of zoom levels for the chart. The array may contain several levels that you define, and the five default levels are [1, 2, 4, 8, 16]. The levels can be called through the <a href="#chartZoom">zoom</a> method.</p>
 
