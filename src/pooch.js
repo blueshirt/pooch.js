@@ -62,8 +62,6 @@
         _center       = { x: 50, y: 50 },
         _offsetX      = 0,
         _offsetY      = 0,
-        _parentX      = 0,
-        _parentY      = 0,
         _ctxBack      = null,
         _ctxHltBack   = null,
         _ctxMain      = null,
@@ -197,8 +195,8 @@
     {
       if (!ignore)
       {
-        var x = e.localX + _parentX,
-            y = e.localY + _parentY,
+        var x             = e.localX,
+            y             = e.localY,
             found         = false,
             symFnd        = false,
             symObjsFnd    = [],
@@ -720,7 +718,17 @@
       drag.init ();
     };
 
-    _chartScope.fit = function (obj)
+    var _zoomMin = function ()
+    {
+      return 0;
+    };
+
+    var _zoomMax = function (val)
+    {
+      return _zoomLevels.length - 1;
+    };
+
+    var _fit = function (obj)
     {
       if (!arguments.length) return _chartScope;
 
@@ -844,7 +852,7 @@
       for (var i = 0; i < len; ++i)
       {
         _sym[i] =  (obj[i]);
-        _sym[i].chart(_chartScope);
+        _sym[i].chart(_chartScope, _fit);
         _sym[i].state (true);
 
         if (_house)
@@ -852,16 +860,16 @@
           if (_sym[i].popup()) _popHouse (_sym[i].popup().house);
           if (!chartActive && _sym[i].interactive())
           {
-            _chartScope.mousemove (_mouseMoveChart);
-            _chartScope.mouseout (_mouseMoveChart);
+            _chartScope.mouseMove (_mouseMoveChart);
+            _chartScope.mouseOut (_mouseMoveChart);
             chartActive = true;
           }
         }
         else
         {
           _funcQueue.push ( { func: _popHouse, arg: _sym[i].popup().house } );
-          _funcQueue.push ( { func: _chartScope.mousemove, arg: _mouseMoveChart } );
-          _funcQueue.push ( { func: _chartScope.mouseout, arg: _mouseMoveChart } );
+          _funcQueue.push ( { func: _chartScope.mouseMove, arg: _mouseMoveChart } );
+          _funcQueue.push ( { func: _chartScope.mouseOut, arg: _mouseMoveChart } );
         }
       }
       return _chartScope;
@@ -934,37 +942,11 @@
       return _chartScope;
     };
 
-    _chartScope.zoomMin = function (val)
-    {
-      if (!arguments.length) return 0;
-      return _chartScope;
-    };
-
-    _chartScope.zoomMax = function (val)
-    {
-      if (!arguments.length) return _zoomLevels.length - 1;
-      return _chartScope;
-    };
-
-    _chartScope.parentX = function (val)
-    {
-      if (!arguments.length) return _parentX;
-      _parentX = val;
-      return _chartScope;
-    };
-
-    _chartScope.parentY = function (val)
-    {
-      if (!arguments.length) return _parentY;
-      _parentY = val;
-      return _chartScope;
-    };
-
     _chartScope.zoomControl = function (obj)
     {
       if (!arguments.length) return _zoomControl;
       _zoomControl = obj;
-      _zoomControl.target (_chartScope);
+      _zoomControl.target (_chartScope, _zoomMin, _zoomMax);
       _house.appendChild (_zoomControl.domElem ());
       _zoomControl.house (_house);
       _assignDrag (pooch.fetch ("#pooch_container_" + _id). dom());
@@ -1004,6 +986,13 @@
       return _chartScope;
     };
 
+    _chartScope.zoomLevels = function (arr)
+    {
+      if (!arguments.length) return _zoomLevels;
+      _zoomLevels = arr;
+      return _chartScope;
+    };
+
     _chartScope.draw = function (count, layer)
     {
       _stepCnt = 1;
@@ -1015,34 +1004,34 @@
       return _chartScope;
     };
 
-    _chartScope.mousemove = function (func)
+    _chartScope.mouseMove = function (func)
     {
       if (typeof func === "function")
       {
         var checkParams = function (e) { var ignore = function () { return _isAnimating || _isDragging; } (); _mouseMoveChart (e, ignore); };
         if (_house) pooch.fetch("#pooch_mouse_" + _id).mousemove (checkParams);
-        else _funcQueue.push ( { func: _chartScope.mousemove, arg: checkParams } );
+        else _funcQueue.push ( { func: _chartScope.mouseMove, arg: checkParams } );
       }
       return _chartScope;
     };
 
-    _chartScope.mouseover = function (func)
+    _chartScope.mouseOver = function (func)
     {
       if (typeof func === "function")
       {
         if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseover (func);
-        else _funcQueue.push ( { func: _chartScope.mouseover, arg: func } );
+        else _funcQueue.push ( { func: _chartScope.mouseOver, arg: func } );
       }
       return _chartScope;
     };
 
-    _chartScope.mouseout = function (func)
+    _chartScope.mouseOut = function (func)
     {
       if (typeof func === "function")
       {
         var checkParams = function (e) { _mouseMoveChart ({ localX: -20000, localY: -20000 }); };
         if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseout (checkParams);
-        else _funcQueue.push ( { func: _chartScope.mouseout, arg: func } );
+        else _funcQueue.push ( { func: _chartScope.mouseOut, arg: func } );
       }
       return _chartScope;
     };
@@ -1195,7 +1184,7 @@
       {
         _info.datum()[obj][latID] = pooch.helpers.latToMercator(_info.datum()[obj][val]);
       }
-      _attrs.lat = function (sym, data) { return _chart.fit ({ dim:"height", val: data[latID] }); };
+      _attrs.lat = function (sym, data) { return _fitFunc ({ dim:"height", val: data[latID] }); };
     };
 
     var _setLng = function (val)
@@ -1205,7 +1194,7 @@
       {
         _info.datum()[obj][lngID] = pooch.helpers.lngToMercator(_info.datum()[obj][val]);
       }
-      _attrs.lng = function (sym, data) { return _chart.fit ({ dim:"width", val: data[lngID] }); };
+      _attrs.lng = function (sym, data) { return _fitFunc ({ dim:"width", val: data[lngID] }); };
     };
 
     var _makeBatch = function ()
@@ -1276,10 +1265,11 @@
       return _symScope;
     };
 
-    _symScope.chart = function (obj)
+    _symScope.chart = function (obj, func)
     {
       if (!arguments.length) return _chart;
       _chart = obj;
+      _fitFunc = func;
       return _symScope;
     };
 
@@ -1474,7 +1464,7 @@
       if (typeof val === "string")
       {
         _fitVarX = val;
-        _attrs.x = function (sym, data) { return _chart.fit ({ dim:"width", val: data[_fitVarX] }); };
+        _attrs.x = function (sym, data) { return _fitFunc ({ dim:"width", val: data[_fitVarX] }); };
       }
       else _attrs.x = val;
       return _symScope;
@@ -1483,7 +1473,7 @@
     _symScope.y = function (val)
     {
       if (!arguments.length) return _attrs.y;
-      if (typeof val === "string") _attrs.y = function (sym, data) { return _chart.fit ({ dim:"height", val: data[val] }); };
+      if (typeof val === "string") _attrs.y = function (sym, data) { return _fitFunc ({ dim:"height", val: data[val] }); };
       else _attrs.y = val;
       return _symScope;
     };
@@ -1518,7 +1508,7 @@
       if (typeof val === "string")
       {
         _symScope.shapeData(val);
-        if (_info) _attrs.shapePoints = function (sym, data) { return _chart.fit ({sym: sym, val: data[val] }); };  //boundsObj: _boundsInView,
+        if (_info) _attrs.shapePoints = function (sym, data) { return _fitFunc ({sym: sym, val: data[val] }); };  //boundsObj: _boundsInView,
         else _funcQueue.push ( { func: _symScope.shapePoints, arg: val } );
       }
       else _attrs.shapePoints = val;
@@ -1581,6 +1571,7 @@
         _popup       = null,
         _unit        = "integer",
         _chart       = null,
+        _fitFunc     = null,
         _batch       = false,
         _batchMod    = false,
         _batchObj    = {},
@@ -1616,19 +1607,21 @@
 
   _zoomControl= function (elem)
   {
-    var _zoomScope = this,
-        _template  = null,
-        _domElem   = null,
-        _target    = null,
-        _house     = null,
-        _reset     = null,
-        _zoomIn    = null,
-        _zoomOut   = null,
-        _handle    = null,
-        _slider    = null,
-        _top       = 0,
-        _left      = 0,
-        _funcQueue = [];
+    var _zoomScope   = this,
+        _template    = null,
+        _domElem     = null,
+        _target      = null,
+        _house       = null,
+        _reset       = null,
+        _zoomIn      = null,
+        _zoomOut     = null,
+        _handle      = null,
+        _slider      = null,
+        _zoomInFunc  = null,
+        _zoomOutFunc = null,
+        _top         = 0,
+        _left        = 0,
+        _funcQueue   = [];
 
     var _attachElem = function (func, elem)
     {
@@ -1701,10 +1694,12 @@
       return _zoomScope;
     };
 
-    _zoomScope.target = function (obj)
+    _zoomScope.target = function (obj, zoomMinFunc, zoomMaxFunc)
     {
       if (!arguments.length) return _target;
       _target = obj;
+      if (zoomMinFunc !== null) _zoomMinFunc  = zoomMinFunc;
+      if (zoomMaxFunc !== null) _zoomMaxFunc  = zoomMaxFunc;
       return _zoomScope;
     };
 
@@ -1761,9 +1756,11 @@
 
     _zoomScope.update = function ()
     {
-      var steps     = _target.zoomMax() - _target.zoomMin(),
+      var zoomMin   = _zoomMinFunc !== null ? _zoomMinFunc () : _target.zoomMin (),
+          zoomMax   = _zoomMaxFunc !== null ? _zoomMaxFunc () : _target.zoomMax (),
+          steps     = zoomMax - zoomMin,
           stepDist  = parseInt(pooch.fetch (_slider).css ("height"), 10) / steps,
-          yPos      = ((_target.zoomMax() - _target.zoom()) * stepDist) >> 0;
+          yPos      = ((zoomMax - _target.zoom()) * stepDist) >> 0;
       pooch.fetch (_handle).css ({ top: yPos + "px" });
       return _zoomScope;
     };
@@ -2054,7 +2051,7 @@
     {
       if (!arguments.length) return _zoomControl;
       _zoomControl = obj;
-      _zoomControl.target (_mapScope);
+      _zoomControl.target (_mapScope, null, null);
       return _mapScope;
     };
 
