@@ -125,6 +125,7 @@
   border-color: #999;
   color: #333;
   cursor: pointer;
+  font-weight: bold;
 }
 
 .pooch-zoom-container {
