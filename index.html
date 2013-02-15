@@ -200,7 +200,7 @@
 <h3>.draw( <em><span class="arguments">steps, layer</span></em> )</h3>
 
 <p><strong><em><span class="arguments">steps</span></em></strong> <span class="optional"><em>optional</span></em> - number of tweening steps <br />
-<strong><em><span class="arguments">layer</span></em></strong> <span class="optional"><em>optional</span></em> - string defining which <a href="#chartLayer">chart layer</a> to draw, either "back" or "main"</p>
+<strong><em><span class="arguments">layer</span></em></strong> <span class="optional"><em>optional</span></em> - string defining which chart layer to draw, either "back" or "main"</p>
 
 <p>Draws the symbols and chart. Calling draw() with no arguments will draw all layers, and therefore all symbols, in one step. Passing in the number of steps will animate the symbols to their end state using the <a href="#symbolsEasing">symbol's easing</a> property.  Valid values for the layer argument are "back" and "main."</p>
 
@@ -421,7 +421,7 @@
 
 <p><strong><em><span class="arguments">array</span></em></strong>  - array of JSON objects containing information to use as <a href="#symbols">symbol</a> properties</p>
 
-<p>Charts are the basis for all drawing in pooch.  Elements (<a href="#symbols">symbols</a>, <a href="#zoomControl">zoom controls</a>, etc.) are added to the chart and then <a href="#chartDraw">drawn</a> and possibly animated.</p>
+<p>Data objects provide the information necessary to draw symbols. Data objects are intialized with an array of JSON objects that then need to be combined with a <a href="#dataKey">key</a>.  Data objects are ready to be used as <a href="#symbolData">symbol data</a> after the <a href="#dataKey">key</a> has been set.</p>
 
 <p>examples</p>
 
