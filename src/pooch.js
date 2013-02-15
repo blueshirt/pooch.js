@@ -1210,14 +1210,15 @@
       return _batchObj;
     };
 
-    var _build = function (obj)
+    var _build = function (arr)
     {
       if (!arguments.length) return _symScope;
-      var count = 0;
-      _symObj   = {};
+      var keyLen = arr.length;
+      _symObj    = {};
 
-      for (var key in obj)
+      while (keyLen--)
       {
+        var key = arr[keyLen];
         _symObj[key] = {};
 
         for (var attr in _attrs)
@@ -1225,8 +1226,7 @@
           _symObj[key][attr] = _attrs[attr];
         }
         _symObj[key].poochID = key;
-        _order[count]        = key;
-        count++;
+        _order[keyLen]       = key;
       }
       return _symScope;
     };
@@ -1582,7 +1582,7 @@
         _shapeData   = "",
         _funcQueue   = [],
         _symState    = {},
-        _attrs       = { x: 0, y: 0, lat: 0, lng: 0, draw: true, shape: "circle",
+        _attrs       = { x: 0, y: 0, lat: 0, lng: 0, visible: true, shape: "circle",
                         easing: "easeInOut", drawFill: true, drawStroke: true,
                         size: 6, height: 6, width: 6, fillColor: "200,200,200",
                         fillOpacity: 1, strokeColor: "255,255,255",
@@ -1591,7 +1591,7 @@
                         drawStrokeHighlight: true, strokeWidthHighlight: 1, strokeColorHighlight: "0,0,0",
                         strokeOpacityHighlight: 1 },
         _stepFunc    = { poochID: _stepSwitch, x: _stepInt, y: _stepInt, lat: _stepInt, lng: _stepInt,
-                        draw: _stepSwitch, shape: _stepSwitch,
+                        visible: _stepSwitch, shape: _stepSwitch,
                         easing: _stepSwitch, drawFill: _stepSwitch, drawStroke: _stepSwitch,
                         size: _stepInt, height: _stepInt, width: _stepInt, fillColor: _stepColor,
                         fillOpacity: _stepInt, strokeColor: _stepColor,
@@ -1926,17 +1926,21 @@
 
   _data = function (obj)
   {
-    var _dataScope =  this,
-        _dataOrig  =  [ null ],
-        _data      =  {},
-        _keySet    =  false;
+    var _dataScope = this,
+        _dataOrig  = [ null ],
+        _data      = {},
+        _key       = "",
+        _keySet    = false;
 
     _dataScope.key = function (str)
     {
+      if (!arguments.length) return _key;
+
       var dataLen  = _dataOrig.length,
           longNdx  = 0,
           loopLen  = 0,
           keyNdxOf = [];
+      _key         = str;
 
       while (dataLen--)
       {
@@ -1975,15 +1979,24 @@
 
     _dataScope.keys = function ()
     {
-      var keys = {};
-      for (var obj in _data) { keys[obj] = {}; }
+      var keys = [];
+      for (var key in _data) { keys.push (key); }
       return keys;
     };
 
     _dataScope.datum = function (key, value)
     {
-      //TODO allow key and value for individual entries
-      return _keySet ? _data : _dataOrig;
+      if (!arguments.length) return _keySet ? _data : _dataOrig;
+      if (key)
+      {
+        if (value)
+        {
+          if (_keySet) _data[key] = value;
+          else _dataOrig[key] = value;
+        }
+        else return _keySet ? _data[key] : _dataOrig[key];
+      }
+      return _dataScope;
     };
 
     if (!arguments.length) return _dataScope;
