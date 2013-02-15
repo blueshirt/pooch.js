@@ -14,6 +14,26 @@ body {
   color: #AAA;
 }
 
+.thumb-container {
+  position: relative;
+  display: block;
+}
+
+.thumb {
+  height: 165px;
+  width: 116px;
+  float: left;
+  margin-right: 12px;
+}
+
+.height-adj:after {
+  content: ".";
+  display: block;
+  height: 1px;
+  clear: both;
+  visibility: hidden;
+}
+
 h1, h2, h3, h4, h5, h6 {
   color:#222;
   margin:0 0 20px;
