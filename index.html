@@ -65,7 +65,7 @@
 
 <p><strong><em><span class="arguments">div</span></em></strong>  - string or dom element to use as a chart container</p>
 
-<p>Charts are the basis for all drawing in pooch.  Elements (<a href="#symbols">symbols</a>, <a href="#zoomControl">zoom controls</a>, etc.) are added to the chart and then <a href="#chartDraw">drawn</a> and possibly animated.</p>
+<p>Charts are the basis for all drawing in pooch.  Elements (<a href="#symbols">symbols</a>, <a href="#zoomControl">zoom controls</a>, etc.) are added to the chart and then <a href="#chartDraw">drawn</a> and potentially animated.</p>
 
 <p>examples</p>
 
@@ -417,9 +417,74 @@
 
 <p><a id="data"></a></p>
 
-<h2>pooch.data ( <em><span class="arguments">object</span></em> )</h2>
+<h2>pooch.data ( <em><span class="arguments">array</span></em> )</h2>
+
+<p><strong><em><span class="arguments">array</span></em></strong>  - array of JSON objects containing information to use as <a href="#symbols">symbol</a> properties</p>
+
+<p>Charts are the basis for all drawing in pooch.  Elements (<a href="#symbols">symbols</a>, <a href="#zoomControl">zoom controls</a>, etc.) are added to the chart and then <a href="#chartDraw">drawn</a> and possibly animated.</p>
+
+<p>examples</p>
+
+<pre><code>    var myData = pooch.data([markerAttrData])';               //creates a data object using a single JSON object
+    var myData = pooch.data([polyShapeData, polyAttrData])';  //creates a data object using a multiple JSON objects
+</code></pre>
+
+<ul>
+<li><strong>Properties and methods</strong> <br />
+<a href="#dataKey">.key()</a> <br />
+<a href="#dataKeys">.keys()</a> <br />
+<a href="#dataDatum">.datum()</a>  </li>
+</ul>
 
 <p><br></p>
+
+<p><a id="dataKey"></a></p>
+
+<h3>.key( <em><span class="arguments">id</span></em> )</h3>
+
+<p><strong><em><span class="arguments">id</span></em></strong>  - string   </p>
+
+<p>Gets or sets the key name for any symbols created from the data.</p>
+
+<p>examples</p>
+
+<pre><code>    myData.key("names");   //structures the data object to use the names field as keys
+    myData.key();          //gets the field used as a key name
+</code></pre>
+
+<p><br></p>
+
+<p><a id="dataKeys"></a></p>
+
+<h3>.keys( )</h3>
+
+<p>Gets an array of key names for the data, created when the <a href="#dataKey">data key</a> is set.</p>
+
+<p>examples</p>
+
+<pre><code>    myData.keys();   //gets an array of the key names in the data object
+</code></pre>
+
+<p><br></p>
+
+<p><a id="dataDatum"></a></p>
+
+<h3>.datum( <em><span class="arguments">key, value</span></em> )</h3>
+
+<p><strong><em><span class="arguments">id</span></em></strong>  - string ID of the symbol to get or set <br />
+<strong><em><span class="arguments">value</span></em></strong>  <span class="optional"><em>optional</span></em> - object containing the new values for an individual <a href="#symbol">symbol</a>     </p>
+
+<p>Gets or sets the data for an individual symbol.  Calling datum() with no arguments will return all of the data for the data object. Including a value argument will set the object defined by the key argument.</p>
+
+<p>examples</p>
+
+<pre><code>    myData.datum();                                  //gets all of the objects in the data object
+    myData.datum("wisconsin");                       //gets the data object with the "wisconsin" key
+    myData.datum("wisconsin", {squareMiles: 65503}); //sets the "wisconsin" object with a new set of key/value pairs
+</code></pre>
+
+<p><br>
+<br></p>
 
 <hr />
 
