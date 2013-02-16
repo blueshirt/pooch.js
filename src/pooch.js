@@ -1233,12 +1233,20 @@
 
     _symScope.sort = function ()
     {
-      _order.sort (function(a, b)
+      if (_data)
       {
-        // TODO add sort functionality for different shapes and batches
-        var compare = _symObj[b].shape === "circle" ? _symObj[a].size - _symObj[b].size : (_symObj[a].height * _symObj[a].width) - (_symObj[b].height * _symObj[b].width);
-        return _symObj[a].size - _symObj[b].size;
-      });
+        //TODO add calculations for objects other than circles
+        if (typeof _attrs.size === "function")
+        {
+          _order.sort (function(a, b)
+          {
+            var sizeA = _attrs.size (_symObj[a], _info.datum(_symObj[a].poochID));
+                sizeB = _attrs.size (_symObj[b], _info.datum(_symObj[b].poochID));
+            var compare = _symObj[b].shape === "circle" ? sizeB - sizeA : (_symObj[b].height * _symObj[b].width) - (_symObj[a].height * _symObj[a].width);
+            return sizeB - sizeA;
+          });
+        }
+      }
       return _symScope;
     };
 
@@ -1617,8 +1625,8 @@
         _zoomOut     = null,
         _handle      = null,
         _slider      = null,
-        _zoomInFunc  = null,
-        _zoomOutFunc = null,
+        _zoomMinFunc = null,
+        _zoomMaxFunc = null,
         _top         = 0,
         _left        = 0,
         _funcQueue   = [];
@@ -2268,7 +2276,7 @@
     if (!arguments.length) return _mapScope;
     _house = pooch.fetch (house). dom();
     if (!_house) return _mapScope;
-    pooch_baseMap = _map;
+    pooch_baseMap = _mapScope;
     return _mapScope;
 
   };
@@ -2328,16 +2336,16 @@
       {
         _mapObj.draw ();
         pooch.fetch (_chart.house ()).css ({ top: divPix.y + "px", left: divPix.x + "px", display: "block" });
-        //_mapObj.zoom (_map.getZoom ());
-        //_mapObj.zoomControl ().update ();
+        _mapObj.zoom (_map.getZoom ());
+        _mapObj.zoomControl ().update ();
       }
     };
 
     var _moveAndDraw = function (divPix)
     {
       pooch.fetch (_chart.house ()).css ({ top: divPix.y + "px", left: divPix.x + "px", display: "block" });
-      //_mapObj.zoom (_map.getZoom ());
-      //_mapObj.zoomControl ().update ();
+      _mapObj.zoom (_map.getZoom ());
+      _mapObj.zoomControl ().update ();
     };
 
     _overlayScope.bounds = function (obj)
@@ -2538,8 +2546,8 @@
     pooch_baseMap.loadMap ();
   };
 
-  var pooch_baseMap    = null,
-      _isSafari        = (typeof (navigator.vendor) === "object" && navigator.vendor.indexOf("Apple") !== -1) ? true : false;
+  window.pooch_baseMap = null;
+  var _isSafari        = (typeof (navigator.vendor) === "object" && navigator.vendor.indexOf("Apple") !== -1) ? true : false;
       _chartNdx        = 0,
       _css2js          = { "float":"styleFloat",
                            "text-decoration: blink":"textDecorationBlink",
