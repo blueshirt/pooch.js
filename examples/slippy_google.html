@@ -14,8 +14,8 @@
     <script id="popupLayout" class="popup-layout" type="text/html">
       <div class="pooch-popup1">
         <div class="pooch-popup1-title">data.name</div>
+        <div class="pooch-popup1-prop">exec { if ("data.sector" === "priv") "Private"; else "Public"; } institution</div>
         <div class="pooch-popup1-divider"></div>
-        <div class="pooch-popup1-head">exec { if ("data.sector" === "priv") "Private"; else "Public"; } institution</div>
         <div class="pooch-popup1-prop">exec { popupLabel }</div>
         <div class="pooch-popup1-val">exec {pooch.helpers.formatNumber (data[popupDataKey])}</div>
         <div class="pooch-popup1-heightAdj"></div>
@@ -102,6 +102,13 @@
       <button class="pooch-button" onclick="selectAttr ('year_cost_2004', 'Cost in 2004')">yearly cost 2004</button>
       <button class="pooch-button" onclick="selectAttr ('year_cost_2010', 'Cost in 2010')">yearly cost 2010</button>
     </div>
+
+    <div class="pooch-title-source-code">page source</div>
+
+    <div class="pooch-gist-container">
+      <script src="https://gist.github.com/blueshirt/4969250.js"></script>
+    </div>
+    <style type="text/css">.gist-syntax .err { color:#000; background-color: #FFF; } </style>
 
   </body>
 
