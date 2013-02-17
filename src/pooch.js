@@ -1009,7 +1009,7 @@
       if (typeof func === "function")
       {
         var checkParams = function (e) { var ignore = function () { return _isAnimating || _isDragging; } (); _mouseMoveChart (e, ignore); };
-        if (_house) pooch.fetch("#pooch_mouse_" + _id).mousemove (checkParams);
+        if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseMove (checkParams);
         else _funcQueue.push ( { func: _chartScope.mouseMove, arg: checkParams } );
       }
       return _chartScope;
@@ -1019,7 +1019,7 @@
     {
       if (typeof func === "function")
       {
-        if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseover (func);
+        if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseOver (func);
         else _funcQueue.push ( { func: _chartScope.mouseOver, arg: func } );
       }
       return _chartScope;
@@ -1686,11 +1686,11 @@
       }
       _funcQueue = [];
 
-      if (_reset) pooch.fetch (_reset).mousedown (_triggerReset);
-      if (_zoomIn) pooch.fetch (_zoomIn).mousedown (_triggerZoomIn);
-      if (_zoomOut) pooch.fetch (_zoomOut).mousedown (_triggerZoomOut);
-      if (_handle) pooch.fetch (_handle).mousedown (_triggerHandle);
-      if (_slider) pooch.fetch (_slider).mousedown (_triggerSlider);
+      if (_reset) pooch.fetch (_reset).mouseDown (_triggerReset);
+      if (_zoomIn) pooch.fetch (_zoomIn).mouseDown (_triggerZoomIn);
+      if (_zoomOut) pooch.fetch (_zoomOut).mouseDown (_triggerZoomOut);
+      if (_handle) pooch.fetch (_handle).mouseDown (_triggerHandle);
+      if (_slider) pooch.fetch (_slider).mouseDown (_triggerSlider);
 
       return _zoomScope;
     };
@@ -2395,6 +2395,14 @@
     var _fetchScope = this,
         _domElem = null;
 
+    var _computedStyle = function (prop)
+    {
+      if (!arguments.length) return _fetchScope;
+      if (_domElem.currentStyle) return _domElem.currentStyle[prop];
+      else if (document.defaultView && document.defaultView.getComputedStyle) return document.defaultView.getComputedStyle(_domElem, "")[prop];
+      else return _domElem.style[prop];
+    };
+
     _fetchScope.css = function (obj)
     {
       var camelize  = function(str)
@@ -2411,7 +2419,7 @@
 
       if (typeof obj === "string")
       {
-        return _fetchScope.computedStyle (obj);
+        return _computedStyle (obj);
       }
       else
       {
@@ -2429,15 +2437,7 @@
       return _domElem;
     };
 
-    _fetchScope.computedStyle = function (prop)
-    {
-      if (!arguments.length) return _fetchScope;
-      if (_domElem.currentStyle) return _domElem.currentStyle[prop];
-      else if (document.defaultView && document.defaultView.getComputedStyle) return document.defaultView.getComputedStyle(_domElem, "")[prop];
-      else return _domElem.style[prop];
-    };
-
-    _fetchScope.mouseover = function (func)
+    _fetchScope.mouseOver = function (func)
     {
       if (typeof func === "function")
       {
@@ -2446,7 +2446,7 @@
       return _fetchScope;
     };
 
-    _fetchScope.mousemove = function (func)
+    _fetchScope.mouseMove = function (func)
     {
       if (typeof func === "function")
       {
@@ -2455,7 +2455,7 @@
       return _fetchScope;
     };
 
-    _fetchScope.mousedown = function (func)
+    _fetchScope.mouseDown = function (func)
     {
       if (typeof func === "function")
       {
