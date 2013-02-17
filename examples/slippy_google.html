@@ -7,7 +7,7 @@
     <script type="text/javascript" src="data/school-data-locations.js"></script>
   </head>
 
-  <body>
+  <body onload="map1.draw()">
 
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
 
@@ -73,8 +73,7 @@
                                .api ("google")
                                .symbols ([symbols1])
                                .defaultView ({ lat: 37.090238, lng: -95.7129, zoom: 4 })
-                               .zoomControl (zoomControl1)
-                               .draw();
+                               .zoomControl (zoomControl1);
 
       function adjustSize (data, attribute)
       {
