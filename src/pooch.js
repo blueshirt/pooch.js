@@ -642,11 +642,31 @@
 
     var _assignDrag = function (domElem)
     {
-      var drag =
+      var releaseCap = false,
+          drag       =
       {
         elem : null,
 
-        init: function() { domElem.onmousedown = drag.start; },
+        init: function()
+        {
+          domElem.onmousedown = drag.start;
+
+          if (window.navigator.msPointerEnabled) // new Microsoft model
+          {
+            domElem.addEventListener("MSPointerDown", drag.start, false);
+            if (typeof domElem.style.msTouchAction !== 'undefined') domElem.style.msTouchAction = "none";
+          }
+          else if (domElem.attachEvent && domElem.setCapture) // old Microsoft model
+          {
+            releaseCap = true;
+            domElem.attachEvent("onmousedown", function () { drag.start(window.event); window.event.returnValue = false; return false; });
+          }
+          else if (domElem.addEventListener)
+          {
+            domElem.addEventListener("touchstart", drag.start, false); // iOS
+            domElem.addEventListener("mousedown", drag.start, false); // standard mouse
+          }
+        },
 
         start : function (e)
         {
@@ -671,8 +691,35 @@
           e                     = e ? e : window.event;
           drag.elem.mouseX      = e.clientX;
           drag.elem.mouseY      = e.clientY;
-          document.onmousemove  = drag.active;
-          document.onmouseup    = drag.end;
+
+          document.addEventListener("mousemove", drag.active, false);
+          document.addEventListener("mouseup", drag.end, false);
+
+          if (window.navigator.msPointerEnabled) // new Microsoft model
+          {
+            domElem.addEventListener("MSPointerDown", drag.start, false);
+            if (typeof domElem.style.msTouchAction !== 'undefined') domElem.style.msTouchAction = "none";
+          }
+          else if (domElem.attachEvent && domElem.setCapture) // old Microsoft model
+          {
+            releaseCap = true;
+            domElem.attachEvent("onmousemove", function () { drag.active(window.event); window.event.returnValue = false; return false; });
+            domElem.attachEvent("onmouseup", function () { drag.end(window.event); window.event.returnValue = false; return false; });
+          }
+          else if (domElem.addEventListener) // iOS and standard mouse
+          {
+            domElem.addEventListener("touchmove", drag.active, false);
+            domElem.addEventListener("touchend", drag.end, false);
+            domElem.addEventListener("touchcancel", drag.end, false);
+            if (domElem.setCapture && !window.navigator.userAgent.match(/\bGecko\b/)) // minus gecko
+            {
+              releaseCap = true;
+              target.addEventListener("mousemove", drag.active, false);
+              target.addEventListener("mouseup", drag.end, false);
+            }
+          }
+
+          //target.addEventListener("touchstart", DoEvent, false);
           return false;
         },
 
@@ -691,6 +738,7 @@
 
         end : function ()
         {
+          if (drag.elem === null) return;
           _isDragging = false;
           var x       = parseInt (drag.elem.style.left, 10),
               y       = parseInt (drag.elem.style.top, 10),
@@ -710,9 +758,9 @@
             _drawSym ();
             pooch.fetch ("#pooch_container_" + _id).css ({ "top": viewHgt + "px", "left": viewWid + "px" });
           }
-          document.onmousemove = null;
-          document.onmouseup   = null;
-          drag.elem            = null;
+          document.removeEventListener("mousemove", drag.active, false);
+          document.removeEventListener("mouseup", drag.end, false);
+          drag.elem = null;
         }
       };
 
