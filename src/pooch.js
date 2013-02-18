@@ -726,15 +726,17 @@
         active : function (e)
         {
           e.preventDefault();
-          _isDragging            = true;
-          var x                  = parseInt (drag.elem.style.left, 10),
-              y                  = parseInt (drag.elem.style.top, 10);
-          //e                      = e ? e : window.event;
-          e                      = e.changedTouches ? e.changedTouches : [e];
-          drag.elem.style.left   = x + (e[0].clientX - drag.elem.mouseX) + "px";
-          drag.elem.style.top    = y + (e[0].clientY - drag.elem.mouseY) + "px";
-          drag.elem.mouseX       = e[0].clientX;
-          drag.elem.mouseY       = e[0].clientY;
+          if (drag.elem)
+          {
+            _isDragging            = true;
+            var x                  = parseInt (drag.elem.style.left, 10),
+                y                  = parseInt (drag.elem.style.top, 10);
+            e                      = e.changedTouches ? e.changedTouches : [e];
+            drag.elem.style.left   = x + (e[0].clientX - drag.elem.mouseX) + "px";
+            drag.elem.style.top    = y + (e[0].clientY - drag.elem.mouseY) + "px";
+            drag.elem.mouseX       = e[0].clientX;
+            drag.elem.mouseY       = e[0].clientY;
+          }
           return false;
         },
 
