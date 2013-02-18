@@ -725,15 +725,18 @@
 
         active : function (e)
         {
+          var eList = e.changedTouches ? e.changedTouches : [e],
+              eLen  = e.length;
+
           _isDragging            = true;
           var x                  = parseInt (drag.elem.style.left, 10),
               y                  = parseInt (drag.elem.style.top, 10);
-          e                      = e ? e : window.event;
-          drag.elem.style.left   = x + (e.clientX - drag.elem.mouseX) + "px";
-          drag.elem.style.top    = y + (e.clientY - drag.elem.mouseY) + "px";
-          drag.elem.mouseX       = e.clientX;
-          drag.elem.mouseY       = e.clientY;
-          console.log("SDfsd");
+          //e                      = e ? e : window.event;
+          e                      = e.changedTouches ? e.changedTouches : [e];
+          drag.elem.style.left   = x + (e[0].clientX - drag.elem.mouseX) + "px";
+          drag.elem.style.top    = y + (e[0].clientY - drag.elem.mouseY) + "px";
+          drag.elem.mouseX       = e[0].clientX;
+          drag.elem.mouseY       = e[0].clientY;
           return false;
         },
 
