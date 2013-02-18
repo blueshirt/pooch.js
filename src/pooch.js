@@ -725,9 +725,7 @@
 
         active : function (e)
         {
-          var eList = e.changedTouches ? e.changedTouches : [e],
-              eLen  = e.length;
-
+          e.preventDefault();
           _isDragging            = true;
           var x                  = parseInt (drag.elem.style.left, 10),
               y                  = parseInt (drag.elem.style.top, 10);
