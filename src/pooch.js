@@ -733,6 +733,7 @@
           drag.elem.style.top    = y + (e.clientY - drag.elem.mouseY) + "px";
           drag.elem.mouseX       = e.clientX;
           drag.elem.mouseY       = e.clientY;
+          console.log("SDfsd");
           return false;
         },
 
