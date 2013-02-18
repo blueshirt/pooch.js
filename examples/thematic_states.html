@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="../src/pooch.js"></script>
+    <script type="text/javascript" src="data/school-data-attrs.js"></script>
+    <script type="text/javascript" src="data/school-data-locations.js"></script>
+    <script type="text/javascript" src="data/states.js"></script>
+  </head>
+
+  <body onload="chart1.draw()">
+
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+
+    <script id="popupLayout1" class="popup-layout" type="text/html">
+      <div class="pooch-popup1">data[uniqueID]</div>
+    </script>
+
+    <script id="popupLayout2" class="popup-layout" type="text/html">
+      <div class="pooch-popup1">
+        <div class="pooch-popup1-title">data.name</div>
+        <div class="pooch-popup1-prop">exec { if ("data.sector" === "priv") "Private"; else "Public"; } institution</div>
+        <div class="pooch-popup1-divider"></div>
+        <div class="pooch-popup1-prop">exec { popupLabel }</div>
+        <div class="pooch-popup1-val">exec {pooch.helpers.formatNumber (data[popupDataKey])}</div>
+        <div class="pooch-popup1-heightAdj"></div>
+      </div>
+    </script>
+
+    <script id="pooch-zoom-layout" type="text/html">
+      <div class="pooch-zoom-container">
+        <div class="pooch-zoom-reset"></div>
+        <div class="pooch-zoom-zoomIn"></div>
+        <div class="pooch-zoom-slider">
+          <div class="pooch-zoom-handle"></div>
+        </div>
+        <div class="pooch-zoom-zoomOut"></div>
+      </div>
+    </script>
+    <br><br><br>
+    
+    <div class="pooch-stage"></div>
+
+    <script type="text/javascript">
+
+      var zoomControl1  = pooch.zoomControl ("pooch-zoom-layout").reset (".pooch-zoom-reset")
+                                                                 .zoomIn (".pooch-zoom-zoomIn")
+                                                                 .zoomOut (".pooch-zoom-zoomOut")
+                                                                 .handle (".pooch-zoom-handle")
+                                                                 .slider (".pooch-zoom-slider")
+                                                                 .top (10)
+                                                                 .left (10);
+
+      var data1     = pooch.data ([states_shapes]).key ("uniqueID");
+
+      var data2     = pooch.data ([school_data_attrs]).key ("unique_id");
+
+      var popup1    = pooch.popup ("popupLayout1");
+
+      var popup2    = pooch.popup ("popupLayout2");
+
+      var symbols1  = pooch.symbols ("poly").data (data1)
+                                            .shapePoints ("polygons")
+                                            .fillColor ("150, 186, 203")
+                                            .fillColorHighlight ("167, 207, 227")
+                                            .strokeColorHighlight ("255, 255, 255")
+                                            .strokeWidthHighlight (2)
+                                            .layer ("back")
+                                            .batch (true)
+                                            .popup (popup1);
+
+      var symbols2      = pooch.symbols ("circle").data (data2)
+                                                  .x ("posx")
+                                                  .y ("posy")
+                                                  .size (function (sym, data) { return adjustSize (data, "fall_enroll_2004"); })
+                                                  .easing ("linear")
+                                                  .fillOpacity (0.5)
+                                                  .fillOpacityHighlight (0.7)
+                                                  .fillColor (function (sym, data) { if (data.sector !== "pub") return "241,110,0"; else return "50,96,174"; })
+                                                  .fillColorHighlight (function (sym, data) { if (data.sector !== "pub") return "241,110,0"; else return "50,96,174"; })
+                                                  .strokeOpacity (0.5)
+                                                  .strokeOpacityHighlight (0.9)
+                                                  .strokeColorHighlight ("255,255,255")
+                                                  .sort ()
+                                                  .popup (popup2);
+
+      var chart1    = pooch.chart (".pooch-stage").symbols ([symbols1, symbols2])
+                                                  .height (400)
+                                                  .width (800)
+                                                  .bounds (symbols1)
+                                                  .zoomControl (zoomControl1);
+
+      function adjustSize (data, attribute)
+      {
+        var chartZoom  = chart1 ? chart1.zoomLevels()[chart1.zoom ()] : 4;
+            adjForZoom = 16 - chartZoom,
+            scaleDown  = (data[attribute] / 200) / adjForZoom,
+            size       = scaleDown < 5 ? 5 : scaleDown;
+        return size;
+      }                        
+
+      function selectAttr (attribute, label)
+      {
+        popupLabel   = label;
+        popupDataKey = attribute;
+        symbols1.size (function (sym, data) { return adjustSize (data, attribute); })
+                .sort ();
+        chart1.draw (10);
+      }
+
+    </script>
+
+    <div class="pooch-button-container">
+      <button class="pooch-button" onclick="selectAttr ('fall_enroll_2004', 'Enrollment in 2004')">enrollment 2004</button>
+      <button class="pooch-button" onclick="selectAttr ('fall_enroll_2010', 'Enrollment in 2010')">enrollment 2010</button>
+      <button class="pooch-button" onclick="selectAttr ('year_cost_2004', 'Cost in 2004')">yearly cost 2004</button>
+      <button class="pooch-button" onclick="selectAttr ('year_cost_2010', 'Cost in 2010')">yearly cost 2010</button>
+    </div>
+
+  </body>
+
+</html>
