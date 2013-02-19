@@ -522,7 +522,7 @@
       }
     };
 
-    var _drawSym = function (time, layer, hlt)
+    var _drawSym = function (time, layer, hlt) //TODO remove time argument since globals are used
     {
       clearTimeout (_timeOut);
 
@@ -546,15 +546,15 @@
 
         for (var i = 0; i < len; ++i)
         {
-          var drawOK = (layer !== undefined && symLayer !== layer.toUpperCase ()) ? isHlt ? true : false : true;
+          var sym       = isHlt ? hlt.key : _sym[i].datum (),
+              symObj    = isHlt ? hlt.obj : _sym[i],
+              symLayer  = symObj.layer ().toUpperCase (),
+              drawOK    = (layer !== undefined && symLayer !== layer.toUpperCase ()) ? isHlt ? true : false : true;
 
           if (drawOK)
           {
-            var sym       = isHlt ? hlt.key : _sym[i].datum (),
-                symObj    = isHlt ? hlt.obj : _sym[i],
-                symOrder  = isHlt ? [pooch.helpers.keyFromObj(hlt.key)] : symObj.order(),
+            var symOrder  = isHlt ? [pooch.helpers.keyFromObj(hlt.key)] : symObj.order(),
                 orderLen  = isHlt ? 1 : symOrder.length,
-                symLayer  = symObj.layer ().toUpperCase (),
                 ctx       = isHlt ? symLayer === "MAIN" ? _ctxHltMain : _ctxHltBack : symLayer === "MAIN" ? _ctxMain : _ctxBack,
                 batch     = symObj.batch () ? true : false;
 
@@ -605,7 +605,7 @@
 
         if (_stepCnt <= _stepTot && _stepTot > 1)
         {
-          _timeOut = setTimeout (_drawSym, 1);
+          _timeOut = setTimeout (function() { _drawSym(_stepCnt, layer, null); }, 1);
         }
         else
         {

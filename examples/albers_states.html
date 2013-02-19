@@ -12,7 +12,10 @@
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
 
     <script id="popupLayout1" class="popup-layout" type="text/html">
-      <div class="pooch-popup1">data[uniqueID]</div>
+      <div class="pooch-popup1">
+        <div class="pooch-popup1-title">data.uniqueID</div>
+        <div class="pooch-popup1-heightAdj"></div>
+      </div>
     </script>
 
     <script id="popupLayout2" class="popup-layout" type="text/html">
@@ -36,11 +39,15 @@
         <div class="pooch-zoom-zoomOut"></div>
       </div>
     </script>
-    <br><br><br>
+
+    <div class="pooch-title">albers projection with colleges</div>
     
     <div class="pooch-stage"></div>
 
     <script type="text/javascript">
+
+      var popupLabel    = "Enrollment in 2004",
+          popupDataKey  = "fall_enroll_2004";
 
       var zoomControl1  = pooch.zoomControl ("pooch-zoom-layout").reset (".pooch-zoom-reset")
                                                                  .zoomIn (".pooch-zoom-zoomIn")
@@ -83,7 +90,7 @@
                                                   .sort ()
                                                   .popup (popup2);
 
-      var chart1    = pooch.chart (".pooch-stage").symbols ([symbols1])
+      var chart1    = pooch.chart (".pooch-stage").symbols ([symbols1, symbols2])
                                                   .height (400)
                                                   .width (800)
                                                   .bounds (symbols1)
@@ -102,9 +109,9 @@
       {
         popupLabel   = label;
         popupDataKey = attribute;
-        symbols1.size (function (sym, data) { return adjustSize (data, attribute); })
+        symbols2.size (function (sym, data) { return adjustSize (data, attribute); })
                 .sort ();
-        chart1.draw (10);
+        chart1.draw (10, "main");
       }
 
     </script>
