@@ -73,7 +73,6 @@
         _isMouseDown  = false,
         _isDragging   = false,
         _zoomControl  = null,
-        _projection   = null,
         _circle       = Math.PI * 2,
         _funcQueue    = [],
         _sym          = [],
@@ -523,7 +522,7 @@
       }
     };
 
-    var _drawSym = function (time, layer, hlt)
+    var _drawSym = function (time, layer, hlt) //TODO remove time argument since globals are used
     {
       clearTimeout (_timeOut);
 
@@ -547,15 +546,15 @@
 
         for (var i = 0; i < len; ++i)
         {
-          var drawOK = (layer !== undefined && symLayer !== layer.toUpperCase ()) ? isHlt ? true : false : true;
+          var sym       = isHlt ? hlt.key : _sym[i].datum (),
+              symObj    = isHlt ? hlt.obj : _sym[i],
+              symLayer  = symObj.layer ().toUpperCase (),
+              drawOK    = (layer !== undefined && symLayer !== layer.toUpperCase ()) ? isHlt ? true : false : true;
 
           if (drawOK)
           {
-            var sym       = isHlt ? hlt.key : _sym[i].datum (),
-                symObj    = isHlt ? hlt.obj : _sym[i],
-                symOrder  = isHlt ? [pooch.helpers.keyFromObj(hlt.key)] : symObj.order(),
+            var symOrder  = isHlt ? [pooch.helpers.keyFromObj(hlt.key)] : symObj.order(),
                 orderLen  = isHlt ? 1 : symOrder.length,
-                symLayer  = symObj.layer ().toUpperCase (),
                 ctx       = isHlt ? symLayer === "MAIN" ? _ctxHltMain : _ctxHltBack : symLayer === "MAIN" ? _ctxMain : _ctxBack,
                 batch     = symObj.batch () ? true : false;
 
@@ -606,7 +605,7 @@
 
         if (_stepCnt <= _stepTot && _stepTot > 1)
         {
-          _timeOut = setTimeout (_drawSym, 1);
+          _timeOut = setTimeout (function() { _drawSym(_stepCnt, layer, null); }, 1);
         }
         else
         {
@@ -795,8 +794,7 @@
 
       if (obj.val instanceof Array)
       {
-        var hasProj   = _projection ? true : false,
-            returnArr = [],
+        var returnArr = [],
             brds      = obj.val.length,
             minX      = _axisMinX - (_axisMaxX - _axisMinX),
             maxX      = _axisMaxX + (_axisMaxX - _axisMinX),
@@ -807,20 +805,17 @@
         {
           var pts  = obj.val[brds].length;
           returnArr[brds] = [];
-          var initial   = true;
 
           while (pts--)
           {
             returnArr[brds][pts]    = [];
-            var x                   = obj.val[brds][pts][0],
-                y                   = obj.val[brds][pts][1],
-                proj                = hasProj ? _projection (x, y, initial) : { x: x, y: y },
-                locX                = _width * ((proj.x - minX) / (maxX - minX)),
-                locY                = _height - (_height * ((proj.y - minY) / (maxY - minY)));
+            var origX               = obj.val[brds][pts][0],
+                origY               = obj.val[brds][pts][1],
+                locX                = _width * ((origX - minX) / (maxX - minX)),
+                locY                = _height - (_height * ((origY - minY) / (maxY - minY)));
 
             returnArr[brds][pts][0] = !_wholeNums ? locX : locX >> 0;
             returnArr[brds][pts][1] = !_wholeNums ? locY : locY >> 0;
-            initial = false;
           }
         }
         return returnArr;
@@ -847,13 +842,8 @@
       if (!arguments.length) return _bounds;
       if (arr.length)
       {
-        _chartScope.axisMinX (arr[3]);
-        _chartScope.axisMaxX (arr[1]);
-        _chartScope.axisMinY (arr[2]);
-        _chartScope.axisMaxY (arr[0]);
-        _axisDefaults = { minX: arr[3], maxSetX: arr[1], minY: arr[2], maxY: arr[0] };
-        _setUnitsPerPx ();
-        _setCenter ();
+        var i = arr.length;
+        while (i--) _bounds[i] = arr[i];
       }
       else
       {
@@ -1001,14 +991,6 @@
       return _chartScope;
     };
 
-    _chartScope.projection = function (func)
-    {
-      if (!arguments.length) return _projection;
-      if (func === null) _projection = null;
-      if (typeof func === "function") _projection = func;
-      return _chartScope;
-    };
-
     _chartScope.reset = function ()
     {
       _axisMinX = _axisDefaults.minX;
@@ -1085,9 +1067,9 @@
     {
       if (typeof func === "function")
       {
-        var checkParams = function (e) { var ignore = function () { return _isAnimating || _isDragging; } (); func (e, ignore); };
+        var checkParams = function (e) { var ignore = function () { return _isAnimating || _isDragging; } (); _mouseMoveChart (e, ignore); };
         if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseMove (checkParams);
-        else _funcQueue.push ( { func: func, arg: checkParams } );
+        else _funcQueue.push ( { func: _chartScope.mouseMove, arg: checkParams } );
       }
       return _chartScope;
     };
@@ -1102,22 +1084,12 @@
       return _chartScope;
     };
 
-    _chartScope.mouseDown = function (func)
-    {
-      if (typeof func === "function")
-      {
-        if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseDown (func);
-        else _funcQueue.push ( { func: _chartScope.mouseDown, arg: func } );
-      }
-      return _chartScope;
-    };
-
     _chartScope.mouseOut = function (func)
     {
       if (typeof func === "function")
       {
         var checkParams = function (e) { _mouseMoveChart ({ localX: -20000, localY: -20000 }); };
-        if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseOut (checkParams);
+        if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseout (checkParams);
         else _funcQueue.push ( { func: _chartScope.mouseOut, arg: func } );
       }
       return _chartScope;
@@ -2528,7 +2500,7 @@
     {
       if (typeof func === "function")
       {
-        _domElem.addEventListener("mouseover", function (e) { _mouseEvent(_domElem, e, func); }, false);
+        _domElem.onmouseover = function (e) { _mouseEvent(_domElem, e, func); };
       }
       return _fetchScope;
     };
@@ -2537,7 +2509,7 @@
     {
       if (typeof func === "function")
       {
-        _domElem.addEventListener("mousemove", function (e) { _mouseEvent(_domElem, e, func); }, false);
+        _domElem.onmousemove = function (e) { _mouseEvent(_domElem, e, func); };
       }
       return _fetchScope;
     };
@@ -2546,25 +2518,16 @@
     {
       if (typeof func === "function")
       {
-        _domElem.addEventListener("mousedown", function (e) { _mouseEvent(_domElem, e, func); }, false);
+        _domElem.onmousedown = function (e) { _mouseEvent(_domElem, e, func); };
       }
       return _fetchScope;
     };
 
-    _fetchScope.mouseOut = function (func)
+    _fetchScope.mouseout = function (func)
     {
       if (typeof func === "function")
       {
-        _domElem.addEventListener("mouseout", function (e) { _mouseEvent(_domElem, e, func); }, false);
-      }
-      return _fetchScope;
-    };
-
-    _fetchScope.mouseUp = function (func)
-    {
-      if (typeof func === "function")
-      {
-        _domElem.addEventListener("mouseup", function (e) { _mouseEvent(_domElem, e, func); }, false);
+        _domElem.onmouseout = function (e) { _mouseEvent(_domElem, e, func); };
       }
       return _fetchScope;
     };
@@ -2654,14 +2617,11 @@
 
       _mouseEvent      = function (domElem, e, func)
                          {
-                           if (domElem.getBoundingClientRect)
-                           {
-                             var domRect = domElem.getBoundingClientRect(),
-                                 left    = domRect.left, // + document.body.scrollLeft
-                                 top     = domRect.top; // + document.body.scrollTop
-                             e.localX    = e.clientX - left;
-                             e.localY    = e.clientY - top;
-                           }
+                           var domRect = domElem.getBoundingClientRect(),
+                               left    = domRect.left, // + document.body.scrollLeft
+                               top     = domRect.top; // + document.body.scrollTop
+                           e.localX    = e.clientX - left;
+                           e.localY    = e.clientY - top;
                            func (e);
                           };
 

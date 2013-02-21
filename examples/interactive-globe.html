@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>interactive globe - pooch.js</title>
+    <script type="text/javascript" src="../src/pooch.js"></script>
+    <script type="text/javascript" src="./data/world-shapes.js"></script>
+    <script type="text/javascript" src="./data/world-data.js"></script>
+  </head>
+
+  <body onload="adjustLayout()">
+
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+
+    <script id="popupLayout1" type="text/html">
+      <div class="pooch-popup1">
+        <div class="pooch-popup1-title">data.admin</div>
+        <div class="pooch-popup1-prop" style="width:220px"><span style="font-weight:bold">data.continent</span> &nbsp;(data.economy)</div>
+        <div class="pooch-popup1-divider"></div>
+        <div class="pooch-popup1-prop">Population</div>
+        <div class="pooch-popup1-val">exec {var popRnd = data.pop_est >> 0; pooch.helpers.formatNumber (popRnd)}</div>
+        <div class="pooch-popup1-prop">Gross domestic product</div>
+        <div class="pooch-popup1-val">exec {var gdpRnd = data.gdp_md_est >> 0; "$" + pooch.helpers.formatNumber (gdpRnd) + "M"}</div>
+        <div class="pooch-popup1-prop" style="width:80px;">Income group</div>
+        <div class="pooch-popup1-val" style="width:140px;">data.income_grp</div>
+        <div class="pooch-popup1-heightAdj"></div>
+      </div>
+    </script>
+
+    <div class="pooch-title" style="margin-bottom:24px">interactive globe<span style="font-size:18px;color:#AAA;"> &nbsp;(click and drag to rotate)</span></div>
+    
+    <div class="pooch-stage" style="height:500px"></div>
+
+    <script type="text/javascript">
+
+      var offsetLng   = 0,
+          offsetLat   = 0,
+          lastMouseX  = 0,
+          lastMouseY  = 0,
+          initialPos  = { x: 0, y: 0 },
+          mouseIsDown = false,
+          radians     = Math.PI / 180;
+
+          data1        = pooch.data ([pooch_world_shapes, pooch_world_data]).key ("adm0_a3"),
+
+          popup1       = pooch.popup ("popupLayout1"),
+
+          symbols1     = pooch.symbols ("poly").data (data1)
+                                               .shapePoints ("polygons")
+                                               .fillColor ("190, 190, 190")
+                                               .strokeColor ("150,150,150")
+                                               .fillColorHighlight ("194, 171, 168")
+                                               .strokeColorHighlight ("130, 130, 130")
+                                               .strokeWidthHighlight (1)
+                                               .batch (true)
+                                               .layer ("back")
+                                               .popup (popup1),
+
+          chart1       = pooch.chart (".pooch-stage").symbols ([symbols1])
+                                                     .height (500)
+                                                     .width (800)
+                                                     .projection (customOrtho)
+                                                     .bounds ([1, 1.6, -1, -1.6]);
+
+      function adjustLayout ()
+      {
+        chart1.mouseDown (onMouseDown);
+        chart1.mouseMove (onMouseMove);
+        pooch.fetch (document).mouseUp(function () { mouseIsDown = false; });
+        pooch.fetch ("#pooch_back_chart0").css ({ "background-color": "#c6ddff" });
+        pooch.fetch ("#pooch_main_chart0").css ({ "background-image": "url(./images/globe-cover.png)" });
+        chart1.draw ();
+      }
+
+      function onMouseDown (e)
+      {
+        lastMouseX  = e.localX;
+        lastMouseY  = e.localY;
+        mouseIsDown = true;
+      }
+
+      function onMouseMove (e)
+      {
+        if (mouseIsDown)
+        {
+          var distX = (lastMouseX - e.localX) * 0.005;
+          var distY = (lastMouseY - e.localY) * 0.005;
+
+          if (distX || distY)
+          {
+            if (distX < 0) offsetLng      = offsetLng + distX > -3.15 ? offsetLng + distX : 3.15;
+            else if (distX > 0) offsetLng = offsetLng + distX > -3.15 ? offsetLng + distX : 3.15;
+            if (distY < 0) offsetLat      = offsetLat - distY < 0.8 ? offsetLat - distY : 0.8;
+            else if (distY > 0) offsetLat = offsetLat - distY > -0.8 ? offsetLat - distY : -0.8;
+            chart1.draw ();
+          }
+
+          lastMouseX = e.localX;
+          lastMouseY = e.localY;
+        }
+      }
+
+      function customOrtho (x, y, initial)
+      {
+        var ratio     = 58,
+            radius    = 6371,
+            distMax   = 10000,
+            lat       = y / ratio,
+            lng       = x / ratio,
+            projX     = Math.cos (lat) * Math.sin (lng  - offsetLng),
+            projY     = Math.cos (offsetLat) * Math.sin (lat) - Math.sin (offsetLat) * Math.cos (lat) * Math.cos (lng  - offsetLng),
+            destLat   = (y - offsetLat * ratio) * radians,
+            destLon   = (x - (offsetLng * ratio)) * radians,
+            latRadOff = (offsetLat * ratio) * radians,
+            latRad    = y * radians,
+            ang       = Math.sin (destLat / 2) * Math.sin (destLat / 2) + Math.sin (destLon / 2) * Math.sin (destLon / 2) * Math.cos (latRadOff) * Math.cos (latRad),
+            cir       = 2 * Math.atan2 (Math.sqrt (ang), Math.sqrt (1 - ang)),
+            dist      = radius * cir;
+        initialPos    = initial ? null : initialPos;
+
+        if (dist > distMax)
+        {
+          if (initialPos !== null)
+          {
+            projX = initialPos.x;
+            projY = initialPos.y;
+          }
+          else
+          {
+            if (projX < 0)
+            {
+              projX = -2;
+              if (projY <= 0) projY = -2;
+              else projY = 2;
+            }
+            if (projX > 0)
+            {
+              projX = 2;
+              if (projY <= 0) projY = -2;
+              else projY = 2;
+            }
+            initialPos = { x: projX, y: projY };
+          }
+        }
+
+        return { x: projX, y: projY };
+      }
+
+    </script>
+
+    <div class="pooch-title-source-code">page source</div>
+
+    <div class="pooch-gist-container">
+      <script src="https://gist.github.com/blueshirt/5000872.js"></script>
+    </div>
+    <style type="text/css">.gist-syntax .err { color:#000; background-color: #FFF; } </style>
+
+  </body>
+
+</html>
