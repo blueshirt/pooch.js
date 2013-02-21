@@ -65,7 +65,7 @@
       {
         chart1.mouseDown (onMouseDown);
         chart1.mouseMove (onMouseMove);
-        pooch.fetch (document).mouseUp(function () { mouseIsDown = false; });
+        pooch.fetch (document).mouseUp(function () { mouseIsDown = false; chart1.mouseIgnore (false); });
         pooch.fetch ("#pooch_back_chart0").css ({ "background-color": "#c6ddff" });
         pooch.fetch ("#pooch_main_chart0").css ({ "background-image": "url(./images/globe-cover.png)" });
         chart1.draw ();
@@ -75,6 +75,8 @@
       {
         lastMouseX  = e.localX;
         lastMouseY  = e.localY;
+        chart1.mouseIgnore (true);
+        popup1.hide ();
         mouseIsDown = true;
       }
 

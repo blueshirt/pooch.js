@@ -26,7 +26,7 @@
 
 .pooch-title-source-code {
   position: relative;
-  width: 800px;
+  width: 970px;
   height: 30px;
   margin: 40px auto 12px auto;
   font: 24px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -204,7 +204,8 @@
 
 .pooch-gist-container {
   position: relative;
-  width: 800px;
+  width: 970px;
   margin: 8px auto 8px auto;
+  font-size: 13px;
   overflow: hidden;
 }

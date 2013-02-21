@@ -74,6 +74,7 @@
         _isDragging   = false,
         _zoomControl  = null,
         _projection   = null,
+        _mouseIgnore  = false,
         _circle       = Math.PI * 2,
         _funcQueue    = [],
         _sym          = [],
@@ -1081,11 +1082,18 @@
       return _chartScope;
     };
 
+    _chartScope.mouseIgnore = function (bool)
+    {
+      if (!arguments.length) return _mouseIgnore;
+      _mouseIgnore = bool;
+      return _chartScope;
+    };
+
     _chartScope.mouseMove = function (func)
     {
       if (typeof func === "function")
       {
-        var checkParams = function (e) { var ignore = function () { return _isAnimating || _isDragging; } (); func (e, ignore); };
+        var checkParams = function (e) { var ignore = function () { return _isAnimating || _isDragging || _mouseIgnore; } (); func (e, ignore); };
         if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseMove (checkParams);
         else _funcQueue.push ( { func: func, arg: checkParams } );
       }
