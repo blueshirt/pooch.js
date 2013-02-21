@@ -1,6 +1,6 @@
 (function ()
 {
-  pooch = { version: "0.0.1" , author: "Jeremy White"};
+  pooch = { version: "0.0.3" , author: "Jeremy White"};
 
   pooch.chart = function (id)
   {
