@@ -1232,15 +1232,15 @@
       var change = ePos - sPos;
 
       if (dur === 1 || time === dur) return ePos;
-      switch (ease)
+      switch (ease) //Based on Robert Penner's Easing Functions
       {
         case "easeInOut":
           if ((time /= dur / 2) < 1) return change / 2 * time * time * time + sPos;
           return change / 2 * ((time -= 2) * time * time + 2) + sPos;
         case "easeOut":
-          return change*((time=time/dur-1)*time*time + 1) + sPos;
+          return change * ((time = time / dur - 1) * time * time + 1) + sPos;
         case "easeIn":
-          return change*(time/=dur)*time*time + sPos;
+          return change * (time /= dur) * time * time + sPos;
         default:
           return sPos + (change * (time / dur));
       }
