@@ -1234,13 +1234,15 @@
       if (dur === 1 || time === dur) return ePos;
       switch (ease) //Based on Robert Penner's Easing Functions
       {
+        case "linear":
+          return sPos + (change * (time / dur));
+        case "easeIn":
+          return change * (time /= dur) * time * time + sPos;
+        case "easeOut":
+          return change * ((time = time / dur - 1) * time * time + 1) + sPos;
         case "easeInOut":
           if ((time /= dur / 2) < 1) return change / 2 * time * time * time + sPos;
           return change / 2 * ((time -= 2) * time * time + 2) + sPos;
-        case "easeOut":
-          return change * ((time = time / dur - 1) * time * time + 1) + sPos;
-        case "easeIn":
-          return change * (time /= dur) * time * time + sPos;
         default:
           return sPos + (change * (time / dur));
       }
@@ -1258,19 +1260,11 @@
 
     var _stepColor = function (time, sCol, eCol, dur, ease)
     {
-      if (time === 1) return eCol;
-
-      function interp(sHue, eHue)
-      {
-        if (sHue < eHue) return (((eHue - sHue) * (time / dur)) + sHue) >> 0;
-        else return (((sHue - eHue) * (1 - (time / dur))) + eHue) >> 0;
-      }
-
       var sColSpl   = sCol.split(","),
           eColSpl   = eCol.split(","),
-          interpR   = interp(sColSpl[0] >> 0, eColSpl[0] >> 0),
-          interpG   = interp(sColSpl[1] >> 0, eColSpl[1] >> 0),
-          interpB   = interp(sColSpl[2] >> 0, eColSpl[2] >> 0);
+          interpR   = _stepInt (time, sColSpl[0]|0, eColSpl[0]|0, dur, ease) >> 0,
+          interpG   = _stepInt (time, sColSpl[1]|0, eColSpl[1]|0, dur, ease) >> 0,
+          interpB   = _stepInt (time, sColSpl[2]|0, eColSpl[2]|0, dur, ease) >> 0;
 
       return interpR + "," + interpG + "," + interpB;
     };
