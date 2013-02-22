@@ -1231,7 +1231,7 @@
     {
       var change = ePos - sPos;
 
-      if (dur === 1 || time === dur) return ePos;
+      if (!dur || dur === 1 || time === dur) return ePos;
       switch (ease) //Based on Robert Penner's Easing Functions
       {
         case "linear":
@@ -1260,6 +1260,7 @@
 
     var _stepColor = function (time, sCol, eCol, dur, ease)
     {
+      if (!dur || dur === 1 || time === dur) return eCol;
       var sColSpl   = sCol.split(","),
           eColSpl   = eCol.split(","),
           interpR   = _stepInt (time, sColSpl[0]|0, eColSpl[0]|0, dur, ease) >> 0,
@@ -1496,7 +1497,7 @@
       if (!arguments.length) return _attrs.height;
       if (typeof val === "string")
       {
-        _fitVarX = val;
+        _fitVarY = val;
         _attrs.height = function (sym, data) { return data[val]; };
       }
       else _attrs.height = val;
@@ -1582,6 +1583,7 @@
 
     _symScope.y = function (val)
     {
+      //TODO See if the lack of _fitVarY is messing up the bounds method in chart
       if (!arguments.length) return _attrs.y;
       if (typeof val === "string") _attrs.y = function (sym, data) { return _fitFunc ({ dim:"height", val: data[val] }); };
       else _attrs.y = val;
