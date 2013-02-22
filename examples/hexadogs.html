@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>hexadogs! - pooch.js</title>
+    <script type="text/javascript" src="../src/pooch.js"></script>
+    <script type="text/javascript" src="data/hexadogs-data.js"></script>
+  </head>
+
+  <body onload="updateAttrs (1, 3, 1)">
+
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+
+    <div class="pooch-title">hexadogs!</div>
+    
+    <div class="pooch-stage"></div>
+
+    <script type="text/javascript">
+
+      var data1     = pooch.data ([pooch_img_data]).key ("uniqueID"),
+
+          symbols1  = pooch.symbols ("hex").data (data1)
+                                           .easing ("easeOut")
+                                           .drawStroke (false),
+
+          chart1    = pooch.chart (".pooch-stage").symbols ([symbols1])
+                                                  .height (400)
+                                                  .width (800)
+                                                  .bounds ([34, 53, 0, 0]);
+
+      function updateAttrs (index, sizeAdj, steps)
+      {
+        symbols1.x ("xPos" + index)
+                .y ("yPos" + index)
+                .width (function (sym, data) { 
+                                               if (data["width" + index] <= 0) return 0; 
+                                               else return data["width" + index] * sizeAdj; 
+                                             })
+                .height (function (sym, data) { 
+                                                if (data["height" + index] <= 0) return 0; 
+                                                else return data["height" + index] * sizeAdj; 
+                                             })
+                .drawFill (function (sym, data) { return data["width" + index] > 0; })
+                .fillColor (function (sym, data) { return data["color" + index]; })
+        chart1.draw (steps);
+      }
+
+    </script>
+
+    <div class="pooch-button-container">
+      <button class="pooch-button" onclick="updateAttrs (1, 3, 14)">terrier</button>
+      <button class="pooch-button" onclick="updateAttrs (2, 2, 14)">french bulldog</button>
+      <button class="pooch-button" onclick="updateAttrs (4, 2.5, 14)">golden retriever</button>
+      <button class="pooch-button" onclick="updateAttrs (3, 2.2, 14)">yorkie</button>
+    </div>
+
+    <div class="pooch-title-source-code">page source</div>
+
+    <div class="pooch-gist-container">
+      <script src="https://gist.github.com/blueshirt/5015343.js"></script>
+    </div>
+    <style type="text/css">.gist-syntax .err { color:#000; background-color: #FFF; } </style>
+
+  </body>
+</html>

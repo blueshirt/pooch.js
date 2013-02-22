@@ -1229,17 +1229,20 @@
 
     var _stepInt = function (time, sPos, ePos, dur, ease)
     {
+      var change = ePos - sPos;
+
+      if (dur === 1 || time === dur) return ePos;
       switch (ease)
       {
         case "easeInOut":
-          if (dur === 1 || time === dur) return ePos;
-          else return -ePos / 2 * (Math.cos(Math.PI * time / dur) - 1) + sPos;
-          break;
+          if ((time /= dur / 2) < 1) return change / 2 * time * time * time + sPos;
+          return change / 2 * ((time -= 2) * time * time + 2) + sPos;
+        case "easeOut":
+          return change*((time=time/dur-1)*time*time + 1) + sPos;
         case "easeIn":
-          return ePos * time * time / (dur * dur) + sPos;
+          return change*(time/=dur)*time*time + sPos;
         default:
-          if (dur === 1 || time === dur) return ePos;
-          return sPos + ((ePos - sPos) * (time / dur));
+          return sPos + (change * (time / dur));
       }
     };
 
@@ -1485,14 +1488,24 @@
     _symScope.width = function (val)
     {
       if (!arguments.length) return _attrs.width;
-      _attrs.width = val;
+      if (typeof val === "string")
+      {
+        _fitVarX = val;
+        _attrs.width = function (sym, data) { return data[val]; };
+      }
+      else _attrs.width = val;
       return _symScope;
     };
 
     _symScope.height = function (val)
     {
       if (!arguments.length) return _attrs.height;
-      _attrs.height = val;
+      if (typeof val === "string")
+      {
+        _fitVarX = val;
+        _attrs.height = function (sym, data) { return data[val]; };
+      }
+      else _attrs.height = val;
       return _symScope;
     };
 
