@@ -656,7 +656,7 @@
           if (window.navigator.msPointerEnabled) // new Microsoft model
           {
             domElem.addEventListener("MSPointerDown", drag.start, false);
-            if (typeof domElem.style.msTouchAction !== 'undefined') domElem.style.msTouchAction = "none";
+            if (typeof domElem.style.msTouchAction !== "undefined") domElem.style.msTouchAction = "none";
           }
           else if (domElem.attachEvent && domElem.setCapture) // old Microsoft model
           {
@@ -697,7 +697,7 @@
           if (window.navigator.msPointerEnabled) // new Microsoft model
           {
             document.addEventListener("MSPointerDown", drag.start, false);
-            if (typeof domElem.style.msTouchAction !== 'undefined') domElem.style.msTouchAction = "none";
+            if (typeof domElem.style.msTouchAction !== "undefined") domElem.style.msTouchAction = "none";
           }
           else if (domElem.attachEvent && domElem.setCapture) // old Microsoft model
           {
@@ -1324,6 +1324,14 @@
       return _symScope;
     };
 
+    var _assignAttrs = function(attr, val)
+    {
+      if (arguments.length === 1) return _attrs[attr];
+      if (typeof val === "string" && typeof _info.datum(val) !== "undefined") attr = function (sym, data) { return data[val]; };
+      else _attrs[attr] = val;
+      return _symScope;
+    };
+
     _symScope.sort = function ()
     {
       if (_data)
@@ -1402,66 +1410,53 @@
       return _symScope;
     };
 
-    _symScope.drawFill = function (val)
+    _symScope.drawFill               = function (val) { return _assignAttrs ("drawFill", val); };
+    _symScope.drawStroke             = function (val) { return _assignAttrs ("drawStroke", val); };
+    _symScope.drawFillHighlight      = function (val) { return _assignAttrs ("drawFillHighlight", val); };
+    _symScope.fillColorHighlight     = function (val) { return _assignAttrs ("fillColorHighlight", val); };
+    _symScope.fillOpacityHighlight   = function (val) { return _assignAttrs ("fillOpacityHighlight", val); };
+    _symScope.drawStrokeHighlight    = function (val) { return _assignAttrs ("drawStrokeHighlight", val); };
+    _symScope.strokeWidthHighlight   = function (val) { return _assignAttrs ("strokeWidthHighlight", val); };
+    _symScope.strokeColorHighlight   = function (val) { return _assignAttrs ("strokeColorHighlight", val); };
+    _symScope.strokeOpacityHighlight = function (val) { return _assignAttrs ("strokeOpacityHighlight", val); };
+    _symScope.size                   = function (val) { return _assignAttrs ("size", val); };
+    _symScope.fillOpacity            = function (val) { return _assignAttrs ("fillOpacity", val); };
+    _symScope.strokeOpacity          = function (val) { return _assignAttrs ("strokeOpacity", val); };
+    _symScope.strokeColor            = function (val) { return _assignAttrs ("strokeColor", val); };
+    _symScope.strokeWidth            = function (val) { return _assignAttrs ("strokeWidth", val); };
+
+    _symScope.shapeData = function (val)
     {
-      if (!arguments.length) return _attrs.drawFill;
-      _attrs.drawFill = val;
+      if (!arguments.length) return _shapeData;
+      if (typeof val === "string") _shapeData = val;
       return _symScope;
     };
 
-    _symScope.drawStroke = function (val)
+    _symScope.shape = function (val)
     {
-      if (!arguments.length) return _attrs.drawStroke;
-      _attrs.drawStroke = val;
+      if (!arguments.length) return _attrs.shape;
+      _attrs.shape = val;
       return _symScope;
     };
 
-    _symScope.drawFillHighlight = function (val)
+    _symScope.order = function (val)
     {
-      if (!arguments.length) return _attrs.drawFillHighlight;
-      _attrs.drawFillHighlight = val;
+      if (!arguments.length) return _order;
+      _order = val;
       return _symScope;
     };
 
-    _symScope.fillColorHighlight = function (val)
+    _symScope.layer = function (val)
     {
-      if (!arguments.length) return _attrs.fillColorHighlight;
-      _attrs.fillColorHighlight = val;
+      if (!arguments.length) return _layer;
+      _layer = val;
       return _symScope;
     };
 
-    _symScope.fillOpacityHighlight = function (val)
+    _symScope.easing = function (val)
     {
-      if (!arguments.length) return _attrs.fillOpacityHighlight;
-      _attrs.fillOpacityHighlight = val;
-      return _symScope;
-    };
-
-    _symScope.drawStrokeHighlight = function (val)
-    {
-      if (!arguments.length) return _attrs.drawStrokeHighlight;
-      _attrs.drawStrokeHighlight = val;
-      return _symScope;
-    };
-
-    _symScope.strokeWidthHighlight = function (val)
-    {
-      if (!arguments.length) return _attrs.strokeWidthHighlight;
-      _attrs.strokeWidthHighlight = val;
-      return _symScope;
-    };
-
-    _symScope.strokeColorHighlight = function (val)
-    {
-      if (!arguments.length) return _attrs.strokeColorHighlight;
-      _attrs.strokeColorHighlight = val;
-      return _symScope;
-    };
-
-    _symScope.strokeOpacityHighlight = function (val)
-    {
-      if (!arguments.length) return _attrs.strokeOpacityHighlight;
-      _attrs.strokeOpacityHighlight = val;
+      if (!arguments.length) return _attrs.easing;
+      _attrs.easing = val;
       return _symScope;
     };
 
@@ -1470,13 +1465,6 @@
       if (!arguments.length) return _attrs.fillColor;
       _attrs.fillColor = val;
       _batchMod = true;
-      return _symScope;
-    };
-
-    _symScope.size = function (val)
-    {
-      if (!arguments.length) return _attrs.size;
-      _attrs.size = val;
       return _symScope;
     };
 
@@ -1504,34 +1492,6 @@
       return _symScope;
     };
 
-    _symScope.fillOpacity = function (val)
-    {
-      if (!arguments.length) return _attrs.fillOpacity;
-      _attrs.fillOpacity = val;
-      return _symScope;
-    };
-
-    _symScope.strokeOpacity = function (val)
-    {
-      if (!arguments.length) return _attrs.strokeOpacity;
-      _attrs.strokeOpacity = val;
-      return _symScope;
-    };
-
-    _symScope.strokeColor = function (val)
-    {
-      if (!arguments.length) return _attrs.strokeColor;
-      _attrs.strokeColor = val;
-      return _symScope;
-    };
-
-    _symScope.strokeWidth = function (val)
-    {
-      if (!arguments.length) return _attrs.strokeWidth;
-      _attrs.strokeWidth = val;
-      return _symScope;
-    };
-
     _symScope.interactive = function (bool)
     {
       if (!arguments.length) return _interactive;
@@ -1543,13 +1503,6 @@
     {
       if (!arguments.length) return _map;
       _map = val;
-      return _symScope;
-    };
-
-    _symScope.order = function (val)
-    {
-      if (!arguments.length) return _order;
-      _order = val;
       return _symScope;
     };
 
@@ -1585,7 +1538,11 @@
     {
       //TODO See if the lack of _fitVarY is messing up the bounds method in chart
       if (!arguments.length) return _attrs.y;
-      if (typeof val === "string") _attrs.y = function (sym, data) { return _fitFunc ({ dim:"height", val: data[val] }); };
+      if (typeof val === "string")
+      {
+        _fitVarY = val;
+        _attrs.y = function (sym, data) { return _fitFunc ({ dim:"height", val: data[val] }); };
+      }
       else _attrs.y = val;
       return _symScope;
     };
@@ -1624,34 +1581,6 @@
         else _funcQueue.push ( { func: _symScope.shapePoints, arg: val } );
       }
       else _attrs.shapePoints = val;
-      return _symScope;
-    };
-
-    _symScope.shapeData = function (val)
-    {
-      if (!arguments.length) return _shapeData;
-      if (typeof val === "string") _shapeData = val;
-      return _symScope;
-    };
-
-    _symScope.shape = function (val)
-    {
-      if (!arguments.length) return _attrs.shape;
-      _attrs.shape = val;
-      return _symScope;
-    };
-
-    _symScope.layer = function (val)
-    {
-      if (!arguments.length) return _layer;
-      _layer = val;
-      return _symScope;
-    };
-
-    _symScope.easing = function (val)
-    {
-      if (!arguments.length) return _attrs.easing;
-      _attrs.easing = val;
       return _symScope;
     };
 
