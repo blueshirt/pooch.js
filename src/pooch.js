@@ -1980,7 +1980,9 @@
       var text       = _template.innerHTML,
           replace    = [{ text: new RegExp (/exec(\s*)\{(.*?)\}/g), chunk: new RegExp (/\{(.*?)\}/), js: true, obj: false },
                         { text: new RegExp (/data\.(.*?)[^a-zA-Z0-9_]/g), chunk: new RegExp (/\.(.*?)[^a-zA-Z0-9_]/), js: false, obj: true },
-                        { text: new RegExp (/data(\s*)\[(.*?)\]/g), chunk: new RegExp (/\[(.*?)\]/), js: true, obj: true }],
+                        { text: new RegExp (/data(\s*)\[(.*?)\]/g), chunk: new RegExp (/\[(.*?)\]/), js: true, obj: true },
+                        { text: new RegExp (/sym\.(.*?)[^a-zA-Z0-9_]/g), chunk: new RegExp (/\.(.*?)[^a-zA-Z0-9_]/), js: false, obj: true },
+                        { text: new RegExp (/sym(\s*)\[(.*?)\]/g), chunk: new RegExp (/\[(.*?)\]/), js: true, obj: true }],
           i          = replace.length;
 
       while (i--)
@@ -1991,10 +1993,12 @@
         while (j--)
         {
           var prop      = replace[i].chunk.exec (matches[j])[1].replace (/(?:(?:^|\n)\s+|\s+(?:$|\n))/g,'').replace (/\s+/g,' '),
-              append    = (!replace[i].js) ? matches[j].substr(5, matches[j].length).match (/[^a-zA-Z0-9_]/) : "",
-              val       = replace[i].js ? replace[i].obj ? _info.datum ()[obj][eval (prop)] : eval (prop) : _info.datum ()[obj][prop],
+              preDotLen = matches[0].substr(0, 3) === "dat" ? 5 : matches[0].substr(0, 3) === "sym" ? 3 : 0,
+              append    = (!replace[i].js) ? matches[j].substr(preDotLen, matches[j].length).match (/[^a-zA-Z0-9_]/) : "",
+              val       = replace[i].js ? replace[i].obj ? preDotLen === 5 ? _info.datum ()[obj][eval (prop)] : _sym.datum ()[obj][eval (prop)] : eval (prop) : preDotLen === 5 ? _info.datum ()[obj][prop] : _sym.datum ()[obj][prop],
               appendVal = val + append;
           text          = text.replace (matches[j], appendVal);
+          console.log(val);
 
         }
       }
@@ -2678,6 +2682,13 @@
                 else return sum;
               }
             };
+
+        _pieScope.field = function (val)
+        {
+          if (!arguments.length) return _field;
+          _field = val;
+          return _pieScope;
+        };
 
         _pieScope.process = function (sym, attrs, data, offset) //TODO delete data argument
         {
