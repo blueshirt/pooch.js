@@ -239,6 +239,10 @@
                     found = _loopThroughPolys (sym[obj].shapePoints, [x, y]);
                     break;
 
+                  case "custom":
+                    found = _sym[i].customShape ().hitTest (sym[obj], x, y);
+                    break;
+
                   default:
                     // TODO: add default
                 }
@@ -292,34 +296,34 @@
               }
             }
 
-              var symObjCur   = symObjClosest;
-                  symCur      = symClosest;
-                  symFnd      = true;
+            var symObjCur   = symObjClosest;
+                symCur      = symClosest;
+                symFnd      = true;
 
-              if (_symCur !== symCur && symCur)
+            if (_symCur !== symCur && symCur)
+            {
+              if (_symObjCur)
               {
-                if (_symObjCur)
-                {
-                  // TODO Clean this up. No need to clear ctx here and then from _drawSym ().
-                  _symObjCur.popup().hide();
-                  if (_symObjCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxHltMain, _width, _height);
-                  else _clearCtx (_ctxHltBack, _width, _height);
-                }
+                // TODO Clean this up. No need to clear ctx here and then from _drawSym ().
+                _symObjCur.popup().hide();
+                if (_symObjCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxHltMain, _width, _height);
+                else _clearCtx (_ctxHltBack, _width, _height);
+              }
 
-                var keyObj              = {},
-                layer                   = symObjCur.layer ().toUpperCase () === "MAIN" ? "highlightMain" : "highlightBack";
-                _symObjCur              = symObjCur;
-                _symCur                 = symCur;
-                keyObj[_symCur.poochID] = _symCur;
-                _stepCnt                = _stepTot     = 1;
-                _fillPop (_symObjCur, _symObjCur.state (), _symCur.poochID, x, y);
-                pooch.fetch (_house).css ({ cursor: "pointer"});
-                _drawSym (null, layer, { obj: _symObjCur, key: keyObj });
-              }
-              else if (_symCur === symCur && symCur)
-              {
-                _movePop(symObjCur, x, y);
-              }
+              var keyObj              = {},
+              layer                   = symObjCur.layer ().toUpperCase () === "MAIN" ? "highlightMain" : "highlightBack";
+              _symObjCur              = symObjCur;
+              _symCur                 = symCur;
+              keyObj[_symCur.poochID] = _symCur;
+              _stepCnt                = _stepTot     = 1;
+              _fillPop (_symObjCur, _symObjCur.state (), _symCur.poochID, x, y);
+              pooch.fetch (_house).css ({ cursor: "pointer"});
+              _drawSym (null, layer, { obj: _symObjCur, key: keyObj });
+            }
+            else if (_symCur === symCur && symCur)
+            {
+              _movePop(symObjCur, x, y);
+            }
           }
           
           else
@@ -374,7 +378,7 @@
       return returnObj;
     };
 
-    var _shapeCalc = function (symObj, attrs, ctx)
+    var _shapeCalc = function (symObj, key, attrs, ctx)
     {
       var isMap   = symObj.map(),
           horVar  = isMap ? attrs.lng : attrs.x,
@@ -441,13 +445,19 @@
           // if (!scope.supportsCanvas) drawString.push("^");
         break;
 
+        case "custom":
+          var sym  = symObj.datum(key),
+              data = symObj.data().datum(key);
+          symObj.customShape ().process (sym, attrs, data);
+        break;
+
         default:
           var sizeDef = !_wholeNums ? attrs.size : attrs.size >> 0;
           ctx.arc (x + _offsetX, y + _offsetY, sizeDef, 0, _circle, false);
       }
     };
 
-    var _drawCalc = function (symObj, attrs, ctx, isHlt)
+    var _drawCalc = function (symObj, key, attrs, ctx, isHlt)
     {
       if (pooch.supportsCanvas)
       {
@@ -466,7 +476,7 @@
           ctx.lineWidth = strokeWidth;
           ctx.strokeStyle = "rgba(" + strokeColor + "," + strokeOpacity + ")";
         }
-        _shapeCalc (symObj, attrs, ctx);
+        _shapeCalc (symObj, key, attrs, ctx);
       }
     };
 
@@ -526,10 +536,11 @@
 
     var _drawSym = function (time, layer, hlt)
     {
+      //console.log(time, layer, hlt);
       clearTimeout (_timeOut);
 
       var isHlt     = hlt ? true : false,
-          len       = _sym.length;
+          len       = isHlt ? 1 : _sym.length;
       _isAnimating  = true;
 
       //var drawString = [];
@@ -560,6 +571,8 @@
                 ctx       = isHlt ? symLayer === "MAIN" ? _ctxHltMain : _ctxHltBack : symLayer === "MAIN" ? _ctxMain : _ctxBack,
                 batch     = symObj.batch () ? true : false;
 
+            symObj.context (ctx);
+
             if (batch && !isHlt)
             {
               var batchObj = symObj.batchObj (),
@@ -577,7 +590,7 @@
 
                   for (var attrBatch in symObj.symAttrs ()) attrsBatch[attrBatch] = attrsBatch[attrBatch] || sym[key][attrBatch];
 
-                  _drawCalc (symObj, attrsBatch, ctx, isHlt);
+                  _drawCalc (symObj, key, attrsBatch, ctx, isHlt);
                 }
 
                 ctx.fill();
@@ -589,11 +602,10 @@
             {
               for (var j = 0; j < orderLen; ++j)
               {
-                if (_isDragging) return;
                 ctx.beginPath ();
                 var attrs = _frameCalc (symObj, sym, symOrder[j], _stepCnt, _stepTot);
                 for (var attr in symObj.symAttrs ()) attrs[attr] = attrs[attr] || sym[symOrder[j]][attr];
-                _drawCalc (symObj, attrs, ctx, isHlt);
+                _drawCalc (symObj, symOrder[j], attrs, ctx, isHlt);
                  var drawFill   = isHlt ? attrs.drawFillHighlight : attrs.drawFill,
                      drawStroke = isHlt ? attrs.drawStrokeHighlight : attrs.drawStroke;
                  if (drawFill) ctx.fill();
@@ -689,6 +701,7 @@
 
           if (isNaN (parseLeft)) drag.elem.style.left = "0px";
           if (isNaN (parseTop)) drag.elem.style.top = "0px";
+          if (typeof window.webkitURL === "function") drag.elem.style.webkitTransform = "matrix(1, 0, 0, 1, 0, 0)";
 
           e                     = e ? e : window.event;
           drag.elem.mouseX      = e.clientX;
@@ -727,12 +740,24 @@
           e.preventDefault();
           if (drag.elem)
           {
-            _isDragging            = true;
-            var x                  = parseInt (drag.elem.style.left, 10),
-                y                  = parseInt (drag.elem.style.top, 10);
-            e                      = e.changedTouches ? e.changedTouches : [e];
-            drag.elem.style.left   = x + (e[0].clientX - drag.elem.mouseX) + "px";
-            drag.elem.style.top    = y + (e[0].clientY - drag.elem.mouseY) + "px";
+            _isDragging   = true;
+            e             = e.changedTouches ? e.changedTouches : [e];
+
+            if (typeof window.webkitURL === "function")
+            {
+              var matrix = pooch.helpers.parseWebkitMatrix (drag.elem.style.webkitTransform),
+                  tX     = parseInt(matrix.tX, 10) + (e[0].clientX - drag.elem.mouseX),
+                  tY     = parseInt(matrix.tY, 10) + (e[0].clientY - drag.elem.mouseY);
+              drag.elem.style.webkitTransform = "matrix(1, 0, 0, 1, " + tX + ", " + tY + ")";
+            }
+            else
+            {
+              var left = parseInt (drag.elem.style.left, 10) + (e[0].clientX - drag.elem.mouseX),
+                  top  = parseInt (drag.elem.style.top, 10) + (e[0].clientY - drag.elem.mouseY);
+              drag.elem.style.left = left + "px";
+              drag.elem.style.top  = top + "px";
+            }
+
             drag.elem.mouseX       = e[0].clientX;
             drag.elem.mouseY       = e[0].clientY;
           }
@@ -743,11 +768,25 @@
         {
           if (drag.elem === null) return;
           _isDragging = false;
-          var x       = parseInt (drag.elem.style.left, 10),
-              y       = parseInt (drag.elem.style.top, 10),
+          var x,
+              y,
               viewWid = -(_width / 3),
-              viewHgt = -(_height / 3),
-              adjX    = (x - viewWid) * (_unitsPerPx.x * 3),
+              viewHgt = -(_height / 3);
+
+          if (typeof window.webkitURL === "function")
+          {
+            var matrix = pooch.helpers.parseWebkitMatrix (drag.elem.style.webkitTransform);
+            x          = viewWid + parseInt(matrix.tX, 10);
+            y          = viewHgt + parseInt(matrix.tY, 10);
+          }
+          else
+          {
+            x = parseInt (drag.elem.style.left, 10);
+            y = parseInt (drag.elem.style.top, 10);
+          }
+
+
+          var adjX    = (x - viewWid) * (_unitsPerPx.x * 3),
               adjY    = (y - viewHgt) * (_unitsPerPx.y * 3);
           _axisMinX   -= adjX;
           _axisMaxX   -= adjX;
@@ -759,7 +798,8 @@
           if (x !== 0 && y !== 0)
           {
             _drawSym ();
-            pooch.fetch ("#pooch_container_" + _id).css ({ "top": viewHgt + "px", "left": viewWid + "px" });
+            if (typeof window.webkitURL === "function") drag.elem.style.webkitTransform = "matrix(1, 0, 0, 1, 0, 0)";
+            else pooch.fetch ("#pooch_container_" + _id).css ({ "top": viewHgt + "px", "left": viewWid + "px" });
           }
 
           if (releaseCap) document.releaseCapture();
@@ -1318,8 +1358,8 @@
         {
           _symObj[key][attr] = _attrs[attr];
         }
-        _symObj[key].poochID = key;
-        _order[keyLen]       = key;
+        _symObj[key].poochID     = key;
+        _order[keyLen]           = key;
       }
       return _symScope;
     };
@@ -1327,14 +1367,25 @@
     var _assignAttrs = function(attr, val)
     {
       if (arguments.length === 1) return _attrs[attr];
-      if (typeof val === "string" && typeof _info.datum(val) !== "undefined") attr = function (sym, data) { return data[val]; };
+      if (_dataObjExists (val)) attr = function (sym, data) { return data[val]; };
       else _attrs[attr] = val;
       return _symScope;
     };
 
+    var _dataObjExists = function (val)
+    {
+      var firstKey = null;
+      for (var first in _symScope.state())
+      {
+        firstKey = first;
+        break;
+      }
+      return (typeof val === "string" && typeof _info.datum(firstKey)[val]  !== "undefined");
+    };
+
     _symScope.sort = function ()
     {
-      if (_data)
+      if (_info)
       {
         //TODO add calculations for objects other than circles
         if (typeof _attrs.size === "function")
@@ -1506,6 +1557,20 @@
       return _symScope;
     };
 
+    _symScope.context = function (ctx)
+    {
+      if (!arguments.length) return _ctx;
+      _ctx = ctx;
+      return _symScope;
+    };
+
+    _symScope.customShape = function (func)
+    {
+      if (!arguments.length) return _customShape;
+      _customShape = func;
+      return _symScope;
+    };
+
     _symScope.batchObj = function (obj)
     {
       if (!arguments.length)
@@ -1525,12 +1590,12 @@
     _symScope.x = function (val)
     {
       if (!arguments.length) return _attrs.x;
-      if (typeof val === "string")
+      if (_dataObjExists (val))
       {
         _fitVarX = val;
-        _attrs.x = function (sym, data) { return _fitFunc ({ dim:"width", val: data[_fitVarX] }); };
+        _attrs.x = function (sym, data) { return _fitFunc ({ dim: "width", val: data[_fitVarX] }); };
       }
-      else _attrs.x = val;
+      else _attrs.x = function () { return _fitFunc ({ dim: "width", val: val }); };
       return _symScope;
     };
 
@@ -1538,12 +1603,12 @@
     {
       //TODO See if the lack of _fitVarY is messing up the bounds method in chart
       if (!arguments.length) return _attrs.y;
-      if (typeof val === "string")
+      if (_dataObjExists (val))
       {
         _fitVarY = val;
         _attrs.y = function (sym, data) { return _fitFunc ({ dim:"height", val: data[val] }); };
       }
-      else _attrs.y = val;
+      else _attrs.y = function () { return _fitFunc ({ dim: "height", val: val }); };
       return _symScope;
     };
 
@@ -1607,6 +1672,7 @@
         //_boundsInView = {},
         _info        = null,
         _pop         = null,
+        _ctx         = null,
         _order       = [],
         _layer       = "main",
         _popup       = null,
@@ -1615,6 +1681,7 @@
         _fitFunc     = null,
         _batch       = false,
         _batchMod    = false,
+        _customShape = null,
         _batchObj    = {},
         _interactive = false,
         _map         = null,
@@ -1623,7 +1690,7 @@
         _shapeData   = "",
         _funcQueue   = [],
         _symState    = {},
-        _attrs       = { x: 0, y: 0, lat: 0, lng: 0, visible: true, shape: "circle",
+        _attrs       = { symbolGroup: _symScope, x: 0, y: 0, lat: 0, lng: 0, visible: true, shape: "circle",
                         easing: "easeInOut", drawFill: true, drawStroke: true,
                         size: 6, height: 6, width: 6, fillColor: "200,200,200",
                         fillOpacity: 1, strokeColor: "255,255,255",
@@ -1631,7 +1698,7 @@
                         drawFillHighlight: true, fillColorHighlight: "200,200,200", fillOpacityHighlight: 1,
                         drawStrokeHighlight: true, strokeWidthHighlight: 1, strokeColorHighlight: "0,0,0",
                         strokeOpacityHighlight: 1 },
-        _stepFunc    = { poochID: _stepSwitch, x: _stepInt, y: _stepInt, lat: _stepInt, lng: _stepInt,
+        _stepFunc    = { symbolGroup: _stepSwitch, poochID: _stepSwitch, x: _stepInt, y: _stepInt, lat: _stepInt, lng: _stepInt,
                         visible: _stepSwitch, shape: _stepSwitch,
                         easing: _stepSwitch, drawFill: _stepSwitch, drawStroke: _stepSwitch,
                         size: _stepInt, height: _stepInt, width: _stepInt, fillColor: _stepColor,
@@ -2580,7 +2647,80 @@
     {
       var arrLen = arr.length;
       while (arrLen--) if (arr[arrLen] === val) return arrLen;
+    },
+
+    parseWebkitMatrix: function (val)
+    {
+      var matrixRE = /\([0-9epx\.\, \t\-]+/gi,
+          valSplit = val.match (matrixRE)[0].substr (1).split (",");
+      return { m11: valSplit[0], m12: valSplit[1], m21: valSplit[2], m22: valSplit[3], tX: valSplit[4], tY: valSplit[5] };
+    },
+
+    degreesToRadians: function (deg)
+    {
+      return (deg * Math.PI) / 180;
+    },
+
+    pieChart: function (val)
+    {
+      var pieChartObj = function (field)
+      {
+        var _pieScope = this,
+            _field    = field,
+            _sumTo    = function (key, datum, order)
+            {
+              var orderLen = order.length,
+                  sum      = 0;
+
+              while (orderLen--)
+              {
+                if (order[orderLen] !== key) sum += datum[order[orderLen]][_field];
+                else return sum;
+              }
+            };
+
+        _pieScope.process = function (sym, attrs, data, offset) //TODO delete data argument
+        {
+          var datum     = sym.symbolGroup.data().datum(),
+                ctx     = sym.symbolGroup.context(),
+                order   = sym.symbolGroup.order(),
+                sum     = _sumTo (sym.poochID, datum, order),
+                sAngle  = (pooch.helpers.degreesToRadians (sum) / 100) * 360,
+                arcSize = (pooch.helpers.degreesToRadians (datum[sym.poochID][_field]) / 100) * 360,
+                eAngle  = sAngle + arcSize;
+
+          ctx.beginPath ();
+          ctx.moveTo (attrs.x, attrs.y);
+          ctx.arc (attrs.x, attrs.y, attrs.size, sAngle, eAngle, false);
+          ctx.closePath ();
+        };
+
+        _pieScope.hitTest = function (sym, x, y)
+        {
+          var datum     = sym.symbolGroup.data().datum(),
+              fromCntrX = sym.x - x,
+              fromCntrY = sym.y - y,
+              order   = sym.symbolGroup.order(),
+              distCenter = Math.sqrt( Math.pow( fromCntrX, 2 ) + Math.pow( fromCntrY , 2 ) ),
+              sum     = _sumTo (sym.poochID, datum, order),
+              sAngle  = (pooch.helpers.degreesToRadians (sum) / 100) * 360,
+              arcSize = (pooch.helpers.degreesToRadians (datum[sym.poochID][_field]) / 100) * 360,
+              eAngle  = sAngle + arcSize;
+
+          if (distCenter < sym.size)
+          {
+            var cAngle = Math.atan2 (fromCntrY, fromCntrX) + Math.PI;
+            if (cAngle >= sAngle && cAngle <= eAngle) return true;
+          }
+
+          return false;
+        };
+
+        return _pieScope;
+      };
+      return new pieChartObj (val);
     }
+
   };
 
   window.pooch_initMapAPIs = function ()

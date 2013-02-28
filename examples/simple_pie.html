@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>simple, simple pie chart - pooch.js</title>
+    <script type="text/javascript" src="../src/pooch.js"></script>
+  </head>
+  <body onload="chart1.draw ()">
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <div class="pooch-title">just a simple, simple pie chart</div>
+    <div class="pooch-stage"></div>
+    <script type="text/javascript">
+
+      var pieChartData = { category:  ["IE", "Firefox", "Chrome", "Safari", "Opera", "Other"],
+                           share2013: [29.73,  21.33, 37.15, 8.63, 1.22, 1.94],
+                           color:     ["228, 26, 28", "55, 126, 184", "77, 175, 74", "152, 78, 163", "255, 127, 0", "255, 255, 51"]
+                         },
+          data1        = pooch.data ([pieChartData]).key ("category"),
+          pieShape1    = pooch.helpers.pieChart ("share2013"),
+          symbol1      = pooch.symbols ("custom").data (data1)
+                                                 .x (50)
+                                                 .y (50)
+                                                 .size (160)
+                                                 .fillColor (function (sym, data) { return data.color; })
+                                                 .fillOpacity (0.6)
+                                                 .customShape (pieShape1),
+          chart1       = pooch.chart (".pooch-stage").symbols ([symbol1])
+                                                     .height (400)
+                                                     .width (800)
+                                                     .bounds ([100, 100, 0, 0]);
+    </script>
+
+    <div class="pooch-title-source-code">page source</div>
+
+    <div class="pooch-gist-container">
+      <script src="https://gist.github.com/blueshirt/5054644.js"></script>
+    </div>
+    <style type="text/css">.gist-syntax .err { color:#000; background-color: #FFF; } </style>
+
+  </body>
+</html>
