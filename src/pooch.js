@@ -1998,8 +1998,6 @@
               val       = replace[i].js ? replace[i].obj ? preDotLen === 5 ? _info.datum ()[obj][eval (prop)] : _sym.datum ()[obj][eval (prop)] : eval (prop) : preDotLen === 5 ? _info.datum ()[obj][prop] : _sym.datum ()[obj][prop],
               appendVal = val + append;
           text          = text.replace (matches[j], appendVal);
-          console.log(val);
-
         }
       }
 
