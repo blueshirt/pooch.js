@@ -448,7 +448,7 @@
         case "custom":
           var sym  = symObj.datum(key),
               data = symObj.data().datum(key);
-          symObj.customShape ().process (sym, attrs, data);
+          symObj.customShape ().process (sym, attrs, { x: _offsetX, y: _offsetY });
         break;
 
         default:
@@ -1171,12 +1171,10 @@
       return _chartScope;
     };
 
-    _chartScope.activeSymbol = function (val)
+    _chartScope.activeSymbol = function (obj)
     {
-      // if (!arguments.length) return _height;
-      // {
-      //   pooch.fetch("pooch_mouse_" + _id).mouseover(func);
-      // }
+      if (!arguments.length) return _symCur;
+      _symCur = obj;
       return _chartScope;
     };
 
@@ -2001,6 +1999,7 @@
         }
       }
 
+
       _popupScope.hide ();
       _domElem.innerHTML = text;
       _popupScope.width (_domElem.clientWidth);
@@ -2679,6 +2678,17 @@
                 if (order[orderLen] !== key) sum += datum[order[orderLen]][_field];
                 else return sum;
               }
+            },
+            _pieVars = function (sym)
+            {
+              var datum     = sym.symbolGroup.data().datum(),
+                    ctx     = sym.symbolGroup.context(),
+                    order   = sym.symbolGroup.order(),
+                    sum     = _sumTo (sym.poochID, datum, order),
+                    sAngle  = (pooch.helpers.degreesToRadians (sum) / 100) * 360,
+                    arcSize = (pooch.helpers.degreesToRadians (datum[sym.poochID][_field]) / 100) * 360,
+                    eAngle  = sAngle + arcSize;
+              return { sAngle: sAngle, eAngle: eAngle, ctx: ctx };
             };
 
         _pieScope.field = function (val)
@@ -2688,38 +2698,26 @@
           return _pieScope;
         };
 
-        _pieScope.process = function (sym, attrs, data, offset) //TODO delete data argument
+        _pieScope.process = function (sym, attrs, offset) //TODO delete data argument
         {
-          var datum     = sym.symbolGroup.data().datum(),
-                ctx     = sym.symbolGroup.context(),
-                order   = sym.symbolGroup.order(),
-                sum     = _sumTo (sym.poochID, datum, order),
-                sAngle  = (pooch.helpers.degreesToRadians (sum) / 100) * 360,
-                arcSize = (pooch.helpers.degreesToRadians (datum[sym.poochID][_field]) / 100) * 360,
-                eAngle  = sAngle + arcSize;
-
-          ctx.beginPath ();
-          ctx.moveTo (attrs.x, attrs.y);
-          ctx.arc (attrs.x, attrs.y, attrs.size, sAngle, eAngle, false);
-          ctx.closePath ();
+          var pieVars = _pieVars (sym);
+          pieVars.ctx.beginPath ();
+          pieVars.ctx.moveTo (attrs.x, attrs.y);
+          pieVars.ctx.arc (attrs.x, attrs.y, attrs.size, pieVars.sAngle, pieVars.eAngle, false);
+          pieVars.ctx.closePath ();
         };
 
         _pieScope.hitTest = function (sym, x, y)
         {
-          var datum     = sym.symbolGroup.data().datum(),
+          var pieVars   = _pieVars (sym),
               fromCntrX = sym.x - x,
               fromCntrY = sym.y - y,
-              order   = sym.symbolGroup.order(),
-              distCenter = Math.sqrt( Math.pow( fromCntrX, 2 ) + Math.pow( fromCntrY , 2 ) ),
-              sum     = _sumTo (sym.poochID, datum, order),
-              sAngle  = (pooch.helpers.degreesToRadians (sum) / 100) * 360,
-              arcSize = (pooch.helpers.degreesToRadians (datum[sym.poochID][_field]) / 100) * 360,
-              eAngle  = sAngle + arcSize;
+              distCntr  = Math.sqrt( Math.pow( fromCntrX, 2 ) + Math.pow( fromCntrY , 2 ) );
 
-          if (distCenter < sym.size)
+          if (distCntr < sym.size)
           {
             var cAngle = Math.atan2 (fromCntrY, fromCntrX) + Math.PI;
-            if (cAngle >= sAngle && cAngle <= eAngle) return true;
+            if (cAngle >= pieVars.sAngle && cAngle <= pieVars.eAngle) return true;
           }
 
           return false;
