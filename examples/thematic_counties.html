@@ -63,24 +63,24 @@
 
       var popup1    = pooch.popup ("popupLayout1");
 
-      var symbols1  = pooch.symbols ("poly").data (data1)
-                                            .shapePoints ("polygons")
-                                            .fillColor (function (sym, data) { return groupClasses (data.TOT_MALE, data.TOT_FEMALE); })
-                                            .strokeOpacity (0.2)
-                                            .drawFillHighlight (false)
-                                            .strokeColorHighlight ("255, 255, 255")
-                                            .strokeWidthHighlight (2)
-                                            .batch (true)
-                                            .popup (popup1);
+      var symbols1  = pooch.symbolGroup ("poly").data (data1)
+                                                .shapePoints ("polygons")
+                                                .fillColor (function (sym, data) { return groupClasses (data.TOT_MALE, data.TOT_FEMALE); })
+                                                .strokeOpacity (0.2)
+                                                .drawFillHighlight (false)
+                                                .strokeColorHighlight ("255, 255, 255")
+                                                .strokeWidthHighlight (2)
+                                                .batch (true)
+                                                .popup (popup1);
 
-      var symbols2  = pooch.symbols ("poly").data (data2)
-                                            .shapePoints ("polylines")
-                                            .drawFill (false)
-                                            .strokeOpacity (0.4)
-                                            .strokeWidth (2)
-                                            .interactive (false);
+      var symbols2  = pooch.symbolGroup ("poly").data (data2)
+                                                .shapePoints ("polylines")
+                                                .drawFill (false)
+                                                .strokeOpacity (0.4)
+                                                .strokeWidth (2)
+                                                .interactive (false);
 
-      var chart1    = pooch.chart (".pooch-stage").symbols ([symbols1, symbols2])
+      var chart1    = pooch.chart (".pooch-stage").symbolGroup ([symbols1, symbols2])
                                                   .height (400)
                                                   .width (800)
                                                   .bounds (symbols1)

@@ -27,9 +27,9 @@
     return new _popup (elem);
   };
 
-  pooch.symbols = function (shape)
+  pooch.symbolGroup = function (shape)
   {
-    return new _symbol (shape);
+    return new _symbolGroup (shape);
   };
 
   pooch.zoomControl = function (elem)
@@ -77,8 +77,8 @@
         _mouseIgnore  = false,
         _circle       = Math.PI * 2,
         _funcQueue    = [],
-        _sym          = [],
-        _symObjCur    = null,
+        _symGrp       = [],
+        _symGrpCur    = null,
         _symCur       = null,
         _symAction    = "over",
         _timeOut      = null,
@@ -133,23 +133,23 @@
       popHouse (popDiv);
     };
 
-    var _fillPop = function (symObj, sym, id, x, y)
+    var _fillPop = function (symGrp, sym, id, x, y)
     {
       if (!_symCur || sym[id] !== _symCur[id])
       {
-        symObj.popup ().layout (id);
-        _movePop (symObj, x, y);
+        symGrp.popup ().layout (id);
+        _movePop (symGrp, x, y);
       }
     };
     
-    var _movePop = function (symObj, x, y)
+    var _movePop = function (symGrp, x, y)
     {
       var xAdj    = 0,
           yAdj    = 0,
-          popOffX = symObj.popup ().offsetX (),
-          popOffY = symObj.popup ().offsetY (),
-          width   = symObj.popup ().width (),
-          height  = symObj.popup ().height (),
+          popOffX = symGrp.popup ().offsetX (),
+          popOffY = symGrp.popup ().offsetY (),
+          width   = symGrp.popup ().width (),
+          height  = symGrp.popup ().height (),
           visHgt  = _height / 3,
           visWid  = _width / 3;
 
@@ -159,11 +159,11 @@
       else if (x + popOffX + (width / 2) + 10 > visWid * 2) xAdj = visWid * 2 - (x + width) - 10;
       else xAdj = popOffX + (width / -2);
 
-      symObj.popup().x (x + xAdj)
+      symGrp.popup().x (x + xAdj)
                     .y (y + yAdj);
     };
 
-    var _findSymObj = function (ndx)
+    var _findSymGrp = function (ndx)
     {
       var len    = _sym.length,
           count  = 0,
@@ -171,8 +171,8 @@
 
       while (count < len)
       {
-        if (ndx < addCnt + _sym[count].order ().length) return { sym: _sym[count], ndx: ndx - addCnt };
-        addCnt += _sym[count].order ().length;
+        if (ndx < addCnt + _symGrp[count].order ().length) return { sym: _symGrp[count], ndx: ndx - addCnt };
+        addCnt += _symGrp[count].order ().length;
         count++;
       }
     };
@@ -201,21 +201,21 @@
             y             = e.localY,
             found         = false,
             symFnd        = false,
-            symObjsFnd    = [],
+            symGrpsFnd    = [],
             symsFnd       = [],
             count         = 0,
-            len           = _sym.length,
+            len           = _symGrp.length,
             closestDist   = _width,
-            symObjClosest = null,
+            symGrpClosest = null,
             symClosest    = null;
 
         if (!_isMouseDown)
         {
           for (var i = 0; i < len; ++i)
           {
-            if (_sym[i].interactive())
+            if (_symGrp[i].interactive())
             {
-              var sym = _sym[i].state ();
+              var sym = _symGrp[i].state ();
 
               for (var obj in sym)
               {
@@ -240,7 +240,7 @@
                     break;
 
                   case "custom":
-                    found = _sym[i].customShape ().hitTest (sym[obj], x, y);
+                    found = _symGrp[i].customShape ().hitTest (sym[obj], x, y);
                     break;
 
                   default:
@@ -249,7 +249,7 @@
                 
                 if (_symAction === "over")
                 {
-                  var isMap   = _sym[i].map(),
+                  var isMap   = _symGrp[i].map(),
                       horVar  = isMap ? sym[obj].lng : sym[obj].x,
                       vertVar = isMap ? sym[obj].lat : sym[obj].y;
 
@@ -259,7 +259,7 @@
                        y < vertVar + adjHgt &&
                        y > vertVar - adjHgt))
                   {
-                    symObjsFnd[count] = _sym[i];
+                    symGrpsFnd[count] = _symGrp[i];
                     symsFnd[count]    = sym[obj];
                     symFnd            = true;
                     count++;
@@ -267,7 +267,7 @@
                 }
                 else if (_symAction === "closest")
                 {
-                  symObjsFnd[count] = _sym[i];
+                  symGrpsFnd[count] = _symGrp[i];
                   symsFnd[count]    = sym[obj];
                   symFnd            = true;
                   count++;
@@ -289,40 +289,40 @@
               
                 if (curDist <= closestDist)
                 {
-                  symObjClosest = symObjsFnd[j];
+                  symGrpClosest = symGrpsFnd[j];
                   symClosest    = symsFnd[j];
                   closestDist   = curDist;
                 }
               }
             }
 
-            var symObjCur   = symObjClosest;
+            var symGrpCur   = symGrpClosest;
                 symCur      = symClosest;
                 symFnd      = true;
 
             if (_symCur !== symCur && symCur)
             {
-              if (_symObjCur)
+              if (_symGrpCur)
               {
-                // TODO Clean this up. No need to clear ctx here and then from _drawSym ().
-                _symObjCur.popup().hide();
-                if (_symObjCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxHltMain, _width, _height);
+                // TODO Clean this up. No need to clear ctx here and then from _drawSymGrps ().
+                _symGrpCur.popup().hide();
+                if (_symGrpCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxHltMain, _width, _height);
                 else _clearCtx (_ctxHltBack, _width, _height);
               }
 
               var keyObj              = {},
-              layer                   = symObjCur.layer ().toUpperCase () === "MAIN" ? "highlightMain" : "highlightBack";
-              _symObjCur              = symObjCur;
+              layer                   = symGrpCur.layer ().toUpperCase () === "MAIN" ? "highlightMain" : "highlightBack";
+              _symGrpCur              = symGrpCur;
               _symCur                 = symCur;
               keyObj[_symCur.poochID] = _symCur;
               _stepCnt                = _stepTot     = 1;
-              _fillPop (_symObjCur, _symObjCur.state (), _symCur.poochID, x, y);
+              _fillPop (_symGrpCur, _symGrpCur.state (), _symCur.poochID, x, y);
               pooch.fetch (_house).css ({ cursor: "pointer"});
-              _drawSym (null, layer, { obj: _symObjCur, key: keyObj });
+              _drawSymGrps (null, layer, { obj: _symGrpCur, key: keyObj });
             }
             else if (_symCur === symCur && symCur)
             {
-              _movePop(symObjCur, x, y);
+              _movePop(symGrpCur, x, y);
             }
           }
           
@@ -330,13 +330,13 @@
           {
             if (_symCur)
             {
-              _symObjCur.popup ().hide ();
+              _symGrpCur.popup ().hide ();
               pooch.fetch (_house).css ({ cursor: "default"});
-              if (_symObjCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxHltMain, _width, _height);
+              if (_symGrpCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxHltMain, _width, _height);
               else _clearCtx (_ctxHltBack, _width, _height);
               //else var TODO = "add swf clearing"; //document[_swfID].clearHighlights();
             }
-            _symObjCur = null;
+            _symGrpCur = null;
             _symCur    = null;
           }
         }
@@ -347,15 +347,15 @@
       }
     };
 
-    var _frameCalc = function (symObj, sym, key, time, dur)
+    var _frameCalc = function (symGrp, sym, key, time, dur)
     {
       var returnObj = {},
-          symState  = symObj.state ();
+          symState  = symGrp.state ();
 
       if (time === 1)
       {
-        var data      = symObj.data ().datum (),
-            symAttrs  = symObj.symAttrs ();
+        var data      = symGrp.data ().datum (),
+            symAttrs  = symGrp.symAttrs ();
         sym[key].list = [];
         
         for (var attr in symAttrs)
@@ -371,16 +371,16 @@
       while (i--)
       {
         var item        = sym[key].list[i],
-            stepFunc    = symObj.stepFunc (item);
+            stepFunc    = symGrp.stepFunc (item);
         returnObj[item] = stepFunc (time, symState[key][item], sym[key][item], dur, sym[key].easing);
       }
 
       return returnObj;
     };
 
-    var _shapeCalc = function (symObj, key, attrs, ctx)
+    var _shapeCalc = function (symGrp, key, attrs, ctx)
     {
-      var isMap   = symObj.map(),
+      var isMap   = symGrp.map(),
           horVar  = isMap ? attrs.lng : attrs.x,
           vertVar = isMap ? attrs.lat : attrs.y,
           x       = !_wholeNums ? horVar : horVar >> 0,
@@ -415,8 +415,11 @@
         break;
 
         case "line":
-          ctx.moveTo (x, y);
-          ctx.lineTo (attrs.xEnd, attrs.yEnd);
+          ctx.moveTo (x + _offsetX, y + _offsetX);
+          var orderNdx = symGrp.datum(key).order,
+              symPrev  = orderNdx > 0 ? symGrp.state(symGrp.order()[orderNdx - 1]) : symGrp.datum(key);
+          ctx.lineTo (symPrev.x + _offsetX, symPrev.y + _offsetY);
+
         break;
 
         case "hex":
@@ -446,9 +449,9 @@
         break;
 
         case "custom":
-          var sym  = symObj.datum(key),
-              data = symObj.data().datum(key);
-          symObj.customShape ().process (sym, attrs, { x: _offsetX, y: _offsetY });
+          var sym  = symGrp.datum(key),
+              data = symGrp.data().datum(key);
+          symGrp.customShape ().process (sym, attrs, { x: _offsetX, y: _offsetY });
         break;
 
         default:
@@ -457,7 +460,7 @@
       }
     };
 
-    var _drawCalc = function (symObj, key, attrs, ctx, isHlt)
+    var _drawCalc = function (symGrp, key, attrs, ctx, isHlt)
     {
       if (pooch.supportsCanvas)
       {
@@ -476,7 +479,7 @@
           ctx.lineWidth = strokeWidth;
           ctx.strokeStyle = "rgba(" + strokeColor + "," + strokeOpacity + ")";
         }
-        _shapeCalc (symObj, key, attrs, ctx);
+        _shapeCalc (symGrp, key, attrs, ctx);
       }
     };
 
@@ -486,14 +489,14 @@
 
       if (!layer)
       {
-        var len       = _sym.length,
+        var len       = _symGrp.length,
             clrMain   = false,
             clrBack   = false,
             clrHlt    = false;
 
         while (len--)
         {
-          symLayer = _sym[len].layer ().toUpperCase ();
+          symLayer = _symGrp[len].layer ().toUpperCase ();
 
           switch (symLayer)
           {
@@ -534,13 +537,12 @@
       }
     };
 
-    var _drawSym = function (time, layer, hlt)
+    var _drawSymGrps = function (time, layer, hlt)
     {
-      //console.log(time, layer, hlt);
       clearTimeout (_timeOut);
 
       var isHlt     = hlt ? true : false,
-          len       = isHlt ? 1 : _sym.length;
+          len       = isHlt ? 1 : _symGrp.length;
       _isAnimating  = true;
 
       //var drawString = [];
@@ -563,19 +565,19 @@
 
           if (drawOK)
           {
-            var sym       = isHlt ? hlt.key : _sym[i].datum (),
-                symObj    = isHlt ? hlt.obj : _sym[i],
-                symOrder  = isHlt ? [pooch.helpers.keyFromObj(hlt.key)] : symObj.order(),
+            var sym       = isHlt ? hlt.key : _symGrp[i].datum (),
+                symGrp    = isHlt ? hlt.obj : _symGrp[i],
+                symOrder  = isHlt ? [pooch.helpers.keyFromObj(hlt.key)] : symGrp.order(),
                 orderLen  = isHlt ? 1 : symOrder.length,
-                symLayer  = symObj.layer ().toUpperCase (),
+                symLayer  = symGrp.layer ().toUpperCase (),
                 ctx       = isHlt ? symLayer === "MAIN" ? _ctxHltMain : _ctxHltBack : symLayer === "MAIN" ? _ctxMain : _ctxBack,
-                batch     = symObj.batch () ? true : false;
+                batch     = symGrp.batch () ? true : false;
 
-            symObj.context (ctx);
+            symGrp.context (ctx);
 
             if (batch && !isHlt)
             {
-              var batchObj = symObj.batchObj (),
+              var batchObj = symGrp.batchObj (),
                   batchLen = batch.length;
 
               for (var group in batchObj)
@@ -586,11 +588,11 @@
                 while (groupLen--)
                 {
                   var key        = batchObj[group][groupLen],
-                      attrsBatch = _frameCalc (symObj, sym, key, _stepCnt, _stepTot);
+                      attrsBatch = _frameCalc (symGrp, sym, key, _stepCnt, _stepTot);
 
-                  for (var attrBatch in symObj.symAttrs ()) attrsBatch[attrBatch] = attrsBatch[attrBatch] || sym[key][attrBatch];
+                  for (var attrBatch in symGrp.symAttrs ()) attrsBatch[attrBatch] = attrsBatch[attrBatch] || sym[key][attrBatch];
 
-                  _drawCalc (symObj, key, attrsBatch, ctx, isHlt);
+                  _drawCalc (symGrp, key, attrsBatch, ctx, isHlt);
                 }
 
                 ctx.fill();
@@ -603,9 +605,9 @@
               for (var j = 0; j < orderLen; ++j)
               {
                 ctx.beginPath ();
-                var attrs = _frameCalc (symObj, sym, symOrder[j], _stepCnt, _stepTot);
-                for (var attr in symObj.symAttrs ()) attrs[attr] = attrs[attr] || sym[symOrder[j]][attr];
-                _drawCalc (symObj, symOrder[j], attrs, ctx, isHlt);
+                var attrs = _frameCalc (symGrp, sym, symOrder[j], _stepCnt, _stepTot);
+                for (var attr in symGrp.symAttrs ()) attrs[attr] = attrs[attr] || sym[symOrder[j]][attr];
+                _drawCalc (symGrp, symOrder[j], attrs, ctx, isHlt);
                  var drawFill   = isHlt ? attrs.drawFillHighlight : attrs.drawFill,
                      drawStroke = isHlt ? attrs.drawStrokeHighlight : attrs.drawStroke;
                  if (drawFill) ctx.fill();
@@ -619,18 +621,18 @@
 
         if (_stepCnt <= _stepTot && _stepTot > 1)
         {
-          _timeOut = setTimeout (_drawSym, 1);
+          _timeOut = setTimeout (_drawSymGrps, 1);
         }
         else
         {
           if (!pooch.supportsCanvas)
           {
           // var returnString = drawString.join("");
-          // var drawToSWF = document[scope.swfID].drawSymbols(returnString, false);
+          // var drawToSWF = document[scope.swfID].drawsymbolGroup(returnString, false);
           }
           _stepCnt      = 1;
-          var k         = _sym.length;
-          while (k--) if (!isHlt) _sym[k].state (true);
+          var k         = _symGrp.length;
+          while (k--) if (!isHlt) _symGrp[k].state (true);
           if (_zoomControl) _zoomControl.update ();
           _isAnimating  = false;
         }
@@ -686,13 +688,13 @@
         {
           _isDragging = true;
 
-          if (_symObjCur)
+          if (_symGrpCur)
           {
-            var layer    = _symObjCur.layer ().toUpperCase (),
+            var layer    = _symGrpCur.layer ().toUpperCase (),
                 layerHlt = layer === "MAIN" ? "highlightMain" : "highlightBack";
-            _symObjCur.popup ().hide ();
+            _symGrpCur.popup ().hide ();
             _clearLayers (layerHlt, true);
-            _symObjCur = _symCur = null;
+            _symGrpCur = _symCur = null;
           }
 
           drag.elem     = this;
@@ -797,7 +799,7 @@
 
           if (x !== 0 && y !== 0)
           {
-            _drawSym ();
+            _drawSymGrps ();
             if (typeof window.webkitURL === "function") drag.elem.style.webkitTransform = "matrix(1, 0, 0, 1, 0, 0)";
             else pooch.fetch ("#pooch_container_" + _id).css ({ "top": viewHgt + "px", "left": viewWid + "px" });
           }
@@ -953,23 +955,23 @@
       return _chartScope;
     };
 
-    _chartScope.symbols = function (obj)
+    _chartScope.symbolGroup = function (obj)
     {
-      if (!arguments.length) return _sym;
+      if (!arguments.length) return _symGrp;
 
       var len         = obj.length,
           chartActive = false;
 
       for (var i = 0; i < len; ++i)
       {
-        _sym[i] =  (obj[i]);
-        _sym[i].chart(_chartScope, _fit);
-        _sym[i].state (true);
+        _symGrp[i] =  (obj[i]);
+        _symGrp[i].chart(_chartScope, _fit);
+        _symGrp[i].state (true);
 
         if (_house)
         {
-          if (_sym[i].popup()) _popHouse (_sym[i].popup().house);
-          if (!chartActive && _sym[i].interactive())
+          if (_symGrp[i].popup()) _popHouse (_symGrp[i].popup().house);
+          if (!chartActive && _symGrp[i].interactive())
           {
             _chartScope.mouseMove (_mouseMoveChart);
             _chartScope.mouseOut (_mouseMoveChart);
@@ -978,7 +980,7 @@
         }
         else
         {
-          _funcQueue.push ( { func: _popHouse, arg: _sym[i].popup().house } );
+          _funcQueue.push ( { func: _popHouse, arg: _symGrp[i].popup().house } );
           _funcQueue.push ( { func: _chartScope.mouseMove, arg: _mouseMoveChart } );
           _funcQueue.push ( { func: _chartScope.mouseOut, arg: _mouseMoveChart } );
         }
@@ -1100,7 +1102,7 @@
       _axisMaxY = _center.y + ((_axisDefaults.maxY - _axisDefaults.minY) / 2) / _zoomLevels[_zoom];
       _setCenter ();
       _setUnitsPerPx ();
-      _drawSym ();
+      _drawSymGrps ();
       return _chartScope;
     };
 
@@ -1117,7 +1119,7 @@
       if (!arguments.length) _stepTot = 1;
       else _stepTot = count;
 
-      if (_house) _drawSym (count, layer);
+      if (_house) _drawSymGrps (count, layer);
       else _funcQueue.push ( { func: _drawSym, arg: null } );
       return _chartScope;
     };
@@ -1261,9 +1263,9 @@
     return _chartScope;
   };
 
-  _symbol = function (shape)
+  _symbolGroup = function (shape)
   {
-    var _symScope = this;
+    var _symGrpScope = this;
 
     var _stepInt = function (time, sPos, ePos, dur, ease)
     {
@@ -1332,34 +1334,35 @@
     {
       _batchObj = {};
 
-      for (var sym in _symObj)
+      for (var sym in _symGrp)
       {
-        var fillColor =  typeof _symScope.fillColor() === "string" ? _symScope.fillColor() : _symScope.fillColor()(_symObj[sym], _info.datum()[sym]);
-        if (_batchObj.hasOwnProperty (fillColor)) _batchObj[fillColor].push (_symObj[sym].poochID);
-        else  _batchObj[fillColor] = [_symObj[sym].poochID];
+        var fillColor =  typeof _symGrpScope.fillColor() === "string" ? _symGrpScope.fillColor() : _symGrpScope.fillColor()(_symGrp[sym], _info.datum()[sym]);
+        if (_batchObj.hasOwnProperty (fillColor)) _batchObj[fillColor].push (_symGrp[sym].poochID);
+        else  _batchObj[fillColor] = [_symGrp[sym].poochID];
       }
       return _batchObj;
     };
 
     var _build = function (arr)
     {
-      if (!arguments.length) return _symScope;
+      if (!arguments.length) return _symGrpScope;
       var keyLen = arr.length;
-      _symObj    = {};
+      _symGrp    = {};
 
       while (keyLen--)
       {
         var key = arr[keyLen];
-        _symObj[key] = {};
+        _symGrp[key] = {};
 
         for (var attr in _attrs)
         {
-          _symObj[key][attr] = _attrs[attr];
+          _symGrp[key][attr] = _attrs[attr];
         }
-        _symObj[key].poochID     = key;
+        _symGrp[key].poochID     = key;
         _order[keyLen]           = key;
+        _symGrp[key].order       = keyLen;
       }
-      return _symScope;
+      return _symGrpScope;
     };
 
     var _assignAttrs = function(attr, val)
@@ -1367,13 +1370,13 @@
       if (arguments.length === 1) return _attrs[attr];
       if (_dataObjExists (val)) attr = function (sym, data) { return data[val]; };
       else _attrs[attr] = val;
-      return _symScope;
+      return _symGrpScope;
     };
 
     var _dataObjExists = function (val)
     {
       var firstKey = null;
-      for (var first in _symScope.state())
+      for (var first in _symGrpScope.state())
       {
         firstKey = first;
         break;
@@ -1381,7 +1384,7 @@
       return (typeof val === "string" && typeof _info.datum(firstKey)[val]  !== "undefined");
     };
 
-    _symScope.sort = function ()
+    _symGrpScope.sort = function ()
     {
       if (_info)
       {
@@ -1390,17 +1393,17 @@
         {
           _order.sort (function(a, b)
           {
-            var sizeA = _attrs.size (_symObj[a], _info.datum(_symObj[a].poochID));
-                sizeB = _attrs.size (_symObj[b], _info.datum(_symObj[b].poochID));
-            var compare = _symObj[b].shape === "circle" ? sizeB - sizeA : (_symObj[b].height * _symObj[b].width) - (_symObj[a].height * _symObj[a].width);
+            var sizeA = _attrs.size (_symGrp[a], _info.datum(_symGrp[a].poochID));
+                sizeB = _attrs.size (_symGrp[b], _info.datum(_symGrp[b].poochID));
+            var compare = _symGrp[b].shape === "circle" ? sizeB - sizeA : (_symGrp[b].height * _symGrp[b].width) - (_symGrp[a].height * _symGrp[a].width);
             return sizeB - sizeA;
           });
         }
       }
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.data = function (obj)
+    _symGrpScope.data = function (obj)
     {
       if (!arguments.length) return _info;
       _info = obj;
@@ -1413,111 +1416,111 @@
       }
       _funcQueue = [];
 
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.batch = function (bool)
+    _symGrpScope.batch = function (bool)
     {
       if (!arguments.length) return _batch;
       _batch = bool;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.chart = function (obj, func)
+    _symGrpScope.chart = function (obj, func)
     {
       if (!arguments.length) return _chart;
       _chart = obj;
       _fitFunc = func;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.symAttrs = function (obj)
+    _symGrpScope.symAttrs = function (obj)
     {
       if (!arguments.length) return _attrs;
       for (var attr in obj) { _attr[attr] = obj[attr]; }
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.datum = function (key)
+    _symGrpScope.datum = function (key)
     {
-      if (!arguments.length) return _symObj;
-      return _symObj[key];
+      if (!arguments.length) return _symGrp;
+      return _symGrp[key];
     };
 
-    _symScope.stepFunc = function (key)
+    _symGrpScope.stepFunc = function (key)
     {
       if (!arguments.length) return _stepFunc;
       return _stepFunc[key];
     };
 
-    _symScope.popup = function (obj)
+    _symGrpScope.popup = function (obj)
     {
       if (!arguments.length) return _pop;
       _pop = obj;
-      _pop.data(_symScope, _info);
+      _pop.data(_symGrpScope, _info);
       _interactive = true;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.drawFill               = function (val) { return _assignAttrs ("drawFill", val); };
-    _symScope.drawStroke             = function (val) { return _assignAttrs ("drawStroke", val); };
-    _symScope.drawFillHighlight      = function (val) { return _assignAttrs ("drawFillHighlight", val); };
-    _symScope.fillColorHighlight     = function (val) { return _assignAttrs ("fillColorHighlight", val); };
-    _symScope.fillOpacityHighlight   = function (val) { return _assignAttrs ("fillOpacityHighlight", val); };
-    _symScope.drawStrokeHighlight    = function (val) { return _assignAttrs ("drawStrokeHighlight", val); };
-    _symScope.strokeWidthHighlight   = function (val) { return _assignAttrs ("strokeWidthHighlight", val); };
-    _symScope.strokeColorHighlight   = function (val) { return _assignAttrs ("strokeColorHighlight", val); };
-    _symScope.strokeOpacityHighlight = function (val) { return _assignAttrs ("strokeOpacityHighlight", val); };
-    _symScope.size                   = function (val) { return _assignAttrs ("size", val); };
-    _symScope.fillOpacity            = function (val) { return _assignAttrs ("fillOpacity", val); };
-    _symScope.strokeOpacity          = function (val) { return _assignAttrs ("strokeOpacity", val); };
-    _symScope.strokeColor            = function (val) { return _assignAttrs ("strokeColor", val); };
-    _symScope.strokeWidth            = function (val) { return _assignAttrs ("strokeWidth", val); };
+    _symGrpScope.drawFill               = function (val) { return _assignAttrs ("drawFill", val); };
+    _symGrpScope.drawStroke             = function (val) { return _assignAttrs ("drawStroke", val); };
+    _symGrpScope.drawFillHighlight      = function (val) { return _assignAttrs ("drawFillHighlight", val); };
+    _symGrpScope.fillColorHighlight     = function (val) { return _assignAttrs ("fillColorHighlight", val); };
+    _symGrpScope.fillOpacityHighlight   = function (val) { return _assignAttrs ("fillOpacityHighlight", val); };
+    _symGrpScope.drawStrokeHighlight    = function (val) { return _assignAttrs ("drawStrokeHighlight", val); };
+    _symGrpScope.strokeWidthHighlight   = function (val) { return _assignAttrs ("strokeWidthHighlight", val); };
+    _symGrpScope.strokeColorHighlight   = function (val) { return _assignAttrs ("strokeColorHighlight", val); };
+    _symGrpScope.strokeOpacityHighlight = function (val) { return _assignAttrs ("strokeOpacityHighlight", val); };
+    _symGrpScope.size                   = function (val) { return _assignAttrs ("size", val); };
+    _symGrpScope.fillOpacity            = function (val) { return _assignAttrs ("fillOpacity", val); };
+    _symGrpScope.strokeOpacity          = function (val) { return _assignAttrs ("strokeOpacity", val); };
+    _symGrpScope.strokeColor            = function (val) { return _assignAttrs ("strokeColor", val); };
+    _symGrpScope.strokeWidth            = function (val) { return _assignAttrs ("strokeWidth", val); };
 
-    _symScope.shapeData = function (val)
+    _symGrpScope.shapeData = function (val)
     {
       if (!arguments.length) return _shapeData;
       if (typeof val === "string") _shapeData = val;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.shape = function (val)
+    _symGrpScope.shape = function (val)
     {
       if (!arguments.length) return _attrs.shape;
       _attrs.shape = val;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.order = function (val)
+    _symGrpScope.order = function (val)
     {
       if (!arguments.length) return _order;
       _order = val;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.layer = function (val)
+    _symGrpScope.layer = function (val)
     {
       if (!arguments.length) return _layer;
       _layer = val;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.easing = function (val)
+    _symGrpScope.easing = function (val)
     {
       if (!arguments.length) return _attrs.easing;
       _attrs.easing = val;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.fillColor = function (val)
+    _symGrpScope.fillColor = function (val)
     {
       if (!arguments.length) return _attrs.fillColor;
       _attrs.fillColor = val;
       _batchMod = true;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.width = function (val)
+    _symGrpScope.width = function (val)
     {
       if (!arguments.length) return _attrs.width;
       if (typeof val === "string")
@@ -1526,10 +1529,10 @@
         _attrs.width = function (sym, data) { return data[val]; };
       }
       else _attrs.width = val;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.height = function (val)
+    _symGrpScope.height = function (val)
     {
       if (!arguments.length) return _attrs.height;
       if (typeof val === "string")
@@ -1538,38 +1541,38 @@
         _attrs.height = function (sym, data) { return data[val]; };
       }
       else _attrs.height = val;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.interactive = function (bool)
+    _symGrpScope.interactive = function (bool)
     {
       if (!arguments.length) return _interactive;
       _interactive = bool;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.map = function (val)
+    _symGrpScope.map = function (val)
     {
       if (!arguments.length) return _map;
       _map = val;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.context = function (ctx)
+    _symGrpScope.context = function (ctx)
     {
       if (!arguments.length) return _ctx;
       _ctx = ctx;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.customShape = function (func)
+    _symGrpScope.customShape = function (func)
     {
       if (!arguments.length) return _customShape;
       _customShape = func;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.batchObj = function (obj)
+    _symGrpScope.batchObj = function (obj)
     {
       if (!arguments.length)
       {
@@ -1582,10 +1585,10 @@
       }
        
       _batchObj = obj;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.x = function (val)
+    _symGrpScope.x = function (val)
     {
       if (!arguments.length) return _attrs.x;
       if (_dataObjExists (val))
@@ -1594,10 +1597,10 @@
         _attrs.x = function (sym, data) { return _fitFunc ({ dim: "width", val: data[_fitVarX] }); };
       }
       else _attrs.x = function () { return _fitFunc ({ dim: "width", val: val }); };
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.y = function (val)
+    _symGrpScope.y = function (val)
     {
       //TODO See if the lack of _fitVarY is messing up the bounds method in chart
       if (!arguments.length) return _attrs.y;
@@ -1607,10 +1610,10 @@
         _attrs.y = function (sym, data) { return _fitFunc ({ dim:"height", val: data[val] }); };
       }
       else _attrs.y = function () { return _fitFunc ({ dim: "height", val: val }); };
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.lat = function (val)
+    _symGrpScope.lat = function (val)
     {
       if (!arguments.length) return _attrs.lat;
       if (typeof val === "string")
@@ -1619,10 +1622,10 @@
         else _funcQueue.push ( { func: _setLat, arg: val } );
       }
       else _attrs.lat = pooch.helpers.latToMercator (val);
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.lng = function (val)
+    _symGrpScope.lng = function (val)
     {
       if (!arguments.length) return _attrs.lng;
       if (typeof val === "string")
@@ -1631,41 +1634,44 @@
         else _funcQueue.push ( { func: _setLng, arg: val } );
       }
       else _attrs.lng = pooch.helpers.lngToMercator (val);
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.shapePoints = function (val)
+    _symGrpScope.shapePoints = function (val)
     {
       if (!arguments.length) return _attrs.shapePoints;
       if (typeof val === "string")
       {
-        _symScope.shapeData(val);
+        _symGrpScope.shapeData(val);
         if (_info) _attrs.shapePoints = function (sym, data) { return _fitFunc ({sym: sym, val: data[val] }); };  //boundsObj: _boundsInView,
-        else _funcQueue.push ( { func: _symScope.shapePoints, arg: val } );
+        else _funcQueue.push ( { func: _symGrpScope.shapePoints, arg: val } );
       }
       else _attrs.shapePoints = val;
-      return _symScope;
+      return _symGrpScope;
     };
 
-    _symScope.state = function ()
+    _symGrpScope.state = function (str)
     {
       if (!arguments.length) return _symState;
-      for (var obj in _symObj)
+      else if (arguments.length === 1 && typeof _symState[str] !== "undefined") return _symState[str];
+
+      for (var obj in _symGrp)
       {
         _symState[obj] = {};
         
         for (var attr in _attrs)
         {
-          _symState[obj][attr] = _symObj[obj][attr];
+          _symState[obj][attr] = _symGrp[obj][attr];
         }
 
         _symState[obj].poochID = obj;
+        //console.log("ssffd");
       }
 
       return _symState;
     };
 
-    var _symObj      = {},
+    var _symGrp      = {},
         _bounds      = [Number.MAX_VALUE, Number.MIN_VALUE, Number.MIN_VALUE, Number.MAX_VALUE],
         //_boundsInView = {},
         _info        = null,
@@ -1688,7 +1694,7 @@
         _shapeData   = "",
         _funcQueue   = [],
         _symState    = {},
-        _attrs       = { symbolGroup: _symScope, x: 0, y: 0, lat: 0, lng: 0, visible: true, shape: "circle",
+        _attrs       = { symbolGroup: _symGrpScope, x: 0, y: 0, lat: 0, lng: 0, visible: true, shape: "circle",
                         easing: "easeInOut", drawFill: true, drawStroke: true,
                         size: 6, height: 6, width: 6, fillColor: "200,200,200",
                         fillOpacity: 1, strokeColor: "255,255,255",
@@ -1696,8 +1702,8 @@
                         drawFillHighlight: true, fillColorHighlight: "200,200,200", fillOpacityHighlight: 1,
                         drawStrokeHighlight: true, strokeWidthHighlight: 1, strokeColorHighlight: "0,0,0",
                         strokeOpacityHighlight: 1 },
-        _stepFunc    = { symbolGroup: _stepSwitch, poochID: _stepSwitch, x: _stepInt, y: _stepInt, lat: _stepInt, lng: _stepInt,
-                        visible: _stepSwitch, shape: _stepSwitch,
+        _stepFunc    = { symbolGroup: _stepSwitch, poochID: _stepSwitch, order: _stepSwitch, x: _stepInt, y: _stepInt,
+                        lat: _stepInt, lng: _stepInt, visible: _stepSwitch, shape: _stepSwitch,
                         easing: _stepSwitch, drawFill: _stepSwitch, drawStroke: _stepSwitch,
                         size: _stepInt, height: _stepInt, width: _stepInt, fillColor: _stepColor,
                         fillOpacity: _stepInt, strokeColor: _stepColor,
@@ -1706,9 +1712,9 @@
                         drawStrokeHighlight: _stepSwitch, strokeWidthHighlight: _stepSwitch, strokeColorHighlight: _stepSwitch,
                         strokeOpacityHighlight: _stepSwitch };
 
-    if (!arguments.length) return _symScope;
-    _symScope.shape (shape);
-    return _symScope;
+    if (!arguments.length) return _symGrpScope;
+    _symGrpScope.shape (shape);
+    return _symGrpScope;
   };
 
   _zoomControl= function (elem)
@@ -1899,7 +1905,7 @@
         _template   = null,
         _house      = null,
         _info       = null,
-        _sym        = null,
+        _symGrp        = null,
         _x          = 0,
         _y          = 0,
         _offsetX    = 0,
@@ -2008,10 +2014,10 @@
       return _popupScope;
     };
 
-    _popupScope.data = function (sym, data)
+    _popupScope.data = function (symGrp, data)
     {
       if (!arguments.length) return _info;
-      if (sym !== null && sym !== undefined) _sym = sym;
+      if (symGrp !== null && symGrp !== undefined) _symGrp = symGrp;
       if (data !== null && data !== undefined) _info = data;
       return _popupScope;
     };
@@ -2119,7 +2125,7 @@
         _google       = true,
         _bing         = false,
         _map          = null,
-        _sym          = [],
+        _symGrp       = [],
         _width        = 500,
         _height       = 500,
         _center       = null,
@@ -2192,21 +2198,21 @@
       return _mapScope;
     };
 
-    _mapScope.symbols = function (obj)
+    _mapScope.symbolGroup = function (obj)
     {
-      if (!arguments.length) return _sym;
+      if (!arguments.length) return _symGrp;
       if (_chart)
       {
         var len = obj.length;
-        _chart.symbols (obj);
+        _chart.symbolGroup (obj);
 
         for (var i = 0; i < len; ++i)
         {
-          _sym[i] = _chart.symbols ()[i];
-          _sym[i].map (_mapScope);
+          _symGrp[i] = _chart.symbolGroup ()[i];
+          _symGrp[i].map (_mapScope);
         }
       }
-      else _funcQueue.push ( { func: _mapScope.symbols, arg: obj } );
+      else _funcQueue.push ( { func: _mapScope.symbolGroup, arg: obj } );
       return _mapScope;
     };
 

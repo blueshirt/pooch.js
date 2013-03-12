@@ -16,14 +16,14 @@
                          },
           data1        = pooch.data ([pieChartData]).key ("category"),
           pieShape1    = pooch.helpers.pieChart ("share2013"),
-          symbol1      = pooch.symbols ("custom").data (data1)
-                                                 .x (50)
-                                                 .y (50)
-                                                 .size (160)
-                                                 .fillColor (function (sym, data) { return data.color; })
-                                                 .fillOpacity (0.6)
-                                                 .customShape (pieShape1),
-          chart1       = pooch.chart (".pooch-stage").symbols ([symbol1])
+          symbol1      = pooch.symbolGroup ("custom").data (data1)
+                                                     .x (50)
+                                                     .y (50)
+                                                     .size (160)
+                                                     .fillColor (function (sym, data) { return data.color; })
+                                                     .fillOpacity (0.6)
+                                                     .customShape (pieShape1),
+          chart1       = pooch.chart (".pooch-stage").symbolGroup ([symbol1])
                                                      .height (400)
                                                      .width (800)
                                                      .bounds ([100, 100, 0, 0]);

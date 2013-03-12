@@ -55,24 +55,24 @@
                                                                  .top (10)
                                                                  .left (10);
 
-      var symbols1      = pooch.symbols ("circle").data (data1)
-                                                  .lat ("lat")
-                                                  .lng ("lng")
-                                                  .size (function (sym, data) { return adjustSize (data, "fall_enroll_2004"); })
-                                                  .easing ("linear")
-                                                  .fillOpacity (0.5)
-                                                  .fillOpacityHighlight (0.7)
-                                                  .fillColor (function (sym, data) { if (data.sector !== "pub") return "241,110,0"; else return "50,96,174"; })
-                                                  .fillColorHighlight (function (sym, data) { if (data.sector !== "pub") return "241,110,0"; else return "50,96,174"; })
-                                                  .strokeOpacity (0.5)
-                                                  .strokeOpacityHighlight (0.9)
-                                                  .strokeColorHighlight ("255,255,255")
-                                                  .sort ()
-                                                  .popup (popup1);
+      var symbols1      = pooch.symbolGroup ("circle").data (data1)
+                                                      .lat ("lat")
+                                                      .lng ("lng")
+                                                      .size (function (sym, data) { return adjustSize (data, "fall_enroll_2004"); })
+                                                      .easing ("linear")
+                                                      .fillOpacity (0.5)
+                                                      .fillOpacityHighlight (0.7)
+                                                      .fillColor (function (sym, data) { if (data.sector !== "pub") return "241,110,0"; else return "50,96,174"; })
+                                                      .fillColorHighlight (function (sym, data) { if (data.sector !== "pub") return "241,110,0"; else return "50,96,174"; })
+                                                      .strokeOpacity (0.5)
+                                                      .strokeOpacityHighlight (0.9)
+                                                      .strokeColorHighlight ("255,255,255")
+                                                      .sort ()
+                                                      .popup (popup1);
 
       var map1          = pooch.map (".pooch-stage")
                                .api ("google")
-                               .symbols ([symbols1])
+                               .symbolGroup ([symbols1])
                                .defaultView ({ lat: 37.090238, lng: -95.7129, zoom: 4 })
                                .zoomControl (zoomControl1);
 

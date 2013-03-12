@@ -44,7 +44,7 @@
 
           popup1       = pooch.popup ("popupLayout1"),
 
-          symbols1     = pooch.symbols ("poly").data (data1)
+          symbols1     = pooch.symbolGroup ("poly").data (data1)
                                                .shapePoints ("polygons")
                                                .fillColor ("190, 190, 190")
                                                .strokeColor ("150,150,150")
@@ -55,7 +55,7 @@
                                                .layer ("back")
                                                .popup (popup1),
 
-          chart1       = pooch.chart (".pooch-stage").symbols ([symbols1])
+          chart1       = pooch.chart (".pooch-stage").symbolGroup ([symbols1])
                                                      .height (500)
                                                      .width (800)
                                                      .projection (customOrtho)

@@ -18,11 +18,11 @@
 
       var data1     = pooch.data ([pooch_img_data]).key ("uniqueID"),
 
-          symbols1  = pooch.symbols ("hex").data (data1)
-                                           .easing ("easeOut")
-                                           .drawStroke (false),
+          symbols1  = pooch.symbolGroup ("hex").data (data1)
+                                               .easing ("easeOut")
+                                               .drawStroke (false),
 
-          chart1    = pooch.chart (".pooch-stage").symbols ([symbols1])
+          chart1    = pooch.chart (".pooch-stage").symbolGroup ([symbols1])
                                                   .height (400)
                                                   .width (800)
                                                   .bounds ([34, 53, 0, 0]);

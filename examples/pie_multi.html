@@ -45,20 +45,20 @@
       {
         var pie = pooch.helpers.pieChart (pieVars[i]);
 
-        pieCharts[i] = pooch.symbols ("custom").data (data1)
-                                               .x (pieXPos[i])
-                                               .y (pieYPos[i])
-                                               .size (80)
-                                               .fillColor (function (sym, data) { return data.color; })
-                                               .fillOpacity (0.4)
-                                               .easing ("easeInOut")
-                                               .popup (popup1)
-                                               .drawFillHighlight (false)
-                                               .strokeOpacityHighlight (0.7)
-                                               .customShape (pie);
+        pieCharts[i] = pooch.symbolGroup ("custom").data (data1)
+                                                   .x (pieXPos[i])
+                                                   .y (pieYPos[i])
+                                                   .size (80)
+                                                   .fillColor (function (sym, data) { return data.color; })
+                                                   .fillOpacity (0.4)
+                                                   .easing ("easeInOut")
+                                                   .popup (popup1)
+                                                   .drawFillHighlight (false)
+                                                   .strokeOpacityHighlight (0.7)
+                                                   .customShape (pie);
       }
 
-      var chart1 = pooch.chart (".pooch-stage").symbols (pieCharts)
+      var chart1 = pooch.chart (".pooch-stage").symbolGroup (pieCharts)
                                                .height (400)
                                                .width (800)
                                                .bounds ([100, 100, 0, 0]);
