@@ -17,6 +17,11 @@
     return _fetch (elem);
   };
 
+  pooch.log = function (obj)
+  {
+    if (window.console && window.console.log) console.log (obj);
+  };
+
   pooch.map = function (elem, options)
   {
     return new pooch_map (elem, options);
@@ -2541,6 +2546,13 @@
 
     _fetchScope.dom = function ()
     {
+      return _domElem;
+    };
+
+    _fetchScope.html = function (str)
+    {
+      if (!arguments.length) return _domElem.innerHTML;
+       _domElem.innerHTML = str;
       return _domElem;
     };
 
