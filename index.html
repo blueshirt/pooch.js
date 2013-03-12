@@ -25,7 +25,7 @@
         pooch.<strong><a href="#helpers">helpers</a></strong> <br />
         pooch.<strong><a href="#map">map()</a></strong> <br />
         pooch.<strong><a href="#popup">popup()</a></strong> <br />
-        pooch.<strong><a href="#symbols">symbols()</a></strong> <br />
+        pooch.<strong><a href="#symbolGroup">symbolGroup()</a></strong> <br />
         pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
 
         <p class="view"><a href="https://github.com/blueshirt/pooch.js">View the Project on GitHub <small>blueshirt/pooch.js</small></a></p>
@@ -42,10 +42,10 @@
 
 <p>Create an interactive chart or map in just a few lines with the pooch.js JavaScript library:</p>
 
-<pre><code>var chart1 = pooch.chart (".container").symbols ([symbols1, symbols2])
+<pre><code>var chart1 = pooch.chart (".container").symbolGroup ([symGrp1, symGrp2])
                                        .height (400)
                                        .width (800)
-                                       .bounds (symbols1)
+                                       .bounds (symGrp1)
                                        .zoomControl (zoomControl1);
 </code></pre>
 
@@ -114,7 +114,7 @@
 
 <p><strong><em><span class="arguments">div</span></em></strong>  - string or dom element to use as a chart container</p>
 
-<p>Charts are the basis for all drawing in pooch.  Elements (<a href="#symbols">symbols</a>, <a href="#zoomControl">zoom controls</a>, etc.) are added to the chart and then <a href="#chartDraw">drawn</a> and potentially animated.</p>
+<p>Charts are the basis for all drawing in pooch.  Elements (<a href="#symbolGroup">symbolGroup</a>, <a href="#zoomControl">zoom controls</a>, etc.) are added to the chart and then <a href="#chartDraw">drawn</a> and potentially animated.</p>
 
 <p>examples</p>
 
@@ -138,7 +138,7 @@
 <a href="#chartMouseOut">.mouseOut()</a> <br />
 <a href="#chartMouseOver">.mouseOver()</a> <br />
 <a href="#chartReset">.reset()</a> <br />
-<a href="#chartSymbols">.symbols()</a> <br />
+<a href="#chartsymbolGroup">.symbolGroup()</a> <br />
 <a href="#chartWidth">.width()</a> <br />
 <a href="#chartZoom">.zoom()</a> <br />
 <a href="#chartControl">.zoomControl()</a> <br />
@@ -149,16 +149,16 @@
 
 <p><a id="chartActiveSymbol"></a></p>
 
-<h3>.activeSymbol( <em><span class="arguments">symbols, key</span></em> )</h3>
+<h3>.activeSymbol( <em><span class="arguments">symbolGroup, key</span></em> )</h3>
 
-<p><strong><em><span class="arguments">symbols</span></em></strong>  - <a href="#symbols">symbols</a> object containing the individual symbol to make active <br />
+<p><strong><em><span class="arguments">symbolGroup</span></em></strong>  - <a href="#symbolGroup">symbolGroup</a> object containing the individual symbol to make active <br />
 <strong><em><span class="arguments">key</span></em></strong>  - string of the individual symbol name, defined in the <a href="#dataKey">data key</a></p>
 
 <p>Gets or sets the active symbol in the chart.</p>
 
 <p>examples</p>
 
-<pre><code>    myChart.activeSymbol(symbols1, "montana");   //sets the active symbol
+<pre><code>    myChart.activeSymbol(symGrp1, "montana");   //sets the active symbol
     myChart.activeSymbol();                      //gets the active symbol
 </code></pre>
 
@@ -230,15 +230,15 @@
 
 <p><a id="chartBounds"></a></p>
 
-<h3>.bounds( <em><span class="arguments">symbols</span></em> )</h3>
+<h3>.bounds( <em><span class="arguments">symbolGroup</span></em> )</h3>
 
-<p><strong><em><span class="arguments">symbols</span></em></strong>  - <a href="#symbols">symbols</a> for framing the current chart view</p>
+<p><strong><em><span class="arguments">symbolGroup</span></em></strong>  - <a href="#symbolGroup">symbolGroup</a> for framing the current chart view</p>
 
 <p>Gets or sets the viewable bounds of the chart.</p>
 
 <p>examples</p>
 
-<pre><code>    myChart.bounds(symbols1);   //sets the viewable extent of the chart
+<pre><code>    myChart.bounds(symGrp1);   //sets the viewable extent of the chart
     myChart.bounds();           //gets the viewable extent of the chart
 </code></pre>
 
@@ -251,7 +251,7 @@
 <p><strong><em><span class="arguments">steps</span></em></strong> <span class="optional"><em>optional</span></em> - number of tweening steps <br />
 <strong><em><span class="arguments">layer</span></em></strong> <span class="optional"><em>optional</span></em> - string defining which chart layer to draw, either "back" or "main"</p>
 
-<p>Draws the symbols and chart. Calling draw() with no arguments will draw all layers, and therefore all symbols, in one step. Passing in the number of steps will animate the symbols to their end state using the <a href="#symbolsEasing">symbol's easing</a> property.  Valid values for the layer argument are "back" and "main."</p>
+<p>Draws the symbols and chart. Calling draw() with no arguments will draw all layers, and therefore all symbols, in one step. Passing in the number of steps will animate the symbols to their end state using the <a href="#symbolGroupEasing">symbol's easing</a> property.  Valid values for the layer argument are "back" and "main."</p>
 
 <p>examples</p>
 
@@ -369,18 +369,18 @@
 
 <p><br></p>
 
-<p><a id="chartSymbols"></a></p>
+<p><a id="chartsymbolGroup"></a></p>
 
-<h3>.symbols( <em><span class="arguments">array</span></em> )</h3>
+<h3>.symbolGroup( <em><span class="arguments">array</span></em> )</h3>
 
-<p><strong><em><span class="arguments">array</span></em></strong>  - collection of <a href="#symbols">symbols</a> to add to the chart</p>
+<p><strong><em><span class="arguments">array</span></em></strong>  - collection of <a href="#symbolGroup">symbolGroups</a> to add to the chart</p>
 
-<p>Adds <a href="#symbols">symbols</a> to the chart for display and animation.  The symbols are drawn in the order they are placed into the array, so the symbols at index 0 are drawn before the symbols at index 2.  Layering of the symbols is achieved using a combination of the symbol's order in the array and the <a href="#symbolsLayer">symbol's layer</a> method.</p>
+<p>Adds <a href="#symbolGroup">symbolGroups</a> to the chart for display and animation.  The symbolGroups are drawn in the order they are placed into the array, so the symbolGroup at index 0 is drawn before the symbolGroup at index 2.  Layering of the symbolGroups is achieved using a combination of the symbol's order in the array and the <a href="#symbolGroupLayer">symbolGroup's layer</a> method.</p>
 
 <p>examples</p>
 
-<pre><code>    myChart.symbols([mySymbols]);                            //adds a single set of symbols to the chart
-    myChart.symbols([mySymbols1, mySymbols2, mySymbols3]);   //adds multiple symbols to the chart
+<pre><code>    myChart.symbolGroup([symGrp1]);                     //adds a symbolGroup to the chart
+    myChart.symbolGroup([symGrp1, symGrp2, symGrp3]);   //adds multiple symbolGroups to the chart
 </code></pre>
 
 <p><br>
@@ -468,9 +468,9 @@
 
 <h2>pooch.data ( <em><span class="arguments">array</span></em> )</h2>
 
-<p><strong><em><span class="arguments">array</span></em></strong>  - array of JSON objects containing information to use as <a href="#symbols">symbol</a> properties</p>
+<p><strong><em><span class="arguments">array</span></em></strong>  - array of JSON objects containing information to use as a <a href="#symbolGroup">symbolGroup's</a> properties</p>
 
-<p>Data objects provide the information necessary to draw symbols. Data objects are intialized with an array of JSON objects that then need to be combined with a <a href="#dataKey">key</a>.  Data objects are ready to be used as <a href="#symbolData">symbol data</a> after the <a href="#dataKey">key</a> has been set.</p>
+<p>Data objects provide the information necessary to draw a symbolGroup. Data objects are intialized with an array of JSON objects that then need to be combined with a <a href="#dataKey">key</a>.  Data objects are ready to be used as <a href="#symbolGroupData">symbolGroup data</a> after the <a href="#dataKey">key</a> has been set.</p>
 
 <p>examples</p>
 
@@ -493,7 +493,7 @@
 
 <p><strong><em><span class="arguments">id</span></em></strong>  - string   </p>
 
-<p>Gets or sets the key name for any symbols created from the data.</p>
+<p>Gets or sets the key name for any symbolGroup created from the data.</p>
 
 <p>examples</p>
 
@@ -521,7 +521,7 @@
 <h3>.datum( <em><span class="arguments">key, value</span></em> )</h3>
 
 <p><strong><em><span class="arguments">id</span></em></strong>  - string ID of the symbol to get or set <br />
-<strong><em><span class="arguments">value</span></em></strong>  <span class="optional"><em>optional</span></em> - object containing the new values for an individual <a href="#symbol">symbol</a>     </p>
+<strong><em><span class="arguments">value</span></em></strong>  <span class="optional"><em>optional</span></em> - object containing the new values for an individual symbol     </p>
 
 <p>Gets or sets the data for an individual symbol.  Calling datum() with no arguments will return all of the data for the data object. Including a value argument will set the object defined by the key argument.</p>
 
@@ -579,9 +579,9 @@
 
 <p><br></p>
 
-<p><a id="symbols"></a></p>
+<p><a id="symbolGroup"></a></p>
 
-<h2>pooch.symbols ( <em><span class="arguments">shape</span></em> )</h2>
+<h2>pooch.symbolGroup ( <em><span class="arguments">shape</span></em> )</h2>
 
 <p><br></p>
 
