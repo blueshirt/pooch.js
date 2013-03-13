@@ -42,7 +42,7 @@
     return new _zoomControl (elem);
   };
 
-  pooch.supportsCanvas = !!document.createElement('canvas').getContext;
+  pooch.supportsCanvas = !!document.createElement ('canvas').getContext;
 
   var _chart = function (id)
   {
@@ -93,7 +93,7 @@
 
     var _adjustLayout = function (obj)
     {
-      var attrKey = pooch.helpers.keyFromObj(obj),
+      var attrKey = pooch.helpers.keyFromObj (obj),
           px      = obj[attrKey] === 0 ? 0 : "px";
           cssObj  = {};
           ndxPre  = _layersPre.length,
@@ -104,10 +104,10 @@
 
       while (ndxPre--)
       {
-        var keyPre   = pooch.helpers.keyFromObj(_layersPre[ndxPre]),
-            fetchPre = pooch.fetch("#pooch" + keyPre + "_" + _id);
+        var keyPre   = pooch.helpers.keyFromObj (_layersPre[ndxPre]),
+            fetchPre = pooch.fetch ("#pooch" + keyPre + "_" + _id);
 
-        fetchPre.css(cssObj).dom()[attrKey] = obj[attrKey];
+        fetchPre.css (cssObj).dom ()[attrKey] = obj[attrKey];
         if (attrKey == "width") fetchPre.css ({ left: -(obj.width / 3) + "px" });
         if (attrKey == "height") fetchPre.css ({ top: -(obj.height / 3) + "px" });
       }
@@ -116,8 +116,8 @@
       {
         while (ndxMain--)
         {
-          var keyMain = pooch.helpers.keyFromObj(_layersMain[ndxMain]);
-          pooch.fetch("#pooch" + keyMain + "_" + _id).css(cssObj).dom()[attrKey] = obj[attrKey];
+          var keyMain = pooch.helpers.keyFromObj (_layersMain[ndxMain]);
+          pooch.fetch ("#pooch" + keyMain + "_" + _id).css (cssObj).dom ()[attrKey] = obj[attrKey];
         }
       }
       else
@@ -127,14 +127,14 @@
 
       while (ndxPost--)
       {
-        var keyPost = pooch.helpers.keyFromObj(_layersPost[ndxPost]);
-        pooch.fetch("#pooch" + keyPost + "_" + _id).css(cssObj).dom()[attrKey] = obj[attrKey];
+        var keyPost = pooch.helpers.keyFromObj (_layersPost[ndxPost]);
+        pooch.fetch ("#pooch" + keyPost + "_" + _id).css (cssObj).dom ()[attrKey] = obj[attrKey];
       }
     };
 
     var _popHouse = function (popHouse)
     {
-      var popDiv = pooch.fetch("#pooch_popup_" + _id).dom();
+      var popDiv = pooch.fetch ("#pooch_popup_" + _id).dom ();
       popHouse (popDiv);
     };
 
@@ -146,7 +146,7 @@
         _movePop (symGrp, x, y);
       }
     };
-    
+
     var _movePop = function (symGrp, x, y)
     {
       var xAdj    = 0,
@@ -164,7 +164,7 @@
       else if (x + popOffX + (width / 2) + 10 > visWid * 2) xAdj = visWid * 2 - (x + width) - 10;
       else xAdj = popOffX + (width / -2);
 
-      symGrp.popup().x (x + xAdj)
+      symGrp.popup ().x (x + xAdj)
                     .y (y + yAdj);
     };
 
@@ -194,7 +194,7 @@
           };
 
       var borderLen = shape.length;
-      while (borderLen--) if (pntInPoly(shape[borderLen], point)) return true;
+      while (borderLen--) if (pntInPoly (shape[borderLen], point)) return true;
       return false;
     };
 
@@ -218,7 +218,7 @@
         {
           for (var i = 0; i < len; ++i)
           {
-            if (_symGrp[i].interactive())
+            if (_symGrp[i].interactive ())
             {
               var sym = _symGrp[i].state ();
 
@@ -226,8 +226,8 @@
               {
                 var adjWid = 0,
                     adjHgt = 0;
-                
-                switch(sym[obj].shape)
+
+                switch (sym[obj].shape)
                 {
                   case "circle":
                     adjWid = sym[obj].size;
@@ -251,10 +251,10 @@
                   default:
                     // TODO: add default
                 }
-                
+
                 if (_symAction === "over")
                 {
-                  var isMap   = _symGrp[i].map(),
+                  var isMap   = _symGrp[i].map (),
                       horVar  = isMap ? sym[obj].lng : sym[obj].x,
                       vertVar = isMap ? sym[obj].lat : sym[obj].y;
 
@@ -276,12 +276,12 @@
                   symsFnd[count]    = sym[obj];
                   symFnd            = true;
                   count++;
-                  
+
                 }
               }
             }
           }
-          
+
           var j = symsFnd.length;
 
           if (symFnd)
@@ -291,7 +291,7 @@
               if (symsFnd[j].drawFill)
               {
                 var curDist = pooch.helpers.distanceToPoint (symsFnd[j].x, symsFnd[j].y, x, y);
-              
+
                 if (curDist <= closestDist)
                 {
                   symGrpClosest = symGrpsFnd[j];
@@ -310,7 +310,7 @@
               if (_symGrpCur)
               {
                 // TODO Clean this up. No need to clear ctx here and then from _drawSymGrps ().
-                _symGrpCur.popup().hide();
+                _symGrpCur.popup ().hide ();
                 if (_symGrpCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxHltMain, _width, _height);
                 else _clearCtx (_ctxHltBack, _width, _height);
               }
@@ -327,10 +327,10 @@
             }
             else if (_symCur === symCur && symCur)
             {
-              _movePop(symGrpCur, x, y);
+              _movePop (symGrpCur, x, y);
             }
           }
-          
+
           else
           {
             if (_symCur)
@@ -339,7 +339,7 @@
               pooch.fetch (_house).css ({ cursor: "default"});
               if (_symGrpCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxHltMain, _width, _height);
               else _clearCtx (_ctxHltBack, _width, _height);
-              //else var TODO = "add swf clearing"; //document[_swfID].clearHighlights();
+              //else var TODO = "add swf clearing"; //document[_swfID].clearHighlights ();
             }
             _symGrpCur = null;
             _symCur    = null;
@@ -362,7 +362,7 @@
         var data      = symGrp.data ().datum (),
             symAttrs  = symGrp.symAttrs ();
         sym[key].list = [];
-        
+
         for (var attr in symAttrs)
         {
           if (typeof symAttrs[attr] === "function") sym[key][attr] = symAttrs[attr](sym[key], data[key]);
@@ -370,7 +370,7 @@
           if (sym[key][attr] !== symState[key][attr]) sym[key].list.push (attr);
         }
       }
-      
+
       var i = sym[key].list.length;
 
       while (i--)
@@ -385,13 +385,13 @@
 
     var _shapeCalc = function (symGrp, key, attrs, ctx)
     {
-      var isMap   = symGrp.map(),
+      var isMap   = symGrp.map (),
           horVar  = isMap ? attrs.lng : attrs.x,
           vertVar = isMap ? attrs.lat : attrs.y,
           x       = !_wholeNums ? horVar : horVar >> 0,
           y       = !_wholeNums ? vertVar : vertVar >> 0;
 
-      switch(attrs.shape)
+      switch (attrs.shape)
       {
         case "circle":
           var size = !_wholeNums ? attrs.size : attrs.size >> 0;
@@ -403,15 +403,15 @@
               height     = !_wholeNums ? attrs.height : attrs.height >> 0,
               halfWidth  = !_wholeNums ? attrs.width / 2 : (attrs.width / 2) >> 0,
               halfHeight = !_wholeNums ? attrs.height / 2 : (attrs.height / 2) >> 0;
-          ctx.rect(x - halfWidth + _offsetX, y - halfHeight + _offsetY, width, height);
+          ctx.rect (x - halfWidth + _offsetX, y - halfHeight + _offsetY, width, height);
         break;
 
         case "bezcurve":
           // var multiplier = (attrs["xEnd"] < x) ? true : false;
           // var firstX = (multiplier) ? x - ((x - attrs["xEnd"]) * .5) : x + ((attrs["xEnd"] - x) * .5);
           // //var secondX = (multiplier) ? attrs["xEnd"] + (attrs["xEnd"] - (x / 2)) : x + (x - (attrs["xEnd"] / 2));
-          // ctx.moveTo(x, y);
-          // ctx.bezierCurveTo(firstX,
+          // ctx.moveTo (x, y);
+          // ctx.bezierCurveTo (firstX,
           //                       y,
           //                       firstX,
           //                       attrs["yEnd"],
@@ -421,8 +421,8 @@
 
         case "line":
           ctx.moveTo (x + _offsetX, y + _offsetX);
-          var orderNdx = symGrp.datum(key).order,
-              symPrev  = orderNdx > 0 ? symGrp.state(symGrp.order()[orderNdx - 1]) : symGrp.datum(key);
+          var orderNdx = symGrp.datum (key).order,
+              symPrev  = orderNdx > 0 ? symGrp.state (symGrp.order ()[orderNdx - 1]) : symGrp.datum (key);
           ctx.lineTo (symPrev.x + _offsetX, symPrev.y + _offsetY);
 
         break;
@@ -450,12 +450,12 @@
             ctx.moveTo (polys[brds][pts][0], polys[brds][pts][1]);
             while (pts--) ctx.lineTo (polys[brds][pts][0], polys[brds][pts][1]);
           }
-          // if (!scope.supportsCanvas) drawString.push("^");
+          // if (!scope.supportsCanvas) drawString.push ("^");
         break;
 
         case "custom":
-          var sym  = symGrp.datum(key),
-              data = symGrp.data().datum(key);
+          var sym  = symGrp.datum (key),
+              data = symGrp.data ().datum (key);
           symGrp.customShape ().process (sym, attrs, { x: _offsetX, y: _offsetY });
         break;
 
@@ -572,7 +572,7 @@
           {
             var sym       = isHlt ? hlt.key : _symGrp[i].datum (),
                 symGrp    = isHlt ? hlt.obj : _symGrp[i],
-                symOrder  = isHlt ? [pooch.helpers.keyFromObj(hlt.key)] : symGrp.order(),
+                symOrder  = isHlt ? [pooch.helpers.keyFromObj (hlt.key)] : symGrp.order (),
                 orderLen  = isHlt ? 1 : symOrder.length,
                 symLayer  = symGrp.layer ().toUpperCase (),
                 ctx       = isHlt ? symLayer === "MAIN" ? _ctxHltMain : _ctxHltBack : symLayer === "MAIN" ? _ctxMain : _ctxBack,
@@ -600,8 +600,8 @@
                   _drawCalc (symGrp, key, attrsBatch, ctx, isHlt);
                 }
 
-                ctx.fill();
-                ctx.stroke();
+                ctx.fill ();
+                ctx.stroke ();
               }
             }
 
@@ -615,8 +615,8 @@
                 _drawCalc (symGrp, symOrder[j], attrs, ctx, isHlt);
                  var drawFill   = isHlt ? attrs.drawFillHighlight : attrs.drawFill,
                      drawStroke = isHlt ? attrs.drawStrokeHighlight : attrs.drawStroke;
-                 if (drawFill) ctx.fill();
-                 if (drawStroke) ctx.stroke();
+                 if (drawFill) ctx.fill ();
+                 if (drawStroke) ctx.stroke ();
               }
             }
           }
@@ -632,8 +632,8 @@
         {
           if (!pooch.supportsCanvas)
           {
-          // var returnString = drawString.join("");
-          // var drawToSWF = document[scope.swfID].drawsymbolGroup(returnString, false);
+          // var returnString = drawString.join ("");
+          // var drawToSWF = document[scope.swfID].drawsymbolGroup (returnString, false);
           }
           _stepCnt      = 1;
           var k         = _symGrp.length;
@@ -668,24 +668,24 @@
       {
         elem : null,
 
-        init: function()
+        init: function ()
         {
           domElem.onmousedown = drag.start;
 
           if (window.navigator.msPointerEnabled) // new Microsoft model
           {
-            domElem.addEventListener("MSPointerDown", drag.start, false);
+            domElem.addEventListener ("MSPointerDown", drag.start, false);
             if (typeof domElem.style.msTouchAction !== "undefined") domElem.style.msTouchAction = "none";
           }
           else if (domElem.attachEvent && domElem.setCapture) // old Microsoft model
           {
             releaseCap = true;
-            domElem.attachEvent("onmousedown", function () { drag.start(window.event); window.event.returnValue = false; return false; });
+            domElem.attachEvent ("onmousedown", function () { drag.start (window.event); window.event.returnValue = false; return false; });
           }
           else if (domElem.addEventListener)
           {
-            domElem.addEventListener("touchstart", drag.start, false); // iOS
-            domElem.addEventListener("mousedown", drag.start, false); // standard mouse
+            domElem.addEventListener ("touchstart", drag.start, false); // iOS
+            domElem.addEventListener ("mousedown", drag.start, false); // standard mouse
           }
         },
 
@@ -708,7 +708,7 @@
 
           if (isNaN (parseLeft)) drag.elem.style.left = "0px";
           if (isNaN (parseTop)) drag.elem.style.top = "0px";
-          if (typeof window.webkitURL === "function") drag.elem.style.webkitTransform = "matrix(1, 0, 0, 1, 0, 0)";
+          if (typeof window.webkitURL === "function") drag.elem.style.webkitTransform = "matrix (1, 0, 0, 1, 0, 0)";
 
           e                     = e ? e : window.event;
           drag.elem.mouseX      = e.clientX;
@@ -716,35 +716,35 @@
 
           if (window.navigator.msPointerEnabled) // new Microsoft model
           {
-            document.addEventListener("MSPointerDown", drag.start, false);
+            document.addEventListener ("MSPointerDown", drag.start, false);
             if (typeof domElem.style.msTouchAction !== "undefined") domElem.style.msTouchAction = "none";
           }
           else if (domElem.attachEvent && domElem.setCapture) // old Microsoft model
           {
             releaseCap = true;
-            document.attachEvent("onmousemove", function () { drag.active(window.event); window.event.returnValue = false; return false; });
-            document.attachEvent("onmouseup", function () { drag.end(window.event); window.event.returnValue = false; return false; });
+            document.attachEvent ("onmousemove", function () { drag.active (window.event); window.event.returnValue = false; return false; });
+            document.attachEvent ("onmouseup", function () { drag.end (window.event); window.event.returnValue = false; return false; });
           }
           else if (domElem.addEventListener) // iOS, Android and standard mouse
           {
-            document.addEventListener("touchmove", drag.active, false);
-            document.addEventListener("touchend", drag.end, false);
-            document.addEventListener("touchcancel", drag.end, false);
-            document.addEventListener("touchleave", drag.end, false);
+            document.addEventListener ("touchmove", drag.active, false);
+            document.addEventListener ("touchend", drag.end, false);
+            document.addEventListener ("touchcancel", drag.end, false);
+            document.addEventListener ("touchleave", drag.end, false);
 
-            document.addEventListener("mousemove", drag.active, false);
-            document.addEventListener("mouseup", drag.end, false);
+            document.addEventListener ("mousemove", drag.active, false);
+            document.addEventListener ("mouseup", drag.end, false);
 
-            if (domElem.setCapture && !window.navigator.userAgent.match(/\bGecko\b/)) releaseCap = true; // minus gecko
+            if (domElem.setCapture && !window.navigator.userAgent.match (/\bGecko\b/)) releaseCap = true; // minus gecko
           }
 
-          //target.addEventListener("touchstart", DoEvent, false);
+          //target.addEventListener ("touchstart", DoEvent, false);
           return false;
         },
 
         active : function (e)
         {
-          e.preventDefault();
+          e.preventDefault ();
           if (drag.elem)
           {
             _isDragging   = true;
@@ -753,9 +753,9 @@
             if (typeof window.webkitURL === "function")
             {
               var matrix = pooch.helpers.parseWebkitMatrix (drag.elem.style.webkitTransform),
-                  tX     = parseInt(matrix.tX, 10) + (e[0].clientX - drag.elem.mouseX),
-                  tY     = parseInt(matrix.tY, 10) + (e[0].clientY - drag.elem.mouseY);
-              drag.elem.style.webkitTransform = "matrix(1, 0, 0, 1, " + tX + ", " + tY + ")";
+                  tX     = parseInt (matrix.tX, 10) + (e[0].clientX - drag.elem.mouseX),
+                  tY     = parseInt (matrix.tY, 10) + (e[0].clientY - drag.elem.mouseY);
+              drag.elem.style.webkitTransform = "matrix (1, 0, 0, 1, " + tX + ", " + tY + ")";
             }
             else
             {
@@ -783,8 +783,8 @@
           if (typeof window.webkitURL === "function")
           {
             var matrix = pooch.helpers.parseWebkitMatrix (drag.elem.style.webkitTransform);
-            x          = viewWid + parseInt(matrix.tX, 10);
-            y          = viewHgt + parseInt(matrix.tY, 10);
+            x          = viewWid + parseInt (matrix.tX, 10);
+            y          = viewHgt + parseInt (matrix.tY, 10);
           }
           else
           {
@@ -805,19 +805,19 @@
           if (x !== 0 && y !== 0)
           {
             _drawSymGrps ();
-            if (typeof window.webkitURL === "function") drag.elem.style.webkitTransform = "matrix(1, 0, 0, 1, 0, 0)";
+            if (typeof window.webkitURL === "function") drag.elem.style.webkitTransform = "matrix (1, 0, 0, 1, 0, 0)";
             else pooch.fetch ("#pooch_container_" + _id).css ({ "top": viewHgt + "px", "left": viewWid + "px" });
           }
 
-          if (releaseCap) document.releaseCapture();
+          if (releaseCap) document.releaseCapture ();
           else
           {
-            document.removeEventListener("mousemove", drag.active, false);
-            document.removeEventListener("mouseup", drag.end, false);
-            document.removeEventListener("touchmove", drag.active, false);
-            document.removeEventListener("touchend", drag.end, false);
-            document.removeEventListener("touchcancel", drag.end, false);
-            document.removeEventListener("touchleave", drag.end, false);
+            document.removeEventListener ("mousemove", drag.active, false);
+            document.removeEventListener ("mouseup", drag.end, false);
+            document.removeEventListener ("touchmove", drag.active, false);
+            document.removeEventListener ("touchend", drag.end, false);
+            document.removeEventListener ("touchcancel", drag.end, false);
+            document.removeEventListener ("touchleave", drag.end, false);
           }
 
           drag.elem = null;
@@ -905,7 +905,7 @@
       }
       else
       {
-        var shapePts    = arr.data().datum(),
+        var shapePts    = arr.data ().datum (),
             numMax      = Number.MAX_VALUE,
             numMin      = Number.MIN_VALUE,
             bndsW       = numMax,
@@ -915,7 +915,7 @@
 
         for (var shape in shapePts)
         {
-          var poly = shapePts[shape][arr.shapeData()],
+          var poly = shapePts[shape][arr.shapeData ()],
               brds = poly ? poly.length : 0;
 
           while (brds--)
@@ -934,7 +934,7 @@
           }
         }
         var chartRatio = _height / _width,
-            shapeRatio = Math.abs(bndsN - bndsS) / Math.abs(bndsE - bndsW);
+            shapeRatio = Math.abs (bndsN - bndsS) / Math.abs (bndsE - bndsW);
         if (chartRatio < shapeRatio)
         {
           var adjHgt  = (bndsE - bndsW) * (shapeRatio - chartRatio),
@@ -970,13 +970,13 @@
       for (var i = 0; i < len; ++i)
       {
         _symGrp[i] =  (obj[i]);
-        _symGrp[i].chart(_chartScope, _fit);
+        _symGrp[i].chart (_chartScope, _fit);
         _symGrp[i].state (true);
 
         if (_house)
         {
-          if (_symGrp[i].popup()) _popHouse (_symGrp[i].popup().house);
-          if (!chartActive && _symGrp[i].interactive())
+          if (_symGrp[i].popup ()) _popHouse (_symGrp[i].popup ().house);
+          if (!chartActive && _symGrp[i].interactive ())
           {
             _chartScope.mouseMove (_mouseMoveChart);
             _chartScope.mouseOut (_mouseMoveChart);
@@ -985,7 +985,7 @@
         }
         else
         {
-          _funcQueue.push ( { func: _popHouse, arg: _symGrp[i].popup().house } );
+          _funcQueue.push ( { func: _popHouse, arg: _symGrp[i].popup ().house } );
           _funcQueue.push ( { func: _chartScope.mouseMove, arg: _mouseMoveChart } );
           _funcQueue.push ( { func: _chartScope.mouseOut, arg: _mouseMoveChart } );
         }
@@ -999,7 +999,7 @@
       _width = val * 3;
       if (_house)
       {
-        _adjustLayout({ width: _width });
+        _adjustLayout ({ width: _width });
         _cvsHidden.width        = _width;
         _cvsHidden.style.width  = _width + "px";
       }
@@ -1013,7 +1013,7 @@
       _height = val * 3;
       if (_house)
       {
-        _adjustLayout({ height: _height });
+        _adjustLayout ({ height: _height });
         _cvsHidden.height       = _height;
         _cvsHidden.style.height = _height + "px";
       }
@@ -1075,7 +1075,7 @@
       _zoomControl.target (_chartScope, _zoomMin, _zoomMax);
       _house.appendChild (_zoomControl.domElem ());
       _zoomControl.house (_house);
-      _assignDrag (pooch.fetch ("#pooch_container_" + _id). dom());
+      _assignDrag (pooch.fetch ("#pooch_container_" + _id). dom ());
       _zoomControl.update ();
       return _chartScope;
     };
@@ -1090,7 +1090,7 @@
     {
       if (_house)
       {
-        if (_zoom - 1 === 0) _chartScope.reset();
+        if (_zoom - 1 === 0) _chartScope.reset ();
         else if (_zoom - 1 >= 0) _chartScope.zoom (_zoom - 1);
       }
       return _chartScope;
@@ -1141,7 +1141,7 @@
       if (typeof func === "function")
       {
         var checkParams = function (e) { var ignore = function () { return _isAnimating || _isDragging || _mouseIgnore; } (); func (e, ignore); };
-        if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseMove (checkParams);
+        if (_house) pooch.fetch ("#pooch_mouse_" + _id).mouseMove (checkParams);
         else _funcQueue.push ( { func: func, arg: checkParams } );
       }
       return _chartScope;
@@ -1151,7 +1151,7 @@
     {
       if (typeof func === "function")
       {
-        if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseOver (func);
+        if (_house) pooch.fetch ("#pooch_mouse_" + _id).mouseOver (func);
         else _funcQueue.push ( { func: _chartScope.mouseOver, arg: func } );
       }
       return _chartScope;
@@ -1161,7 +1161,7 @@
     {
       if (typeof func === "function")
       {
-        if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseDown (func);
+        if (_house) pooch.fetch ("#pooch_mouse_" + _id).mouseDown (func);
         else _funcQueue.push ( { func: _chartScope.mouseDown, arg: func } );
       }
       return _chartScope;
@@ -1172,7 +1172,7 @@
       if (typeof func === "function")
       {
         var checkParams = function (e) { _mouseMoveChart ({ localX: -20000, localY: -20000 }); };
-        if (_house) pooch.fetch("#pooch_mouse_" + _id).mouseOut (checkParams);
+        if (_house) pooch.fetch ("#pooch_mouse_" + _id).mouseOut (checkParams);
         else _funcQueue.push ( { func: _chartScope.mouseOut, arg: func } );
       }
       return _chartScope;
@@ -1189,7 +1189,7 @@
     _chartScope.house = function (elem)
     {
       if (!arguments.length) return _house;
-      var house = pooch.fetch (elem). dom();
+      var house = pooch.fetch (elem). dom ();
 
       if (house)
       {
@@ -1202,9 +1202,9 @@
 
         while (ndxPre--)
         {
-          var keyPre = pooch.helpers.keyFromObj(_layersPre[ndxPre]);
+          var keyPre = pooch.helpers.keyFromObj (_layersPre[ndxPre]);
           closeElem = _layersPre[ndxPre][keyPre];
-          layout.push("<" + _layersPre[ndxPre][keyPre] + " id='pooch" + keyPre + "_" +
+          layout.push ("<" + _layersPre[ndxPre][keyPre] + " id='pooch" + keyPre + "_" +
                       _id + "' width='" + _width + "' height='" + _height +
                       "' style='position:relative;top:0;left:0;width:" +
                       _width + "px;height:" + _height + "px;'>");
@@ -1214,8 +1214,8 @@
         {
           while (ndxMain--)
           {
-            var keyMain = pooch.helpers.keyFromObj(_layersMain[ndxMain]);
-            layout.push("<" + _layersMain[ndxMain][keyMain] + " id='pooch" + keyMain + "_" +
+            var keyMain = pooch.helpers.keyFromObj (_layersMain[ndxMain]);
+            layout.push ("<" + _layersMain[ndxMain][keyMain] + " id='pooch" + keyMain + "_" +
                         _id + "' width='" + _width + "' height='" + _height +
                         "' style='position:absolute;top:0;left:0;width:" +
                         _width + "px;height:" + _height + "px;'></" + _layersMain[ndxMain][keyMain] + ">");
@@ -1236,14 +1236,14 @@
 
         while (ndxPost--)
         {
-          var keyPost = pooch.helpers.keyFromObj(_layersPost[ndxPost]);
-          layout.push("<" + _layersPost[ndxPost][keyPost] + " id='pooch" + keyPost + "_" +
+          var keyPost = pooch.helpers.keyFromObj (_layersPost[ndxPost]);
+          layout.push ("<" + _layersPost[ndxPost][keyPost] + " id='pooch" + keyPost + "_" +
                       _id + "' width='" + _width + "' height='" + _height +
                       "' style='position:absolute;top:0;left:0;width:" +
                       _width + "px;height:" + _height + "px;'></" + _layersPost[ndxPost][keyPost] + ">");
         }
 
-        layout.push("</" + closeElem + ">");
+        layout.push ("</" + closeElem + ">");
         var join         = layout.join ("");
         _house.innerHTML = join;
         _ctxBack         = pooch.fetch ("#pooch_back_" + _id).dom ().getContext ("2d");
@@ -1306,8 +1306,8 @@
     var _stepColor = function (time, sCol, eCol, dur, ease)
     {
       if (!dur || dur === 1 || time === dur) return eCol;
-      var sColSpl   = sCol.split(","),
-          eColSpl   = eCol.split(","),
+      var sColSpl   = sCol.split (","),
+          eColSpl   = eCol.split (","),
           interpR   = _stepInt (time, sColSpl[0]|0, eColSpl[0]|0, dur, ease) >> 0,
           interpG   = _stepInt (time, sColSpl[1]|0, eColSpl[1]|0, dur, ease) >> 0,
           interpB   = _stepInt (time, sColSpl[2]|0, eColSpl[2]|0, dur, ease) >> 0;
@@ -1318,9 +1318,9 @@
     var _setLat = function (val)
     {
       var latID = val + "_pooch_proj_y";
-      for (var obj in _info.datum())
+      for (var obj in _info.datum ())
       {
-        _info.datum()[obj][latID] = pooch.helpers.latToMercator(_info.datum()[obj][val]);
+        _info.datum ()[obj][latID] = pooch.helpers.latToMercator (_info.datum ()[obj][val]);
       }
       _attrs.lat = function (sym, data) { return _fitFunc ({ dim:"height", val: data[latID] }); };
     };
@@ -1328,9 +1328,9 @@
     var _setLng = function (val)
     {
       var lngID = val + "_pooch_proj_x";
-      for (var obj in _info.datum())
+      for (var obj in _info.datum ())
       {
-        _info.datum()[obj][lngID] = pooch.helpers.lngToMercator(_info.datum()[obj][val]);
+        _info.datum ()[obj][lngID] = pooch.helpers.lngToMercator (_info.datum ()[obj][val]);
       }
       _attrs.lng = function (sym, data) { return _fitFunc ({ dim:"width", val: data[lngID] }); };
     };
@@ -1341,7 +1341,7 @@
 
       for (var sym in _symGrp)
       {
-        var fillColor =  typeof _symGrpScope.fillColor() === "string" ? _symGrpScope.fillColor() : _symGrpScope.fillColor()(_symGrp[sym], _info.datum()[sym]);
+        var fillColor =  typeof _symGrpScope.fillColor () === "string" ? _symGrpScope.fillColor () : _symGrpScope.fillColor ()(_symGrp[sym], _info.datum ()[sym]);
         if (_batchObj.hasOwnProperty (fillColor)) _batchObj[fillColor].push (_symGrp[sym].poochID);
         else  _batchObj[fillColor] = [_symGrp[sym].poochID];
       }
@@ -1370,7 +1370,7 @@
       return _symGrpScope;
     };
 
-    var _assignAttrs = function(attr, val)
+    var _assignAttrs = function (attr, val)
     {
       if (arguments.length === 1) return _attrs[attr];
       if (_dataObjExists (val)) attr = function (sym, data) { return data[val]; };
@@ -1381,12 +1381,12 @@
     var _dataObjExists = function (val)
     {
       var firstKey = null;
-      for (var first in _symGrpScope.state())
+      for (var first in _symGrpScope.state ())
       {
         firstKey = first;
         break;
       }
-      return (typeof val === "string" && typeof _info.datum(firstKey)[val]  !== "undefined");
+      return (typeof val === "string" && typeof _info.datum (firstKey)[val]  !== "undefined");
     };
 
     _symGrpScope.sort = function ()
@@ -1396,10 +1396,10 @@
         //TODO add calculations for objects other than circles
         if (typeof _attrs.size === "function")
         {
-          _order.sort (function(a, b)
+          _order.sort (function (a, b)
           {
-            var sizeA = _attrs.size (_symGrp[a], _info.datum(_symGrp[a].poochID));
-                sizeB = _attrs.size (_symGrp[b], _info.datum(_symGrp[b].poochID));
+            var sizeA = _attrs.size (_symGrp[a], _info.datum (_symGrp[a].poochID));
+                sizeB = _attrs.size (_symGrp[b], _info.datum (_symGrp[b].poochID));
             var compare = _symGrp[b].shape === "circle" ? sizeB - sizeA : (_symGrp[b].height * _symGrp[b].width) - (_symGrp[a].height * _symGrp[a].width);
             return sizeB - sizeA;
           });
@@ -1412,7 +1412,7 @@
     {
       if (!arguments.length) return _info;
       _info = obj;
-      _build (_info.keys());
+      _build (_info.keys ());
       var qLen = _funcQueue.length;
 
       while (qLen--)
@@ -1462,7 +1462,7 @@
     {
       if (!arguments.length) return _pop;
       _pop = obj;
-      _pop.data(_symGrpScope, _info);
+      _pop.data (_symGrpScope, _info);
       _interactive = true;
       return _symGrpScope;
     };
@@ -1588,7 +1588,7 @@
         }
         return _batchObj;
       }
-       
+
       _batchObj = obj;
       return _symGrpScope;
     };
@@ -1647,7 +1647,7 @@
       if (!arguments.length) return _attrs.shapePoints;
       if (typeof val === "string")
       {
-        _symGrpScope.shapeData(val);
+        _symGrpScope.shapeData (val);
         if (_info) _attrs.shapePoints = function (sym, data) { return _fitFunc ({sym: sym, val: data[val] }); };  //boundsObj: _boundsInView,
         else _funcQueue.push ( { func: _symGrpScope.shapePoints, arg: val } );
       }
@@ -1663,14 +1663,14 @@
       for (var obj in _symGrp)
       {
         _symState[obj] = {};
-        
+
         for (var attr in _attrs)
         {
           _symState[obj][attr] = _symGrp[obj][attr];
         }
 
         _symState[obj].poochID = obj;
-        //console.log("ssffd");
+        //console.log ("ssffd");
       }
 
       return _symState;
@@ -1768,12 +1768,12 @@
 
     var _triggerHandle = function (e)
     {
-      //_target.zoomIn();
+      //_target.zoomIn ();
     };
 
     var _triggerSlider = function (e)
     {
-      //_target.zoomIn();
+      //_target.zoomIn ();
     };
 
     _zoomScope.house = function (elem)
@@ -1876,8 +1876,8 @@
       var zoomMin   = _zoomMinFunc !== null ? _zoomMinFunc () : _target.zoomMin (),
           zoomMax   = _zoomMaxFunc !== null ? _zoomMaxFunc () : _target.zoomMax (),
           steps     = zoomMax - zoomMin,
-          stepDist  = parseInt(pooch.fetch (_slider).css ("height"), 10) / steps,
-          yPos      = ((zoomMax - _target.zoom()) * stepDist) >> 0;
+          stepDist  = parseInt (pooch.fetch (_slider).css ("height"), 10) / steps,
+          yPos      = ((zoomMax - _target.zoom ()) * stepDist) >> 0;
       pooch.fetch (_handle).css ({ top: yPos + "px" });
       return _zoomScope;
     };
@@ -1889,7 +1889,7 @@
         document.getElementById (elem) !== undefined)
     {
       _template = document.getElementById (elem);
-      _domElem  = document.createElement('div');
+      _domElem  = document.createElement ('div');
       _domElem.style.borderStyle = 'none';
       _domElem.style.borderWidth = '0px';
       _domElem.style.position = 'absolute';
@@ -2002,8 +2002,8 @@
         while (j--)
         {
           var prop      = replace[i].chunk.exec (matches[j])[1].replace (/(?:(?:^|\n)\s+|\s+(?:$|\n))/g,'').replace (/\s+/g,' '),
-              preDotLen = matches[0].substr(0, 3) === "dat" ? 5 : matches[0].substr(0, 3) === "sym" ? 3 : 0,
-              append    = (!replace[i].js) ? matches[j].substr(preDotLen, matches[j].length).match (/[^a-zA-Z0-9_]/) : "",
+              preDotLen = matches[0].substr (0, 3) === "dat" ? 5 : matches[0].substr (0, 3) === "sym" ? 3 : 0,
+              append    = (!replace[i].js) ? matches[j].substr (preDotLen, matches[j].length).match (/[^a-zA-Z0-9_]/) : "",
               val       = replace[i].js ? replace[i].obj ? preDotLen === 5 ? _info.datum ()[obj][eval (prop)] : _sym.datum ()[obj][eval (prop)] : eval (prop) : preDotLen === 5 ? _info.datum ()[obj][prop] : _sym.datum ()[obj][prop],
               appendVal = val + append;
           text          = text.replace (matches[j], appendVal);
@@ -2034,7 +2034,7 @@
         document.getElementById (elem) !== undefined)
     {
       _template = document.getElementById (elem);
-      _domElem  = document.createElement('div');
+      _domElem  = document.createElement ('div');
       _domElem.style.borderStyle = 'none';
       _domElem.style.borderWidth = '0px';
       _domElem.style.position = 'absolute';
@@ -2175,7 +2175,7 @@
         }
         _chart.draw (val);
       }
-      
+
       else _mapScope.init ();
       return _mapScope;
     };
@@ -2235,7 +2235,7 @@
     {
       if (!arguments.length) return _zoom;
       _zoom = val;
-      
+
       if (_map)
       {
         if (_google && _map.getZoom () != _zoom) _map.setZoom (_zoom);
@@ -2271,7 +2271,7 @@
     {
       if (_map)
       {
-        if (_google || _bing) _zoom = _map.getZoom();
+        if (_google || _bing) _zoom = _map.getZoom ();
         if (_zoom + 1 <= _zoomMax) _mapScope.zoom (_zoom + 1);
       }
       return _mapScope;
@@ -2281,7 +2281,7 @@
     {
       if (_map)
       {
-        if (_google || _bing) _zoom = _map.getZoom();
+        if (_google || _bing) _zoom = _map.getZoom ();
         if (_zoom - 1 >= _zoomMin) _mapScope.zoom (_zoom - 1);
       }
       return _mapScope;
@@ -2313,7 +2313,7 @@
       // TODO adjust layout
       return _mapScope;
     };
-  
+
     _mapScope.loadMap = function ()
     {
       if (_google)
@@ -2337,7 +2337,7 @@
         _map.mapTypes.set ("poochStyle", customMapType);
         _map.setMapTypeId ("poochStyle");
         _overlay = new __google_overlay (_mapScope);
-        //google.maps.event.addListener(that.map, 'zoom_changed', function (){nytg.delicious.map.zoomChanged ();});
+        //google.maps.event.addListener (that.map, 'zoom_changed', function (){nytg.delicious.map.zoomChanged ();});
 
       }
 
@@ -2370,14 +2370,14 @@
     {
       if (_google)
       {
-        var google = document.createElement("script");
+        var google = document.createElement ("script");
         google.setAttribute ("type", "text/javascript");
         google.setAttribute ("src", "http://maps.google.com/maps/api/js?sensor=false&callback=pooch_initMapAPIs");
         document.body.appendChild (google);
       }
       else if (_bing)
       {
-        var bing = document.createElement("script");
+        var bing = document.createElement ("script");
         bing.setAttribute ("type", "text/javascript");
         bing.setAttribute ("src", "http://dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&onScriptLoad=pooch_initMapAPIs");
         document.body.appendChild (bing);
@@ -2386,7 +2386,7 @@
     };
 
     if (!arguments.length) return _mapScope;
-    _house = pooch.fetch (house). dom();
+    _house = pooch.fetch (house). dom ();
     if (!_house) return _mapScope;
     pooch_baseMap = _mapScope;
     return _mapScope;
@@ -2399,30 +2399,30 @@
         _bounds        = null,
         _mapObj        = mapObj,
         _funcQueue     = funcQueue,
-        _map           = mapObj.map(),
-        _chart         = mapObj.chart(),
+        _map           = mapObj.map (),
+        _chart         = mapObj.chart (),
         _div           = null;
 
-    _overlayScope.prototype = new google.maps.OverlayView();
+    _overlayScope.prototype = new google.maps.OverlayView ();
 
     var _dragEndEvent = function ()
     {
-      _updateChart();
+      _updateChart ();
     };
 
     var _zoomChangedEvent = function ()
     {
-      if (_mapObj.zoomControl () && _mapObj.zoomControl ().slider ()) _updateChart();
+      if (_mapObj.zoomControl () && _mapObj.zoomControl ().slider ()) _updateChart ();
     };
 
     var _updateChart = function ()
     {
-      _bounds       = _map.getBounds();
+      _bounds       = _map.getBounds ();
 
-      var overProj  = _overlayScope.prototype.getProjection(),
+      var overProj  = _overlayScope.prototype.getProjection (),
           point     = google.maps.Point,
-          mapNW     = new google.maps.LatLng (_bounds.getNorthEast().lat(), _bounds.getSouthWest().lng()),
-          divPix    = overProj.fromLatLngToDivPixel(mapNW),
+          mapNW     = new google.maps.LatLng (_bounds.getNorthEast ().lat (), _bounds.getSouthWest ().lng ()),
+          divPix    = overProj.fromLatLngToDivPixel (mapNW),
           chartNW   = overProj.fromDivPixelToLatLng (new point (divPix.x, divPix.y)), //(new point (divPix.x - _mapObj.width (), divPix.y - _mapObj.height ())),
           chartSE   = overProj.fromDivPixelToLatLng (new point (divPix.x + _mapObj.width (), divPix.y + _mapObj.height ())), //(new point (divPix.x + _mapObj.width () * 2, divPix.y + _mapObj.height () * 2));
           nwLng     = chartNW.lng (),
@@ -2437,12 +2437,12 @@
             .axisMaxX (pooch.helpers.lngToMercator (seLng))
             .axisMaxY (pooch.helpers.latToMercator (chartNW.lat ()))
             .axisMinY (pooch.helpers.latToMercator (chartSE.lat ()));
-      
+
       if (_isSafari)
       {
         pooch.fetch (_chart.house ()).css ({ display: "none" });
         _mapObj.draw ();
-        setTimeout(function (){ _moveAndDraw (divPix); }, 1);
+        setTimeout (function (){ _moveAndDraw (divPix); }, 1);
       }
       else
       {
@@ -2469,24 +2469,24 @@
 
     _overlayScope.prototype.onAdd = function ()
     {
-      var div = document.createElement('div');
+      var div = document.createElement ('div');
       div.style.borderStyle = 'none';
       div.style.borderWidth = '0px';
       div.style.position = 'absolute';
       _div = div;
 
-      var panes = _overlayScope.prototype.getPanes();
+      var panes = _overlayScope.prototype.getPanes ();
       panes.overlayMouseTarget.appendChild (div);
 
       _chart = new pooch.chart (div);
       _mapObj.chart (_chart);
 
-      _chart.height(_mapObj.height())
-            .width(_mapObj.width());
-      _updateChart();
+      _chart.height (_mapObj.height ())
+            .width (_mapObj.width ());
+      _updateChart ();
 
-      google.maps.event.addListener(_map, 'dragend', function () { _dragEndEvent(); });
-      google.maps.event.addListener(_map, 'zoom_changed', function () { _zoomChangedEvent(); });
+      google.maps.event.addListener (_map, 'dragend', function () { _dragEndEvent (); });
+      google.maps.event.addListener (_map, 'zoom_changed', function () { _zoomChangedEvent (); });
     };
 
     _overlayScope.prototype.draw = function ()
@@ -2511,20 +2511,20 @@
     {
       if (!arguments.length) return _fetchScope;
       if (_domElem.currentStyle) return _domElem.currentStyle[prop];
-      else if (document.defaultView && document.defaultView.getComputedStyle) return document.defaultView.getComputedStyle(_domElem, "")[prop];
+      else if (document.defaultView && document.defaultView.getComputedStyle) return document.defaultView.getComputedStyle (_domElem, "")[prop];
       else return _domElem.style[prop];
     };
 
     _fetchScope.css = function (obj)
     {
-      var camelize  = function(str)
+      var camelize  = function (str)
                       {
-                        var parts = str.split('-'),
+                        var parts = str.split ('-'),
                             len   = parts.length;
 
                         if (len === 1) return parts[0];
-                        var camelized = str.charAt(0) === '-' ? parts[0].charAt(0).toUpperCase () + parts[0].substring(1) : parts[0];
-                        for (var i = 1; i < len; i++) camelized += parts[i].charAt(0).toUpperCase () + parts[i].substring(1);
+                        var camelized = str.charAt (0) === '-' ? parts[0].charAt (0).toUpperCase () + parts[0].substring (1) : parts[0];
+                        for (var i = 1; i < len; i++) camelized += parts[i].charAt (0).toUpperCase () + parts[i].substring (1);
 
                         return camelized;
                       };
@@ -2560,7 +2560,7 @@
     {
       if (typeof func === "function")
       {
-        _domElem.addEventListener("mouseover", function (e) { _mouseEvent(_domElem, e, func); }, false);
+        _domElem.addEventListener ("mouseover", function (e) { _mouseEvent (_domElem, e, func); }, false);
       }
       return _fetchScope;
     };
@@ -2569,7 +2569,7 @@
     {
       if (typeof func === "function")
       {
-        _domElem.addEventListener("mousemove", function (e) { _mouseEvent(_domElem, e, func); }, false);
+        _domElem.addEventListener ("mousemove", function (e) { _mouseEvent (_domElem, e, func); }, false);
       }
       return _fetchScope;
     };
@@ -2578,7 +2578,7 @@
     {
       if (typeof func === "function")
       {
-        _domElem.addEventListener("mousedown", function (e) { _mouseEvent(_domElem, e, func); }, false);
+        _domElem.addEventListener ("mousedown", function (e) { _mouseEvent (_domElem, e, func); }, false);
       }
       return _fetchScope;
     };
@@ -2587,7 +2587,7 @@
     {
       if (typeof func === "function")
       {
-        _domElem.addEventListener("mouseout", function (e) { _mouseEvent(_domElem, e, func); }, false);
+        _domElem.addEventListener ("mouseout", function (e) { _mouseEvent (_domElem, e, func); }, false);
       }
       return _fetchScope;
     };
@@ -2596,7 +2596,7 @@
     {
       if (typeof func === "function")
       {
-        _domElem.addEventListener("mouseup", function (e) { _mouseEvent(_domElem, e, func); }, false);
+        _domElem.addEventListener ("mouseup", function (e) { _mouseEvent (_domElem, e, func); }, false);
       }
       return _fetchScope;
     };
@@ -2631,21 +2631,21 @@
 
     keyFromObj: function (obj)
     {
-      for (var key in obj) { if(obj.hasOwnProperty(key)) return key; }
+      for (var key in obj) { if (obj.hasOwnProperty (key)) return key; }
       return null;
     },
 
-    formatNumber: function(num)
+    formatNumber: function (num)
     {
-      num = num.toString();
-      parts = num.toString().split('.');
+      num = num.toString ();
+      parts = num.toString ().split ('.');
       parts[0] = parts[0].replace (/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
-      return parts.join('.');
+      return parts.join ('.');
     },
 
     distanceToPoint: function (x1, y1, x2, y2)
     {
-      return Math.sqrt((x1 -= x2) * x1 + (y1 -= y2) * y1);
+      return Math.sqrt ((x1 -= x2) * x1 + (y1 -= y2) * y1);
     },
 
     latToMercator: function (val)
@@ -2699,9 +2699,9 @@
             },
             _pieVars = function (sym)
             {
-              var datum     = sym.symbolGroup.data().datum(),
-                    ctx     = sym.symbolGroup.context(),
-                    order   = sym.symbolGroup.order(),
+              var datum     = sym.symbolGroup.data ().datum (),
+                    ctx     = sym.symbolGroup.context (),
+                    order   = sym.symbolGroup.order (),
                     sum     = _sumTo (sym.poochID, datum, order),
                     sAngle  = (pooch.helpers.degreesToRadians (sum) / 100) * 360,
                     arcSize = (pooch.helpers.degreesToRadians (datum[sym.poochID][_field]) / 100) * 360,
@@ -2754,7 +2754,7 @@
   };
 
   window.pooch_baseMap = null;
-  var _isSafari        = (typeof (navigator.vendor) === "object" && navigator.vendor.indexOf("Apple") !== -1) ? true : false;
+  var _isSafari        = (typeof (navigator.vendor) === "object" && navigator.vendor.indexOf ("Apple") !== -1) ? true : false;
       _chartNdx        = 0,
       _css2js          = { "float":"styleFloat",
                            "text-decoration: blink":"textDecorationBlink",
@@ -2767,7 +2767,7 @@
                          {
                            if (domElem.getBoundingClientRect)
                            {
-                             var domRect = domElem.getBoundingClientRect(),
+                             var domRect = domElem.getBoundingClientRect (),
                                  left    = domRect.left, // + document.body.scrollLeft
                                  top     = domRect.top; // + document.body.scrollTop
                              e.localX    = e.clientX - left;
@@ -2775,5 +2775,8 @@
                            }
                            func (e);
                           };
+  pooch.log ("pooch.js v" + pooch.version);
 
 })();
+
+// Regex to add space before parens \b\((?! | \))
