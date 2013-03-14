@@ -708,7 +708,7 @@
 
           if (isNaN (parseLeft)) drag.elem.style.left = "0px";
           if (isNaN (parseTop)) drag.elem.style.top = "0px";
-          if (typeof window.webkitURL === "function") drag.elem.style.webkitTransform = "matrix (1, 0, 0, 1, 0, 0)";
+          if (typeof window.webkitURL === "function") drag.elem.style.webkitTransform = "matrix(1, 0, 0, 1, 0, 0)";
 
           e                     = e ? e : window.event;
           drag.elem.mouseX      = e.clientX;
@@ -755,7 +755,7 @@
               var matrix = pooch.helpers.parseWebkitMatrix (drag.elem.style.webkitTransform),
                   tX     = parseInt (matrix.tX, 10) + (e[0].clientX - drag.elem.mouseX),
                   tY     = parseInt (matrix.tY, 10) + (e[0].clientY - drag.elem.mouseY);
-              drag.elem.style.webkitTransform = "matrix (1, 0, 0, 1, " + tX + ", " + tY + ")";
+              drag.elem.style.webkitTransform = "matrix(1, 0, 0, 1, " + tX + ", " + tY + ")";
             }
             else
             {
@@ -805,7 +805,7 @@
           if (x !== 0 && y !== 0)
           {
             _drawSymGrps ();
-            if (typeof window.webkitURL === "function") drag.elem.style.webkitTransform = "matrix (1, 0, 0, 1, 0, 0)";
+            if (typeof window.webkitURL === "function") drag.elem.style.webkitTransform = "matrix(1, 0, 0, 1, 0, 0)";
             else pooch.fetch ("#pooch_container_" + _id).css ({ "top": viewHgt + "px", "left": viewWid + "px" });
           }
 
