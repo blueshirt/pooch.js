@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>pooch.js designer</title>
+    <script id="popupLayout1" type="text/html">
+      <div class="pooch-popup1">
+        <div class="pooch-popup1-prop">Shape key value</div>
+        <div class="pooch-popup1-val">data[designer.shapefiles.shapeKey()]</div>
+        <div class="pooch-popup1-prop">Total polygons in shape</div>
+        <div class="pooch-popup1-val">exec {designer.shapefiles.symbolGroup().datum("data[designer.shapefiles.shapeKey()]").shapePoints.length;}</div>
+        <div class="pooch-popup1-heightAdj"></div>
+      </div>
+    </script>
+
+    <script id="pooch-zoom-layout" type="text/html">
+      <div class="pooch-zoom-container">
+        <div class="pooch-zoom-reset"></div>
+        <div class="pooch-zoom-zoomIn"></div>
+        <div class="pooch-zoom-slider">
+          <div class="pooch-zoom-handle"></div>
+        </div>
+        <div class="pooch-zoom-zoomOut"></div>
+      </div>
+    </script>
+
+    <script type="text/javascript" src="../src/pooch.js"></script>
+    <script type="text/javascript" src="scripts/binaryajax.js"></script>
+    <script type="text/javascript" src="scripts/binarywrapper.js"></script>
+    <script type="text/javascript" src="scripts/shapefile.js"></script>
+    <script type="text/javascript" src="scripts/dbf.js"></script>
+    <script type="text/javascript" src="scripts/dhtmlxcommon.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato:300,400,700" />
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+
+  </head>
+
+  <body onload="designer.main.init ()">
+
+  <div class="header-container">
+    <div class="header-button-container">
+      <div id="header_button_data" class="header-button">data</div>
+      <div id="header_button_shape" class="header-button">shapefiles</div>
+      <div id="header_button_graph" class="header-button">scene graph</div>
+      <div id="header_button_preview" class="header-button">preview</div>
+      <div id="header_button_export" class="header-button">export</div>
+    </div>
+  </div>
+
+  <div class="main-container">
+
+    <div id="main_data_container" class="main-sub-container" style="height: 790px;">
+
+      <div class="ui-row-container" style="height: 330px;">
+        <div class="ui-label-above">original data (just paste below, first row must contain column headers)</div>
+        <textarea rows="26" cols="111" id="dataInput"></textarea>
+      </div>
+
+      <div class="ui-row-container">
+        <div class="ui-row-inline" style="width: 190px;">
+          <div class="ui-label-above">javascript variable name</div>
+          <div class="ui-text-area-container" style="width: 190px;">
+            <textarea id="data_object_name" class="ui-text-area">attrData</textarea>
+          </div>
+        </div>
+
+        <div class="ui-row-inline" style="width: 136px;">
+          <div class="ui-label-above"></div>
+          <button class="pooch-button" onclick="designer.data.convert ()">generate json</button>
+        </div>
+
+        <div class="ui-row-spacer" style="width: 295px;"></div>
+
+        <div class="ui-row-inline" style="width: 110px;">
+          <div class="ui-label-above">estimated file size</div>
+          <div id="data_file_size" class="ui-text-value-large">---</div>
+        </div>
+      </div>
+
+      <div class="ui-row-container" style="height: 300px;">
+        <textarea rows="26" cols="111" id="dataOutput" onfocus="this.select ()" onMouseUp="return false"></textarea>
+      </div>
+
+    </div>
+
+    <div id="main_shape_container" class="main-sub-container" style="height: 1030px;">
+      <div class="main-shape">
+
+        <div class="ui-row-container">
+          <div class="ui-row-inline" style="width: 450px;">
+            <div class="ui-label-above">relative path to .shp file</div>
+            <div class="ui-text-area-container">
+              <textarea class="ui-text-area">shapefiles/ne_50m_coastline.shp</textarea>
+            </div>
+          </div>
+          <div class="ui-row-inline" style="width: 136px;">
+            <div class="ui-label-above"></div>
+            <button class="pooch-button" onclick="designer.shapefiles.loadShapefile ()">import shapefile</button>
+          </div>
+
+          <div class="ui-row-spacer"></div>
+
+          <div class="ui-row-inline" style="width: 156px; margin-right: 0;">
+            <div class="ui-label-above">shape key</div>
+
+              <div id="shape_key_drop" class="ui-select">
+              </div>
+          </div>
+        </div>
+
+        <div class="stage-shape"></div>
+
+        <div class="ui-row-container">
+          <div class="ui-row-inline" style="width: 170px;">
+            <div class="ui-label-above">highest absolute value</div>
+            <div class="ui-text-container">
+              <div id="highest_abs_val" class="ui-text-value">---</div>
+            </div>
+          </div>
+          <div class="ui-row-inline" style="width: 170px;">
+            <div class="ui-label-above">greatest precision</div>
+            <div class="ui-text-container">
+              <div id="greatest_precision" class="ui-text-value">---</div>
+            </div>
+          </div>
+
+          <div class="ui-row-inline" style="width: 424px; margin-right: 0;">
+            <div class="ui-label-above">point resolution</div>
+            <div id="point_res_slider" class="ui-slider"></div>
+          </div>
+        </div>
+
+        <div class="ui-row-container">
+          <div class="ui-row-inline" style="width: 190px;">
+            <div class="ui-label-above">javascript variable name</div>
+            <div class="ui-text-area-container" style="width: 190px;">
+              <textarea id="json_object_name" class="ui-text-area">shapeData1</textarea>
+            </div>
+          </div>
+
+          <div class="ui-row-inline" style="width: 136px;">
+            <div class="ui-label-above"></div>
+            <button class="pooch-button" onclick="designer.shapefiles.createJS ()">generate json</button>
+          </div>
+
+          <div class="ui-row-spacer" style="width: 295px;"></div>
+
+          <div class="ui-row-inline" style="width: 110px;">
+            <div class="ui-label-above">estimated file size</div>
+            <div id="estimated_file_size" class="ui-text-value-large">---</div>
+          </div>
+
+        </div>
+
+        <div class="ui-row-container">
+          <textarea rows="26" cols="111" id="shapeText" onfocus="this.select ()" onMouseUp="return false"></textarea>
+        </div>
+
+
+      </div>
+      <div id="main_graph_container" class="main-sub-container" style="height: 200px;"><div class="ui-row-inline" style="width: 790px;margin-left: 50px;"><div class="ui-text-value-large" style="width: 400px;">not quite yet...</div></div></div>
+      <div id="main_preview_container" class="main-sub-container" style="height: 200px;"><div class="ui-row-inline" style="width: 790px;margin-left: 50px;"><div class="ui-text-value-large" style="width: 400px;">all in good time...</div></div></div>
+      <div id="main_export_container" class="main-sub-container" style="height: 200px;"><div class="ui-row-inline" style="width: 790px;margin-left: 50px;"><div class="ui-text-value-large" style="width: 400px;">at some point...</div></div></div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="scripts/designer.js"></script>
+  </body>
+
+</html>
+
+
