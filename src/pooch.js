@@ -2517,31 +2517,52 @@
 
     _fetchScope.css = function (obj)
     {
-      var camelize  = function (str)
-                      {
-                        var parts = str.split ('-'),
-                            len   = parts.length;
-
-                        if (len === 1) return parts[0];
-                        var camelized = str.charAt (0) === '-' ? parts[0].charAt (0).toUpperCase () + parts[0].substring (1) : parts[0];
-                        for (var i = 1; i < len; i++) camelized += parts[i].charAt (0).toUpperCase () + parts[i].substring (1);
-
-                        return camelized;
-                      };
-
-      if (typeof obj === "string")
+      if (_domElem !== null && typeof _domElem !== "undefined")
       {
-        return _computedStyle (obj);
-      }
-      else
-      {
-        for (var key in obj)
+        var camelize  = function (str)
+                        {
+                          var parts = str.split ('-'),
+                              len   = parts.length;
+
+                          if (len === 1) return parts[0];
+                          var camelized = str.charAt (0) === '-' ? parts[0].charAt (0).toUpperCase () + parts[0].substring (1) : parts[0];
+                          for (var i = 1; i < len; i++) camelized += parts[i].charAt (0).toUpperCase () + parts[i].substring (1);
+
+                          return camelized;
+                        };
+
+        if (typeof obj === "string")
         {
-          if (_css2js[key] === undefined) _domElem.style[camelize (key)] = obj[key];
-          else _domElem.style[_css2js[key]] = obj[key];
+          return _computedStyle (obj);
+        }
+        else
+        {
+          if (typeof _domElem.style !== "undefined")
+          {
+            for (var key in obj)
+            {
+              if (typeof _css2js[key] === "undefined") _domElem.style[camelize (key)] = obj[key];
+              else _domElem.style[_css2js[key]] = obj[key];
+            }
+          }
         }
       }
       return _fetchScope;
+    };
+
+    _fetchScope.addClass = function (str)
+    {
+      _domElem.className += " " + str;
+      return _domElem;
+    };
+
+    _fetchScope.removeClass = function (str)
+    {
+      var currCls        = _domElem.className,
+          re             = new RegExp("(?:^|\\s)" + str + "(?!\\S)","g"),
+          replace        = currCls.replace (re, "");
+      _domElem.className = replace;
+      return _domElem;
     };
 
     _fetchScope.dom = function ()
