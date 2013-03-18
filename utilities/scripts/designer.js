@@ -40,8 +40,8 @@ designer.main = new (function ()
 
   _mainScope.cover = function (bool)
   {
-    if (bool) pooch.fetch ("#cover").css ({ visibility: "visible" });
-    else pooch.fetch ("#cover").css ({ visibility: "hidden" });
+    //if (bool) pooch.fetch ("#cover").css ({ visibility: "visible" });
+    //else pooch.fetch ("#cover").css ({ visibility: "hidden" });
   };
 
   _mainScope.checkObjName = function (str)
