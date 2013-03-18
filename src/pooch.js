@@ -2556,6 +2556,12 @@
       return _domElem;
     };
 
+    _fetchScope.cause = function (str)
+    {
+      if ((_domElem[str] || false) && typeof _domElem[str] === "function") _domElem[str] (_domElem);
+      return _domElem;
+    };
+
     _fetchScope.removeClass = function (str)
     {
       var currCls        = _domElem.className,

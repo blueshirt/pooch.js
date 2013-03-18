@@ -1,283 +1,367 @@
-// From Tom Carden's shapefile-js project at https://github.com/RandomEtc/shapefile-js
-// Using for now, until I start using the File API in the browser.  Thanks Tom!!!
-
-// ported from http://code.google.com/p/vanrijkom-flashlibs/ under LGPL v2.1
-
-function ShpFile(binFile) {
-
-    var src = new BinaryFileWrapper(binFile);
-
-    var t1 = new Date().getTime();    
-    this.header = new ShpHeader(src);
-
-    var t2 = new Date().getTime();
-    if (window.console && window.console.log) console.log('parsed header in ' + (t2-t1) + ' ms');    
-        
-    if (window.console && window.console.log) console.log('got header, parsing records');
-
-    t1 = new Date().getTime();
-    this.records = [];
-    while (true) {                                    
-        try {                     
-                this.records.push(new ShpRecord(src));
-        }
-        catch (e) {
-            if (e.id !== ShpError.ERROR_NODATA) {
-                alert(e);
-            }
-            break;
-        }
-    }
-
-    t2 = new Date().getTime();
-    if (window.console && window.console.log) console.log('parsed records in ' + (t2-t1) + ' ms');    
-
-}
-
-/**
- * The ShpType class is a place holder for the ESRI Shapefile defined
- * shape types.
- * @author Edwin van Rijkom
- * 
- */     
-var ShpType = {
-
-    /**
-     * Unknow Shape Type (for internal use) 
-     */
-    SHAPE_UNKNOWN : -1,
-    /**
-     * ESRI Shapefile Null Shape shape type.
-     */     
-    SHAPE_NULL : 0,
-    /**
-     * ESRI Shapefile Point Shape shape type.
-     */
-    SHAPE_POINT : 1,
-    /**
-     * ESRI Shapefile PolyLine Shape shape type.
-     */
-    SHAPE_POLYLINE : 3,
-    /**
-     * ESRI Shapefile Polygon Shape shape type.
-     */
-    SHAPE_POLYGON : 5,
-    /**
-     * ESRI Shapefile Multipoint Shape shape type
-     * (currently unsupported).
-     */
-    SHAPE_MULTIPOINT : 8,
-    /**
-     * ESRI Shapefile PointZ Shape shape type.
-     */
-    SHAPE_POINTZ : 11,
-    /**
-     * ESRI Shapefile PolylineZ Shape shape type
-     * (currently unsupported).
-     */
-    SHAPE_POLYLINEZ : 13,
-    /**
-     * ESRI Shapefile PolygonZ Shape shape type
-     * (currently unsupported).
-     */
-    SHAPE_POLYGONZ : 15,
-    /**
-     * ESRI Shapefile MultipointZ Shape shape type
-     * (currently unsupported).
-     */
-    SHAPE_MULTIPOINTZ : 18,
-    /**
-     * ESRI Shapefile PointM Shape shape type
-     */
-    SHAPE_POINTM : 21,
-    /**
-     * ESRI Shapefile PolyLineM Shape shape type
-     * (currently unsupported).
-     */
-    SHAPE_POLYLINEM : 23,
-    /**
-     * ESRI Shapefile PolygonM Shape shape type
-     * (currently unsupported).
-     */
-    SHAPE_POLYGONM : 25,
-    /**
-     * ESRI Shapefile MultiPointM Shape shape type
-     * (currently unsupported).
-     */
-    SHAPE_MULTIPOINTM : 28,
-    /**
-     * ESRI Shapefile MultiPatch Shape shape type
-     * (currently unsupported).
-     */
-    SHAPE_MULTIPATCH : 31
-
-};
-
-
-/**
- * Constructor.
- * @param src
- * @return
- * @throws ShpError Not a valid shape file header
- * @throws ShpError Not a valid signature
- * 
- */                     
-function ShpHeader(src)
+(function ()
 {
-    if (src.getLength() < 100)
-        alert("Not a valid shape file header (too small)");
+  if (!(window.File && window.FileReader && window.FileList && window.Blob)) alert("browser does not support File API");
 
-    if (src.getSLong() != 9994)
-        alert("Not a valid signature. Expected 9994");
- 
-    // skip 5 integers;
-    src.position += 5*4;
-    
-    // read file-length:
-    this.fileLength = src.getSLong();
- 
-    // switch endian:
-    src.bigEndian = false;
-    
-    // read version:
-    this.version = src.getSLong();
+  shapefile = {};
 
-    // read shape-type:
-    this.shapeType = src.getSLong();
-   
-    // read bounds:
-    this.boundsXY = { x: src.getDouble(), 
-                      y: src.getDouble(),
-                      width: src.getDouble(),
-                      height: src.getDouble() };
-    
-    this.boundsZ = { x: src.getDouble(), y: src.getDouble() };
-    
-    this.boundsM = { x: src.getDouble(), y: src.getDouble() };
-}
+  shapefile.load = function (str)
+  {
+    _shapes     = [];
+    _fields     = [];
+    _cols       = [];
+    _attrs      = [];
+    _dbfRecOff  = 0;
+    _dbfRecCnt  = 0;
+    _dbfRecSize = 0;
+    _dataView   = null;
+    _dvParser   = null;
+    _fileDbf    = null,
+    _fileShp    = null;
 
+    if (_sortDbfShp (str)) _loadDbf (_fileDbf);
+    else pooch.log ("missing .dbf, .shp or both");
+  };
 
-function ShpRecord(src) {
-    var availableBytes = src.getLength() - src.position;
-    
-    if (availableBytes == 0) 
-        throw(new ShpError("No Data", ShpError.ERROR_NODATA));
-            
-    if (availableBytes < 8)
-        throw(new ShpError("Not a valid record header (too small)"));
-    
-    src.bigEndian = true;
-    
-    this.number = src.getSLong();
-    this.contentLength = src.getSLong();
-    this.contentLengthBytes = this.contentLength*2 - 4;                      
-    src.bigEndian = false;
-    var shapeOffset = src.position;
-    this.shapeType = src.getSLong();
-                    
-    switch(this.shapeType) {
-        case ShpType.SHAPE_POINT:
-            this.shape = new ShpPoint(src, this.contentLengthBytes);
-            break;
-        case ShpType.SHAPE_POINTZ:
-            this.shape = new ShpPointZ(src, this.contentLengthBytes);
-            break;
-        case ShpType.SHAPE_POLYGON:
-            this.shape = new ShpPolygon(src, this.contentLengthBytes);
-            break;
-        case ShpType.SHAPE_POLYLINE:
-            this.shape = new ShpPolyline(src, this.contentLengthBytes);
-            break;
-        case ShpType.SHAPE_MULTIPATCH:
-        case ShpType.SHAPE_MULTIPOINT:
-        case ShpType.SHAPE_MULTIPOINTM:
-        case ShpType.SHAPE_MULTIPOINTZ:
-        case ShpType.SHAPE_POINTM:
-        case ShpType.SHAPE_POLYGONM:
-        case ShpType.SHAPE_POLYGONZ:
-        case ShpType.SHAPE_POLYLINEZ:
-        case ShpType.SHAPE_POLYLINEM:
-            throw(new ShpError(this.shapeType+" Shape type is currently unsupported by this library"));
-            break;  
-        default:        
-            throw(new ShpError("Encountered unknown shape type ("+this.shapeType+")"));
-            break;
+  shapefile.shapes = function ()
+  {
+    return _shapes;
+  };
+
+  shapefile.fields = function ()
+  {
+    return _fields;
+  };
+
+  shapefile.records = function ()
+  {
+    return _attrs;
+  };
+
+  shapefile.callbackComplete = function (func)
+  {
+    if (!arguments.length) return _callback;
+    _callback = func;
+    return _callback;
+  };
+
+  var _sortDbfShp = function (str)
+  {
+    var files = document.getElementById (str).files,
+        i     = files.length;
+    while (i--)
+    {
+      var name   = files[i].name,
+          dotNdx = name.length - 4;
+      if (name.substr (dotNdx, 4) === ".dbf") _fileDbf = files[i];
+      else if (name.substr (dotNdx, 4) === ".shp") _fileShp = files[i];
     }
-}
+    if (_fileDbf !== null && _fileShp !== null &&
+        _fileDbf.name.substr (0, _fileDbf.name.length - 4) === _fileShp.name.substr (0, _fileShp.name.length - 4))
+    {
+      return true;
+    }
+    else return false;
+  };
 
-function ShpPoint(src, size) {
-    this.type = ShpType.SHAPE_POINT;
-    if (src) {                      
-        if (src.getLength() - src.position < size)
-            throw(new ShpError("Not a Point record (too small)"));
-        this.x = (size > 0)  ? src.getDouble() : NaN;
-        this.y = (size > 0)  ? src.getDouble() : NaN;
-    }
-}
-function ShpPointZ(src, size) {
-    this.type = ShpType.SHAPE_POINTZ;
-    if (src) {
-        if (src.getLength() - src.position < size)
-            throw(new ShpError("Not a Point record (too small)"));
-        this.x = (size > 0)  ? src.getDouble() : NaN;
-        this.y = (size > 0)  ? src.getDouble() : NaN;
-        this.z = (size > 16) ? src.getDouble() : NaN;                       
-        this.m = (size > 24) ? src.getDouble() : NaN;
-    }
-}
-function ShpPolygon(src, size) {
-    // for want of a super()
-    ShpPolyline.apply(this, [src, size]);
-    this.type = ShpType.SHAPE_POLYGON;
-}
-function ShpPolyline(src, size) {
-    this.type = ShpType.SHAPE_POLYLINE;
-    this.rings = [];             
-    if (src) {                      
-        if (src.getLength() - src.position < size)
-            throw(new ShpError("Not a Polygon record (too small)"));
-        
-        src.bigEndian = false;
-        
-        this.box = { x: src.getDouble(),
-                     y: src.getDouble(),
-                     width: src.getDouble(),
-                     height: src.getDouble() };
-                
-        var rc = src.getSLong();
-        var pc = src.getSLong();
-        
-        var ringOffsets = [];
-        while(rc--) {
-            var ringOffset = src.getSLong();
-            ringOffsets.push(ringOffset);
-        }
-        
-        var points = [];                 
-        while(pc--) {
-            points.push(new ShpPoint(src,16));
-        }
-        
-        // convert points, and ringOffsets arrays to an array of rings:
-        var removed = 0;
-        var split;
-        ringOffsets.shift();                    
-        while(ringOffsets.length) {
-            split = ringOffsets.shift();
-            this.rings.push(points.splice(0,split-removed));
-            removed = split;
-        }       
-        this.rings.push(points);                                     
-    }
-}
+  var _loadDbf = function(file)
+  {
+    var reader = new FileReader();
 
-function ShpError(msg, id) {
-    this.msg = msg;
-    this.id = id;
-    this.toString = function() {
-        return this.msg;
+    reader.onloadend = function(e)
+    {
+      var dv    = new DataView (e.target.result);
+      _dvParser = new _parser (dv);
+
+      _readDbfHeader ();
+
+      for (var i = 0; i < _dbfRecCnt; i++)
+      {
+        var record = _readDbfRecord (i);
+        _attrs.push(record);
+      }
+
+      _loadShp (_fileShp);
     };
-}
-ShpError.ERROR_UNDEFINED = 0;
-// a 'no data' error is thrown when the byte array runs out of data.
-ShpError.ERROR_NODATA = 1;
+    reader.onerror = function(e)
+    {
+      //console.log(e);
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  var _readDbfHeader = function ()
+  {
+    _dvParser.isLittleEndian (true);
+    _dvParser.skip (4);
+    _dbfRecCnt  = _dvParser.getInt32 ();
+    _dbfRecOff  = _dvParser.getInt16 () + 1;
+    _dbfRecSize = _dvParser.getInt16 ();
+    _dvParser.skip (20);
+
+    while (_dvParser.getInt8 () !== 13)
+    {
+      _dvParser.skip (-1);
+      var field = _readDbfField ();
+      _cols.push (field);
+      _fields.push (field.name);
+    }
+  };
+
+  var _readDbfField = function ()
+  {
+    var readToZero = function ()
+    {
+      var all = [],
+          byt = null;
+
+      while (byt = _dvParser.getInt8 ())
+      {
+        all[all.length] = String.fromCharCode (byt);
+      }
+      return all.join("");
+    };
+
+    var name = readToZero ();
+    _dvParser.skip (10 - name.length);
+    var typ  = _dvParser.getInt8 ();
+    _dvParser.skip (4);
+    var tLen = _dvParser.getInt8 (),
+        len  = tLen === -2 ? 254 : tLen,
+        dec  = _dvParser.getInt8 ();
+    _dvParser.skip (14);
+
+    return { name: name, len: len, typ: typ, dec: dec };
+  };
+
+  var _readDbfRecord = function (index)
+  {
+    //if (index > _dbfRecCnt) throw ({ success: false, message: "index out of dbf bounds" });
+
+    _dvParser.position (_dbfRecOff + index * _dbfRecSize);
+    _dvParser.isLittleEndian (true);
+
+    var values = [];
+    for (var i = 0; i < _cols.length; i++)
+    {
+      var str    = _dvParser.getString (_cols[i].len),
+          result = null;
+
+      if (_cols[i].typ === 78) // number
+      {
+        result = _cols[i].dec > 0 ? parseFloat (str, 10) : parseInt (str, 10);
+      }
+      else //string
+      {
+        var trim = str.trim ();
+        result = trim === "" ? null : trim;
+      }
+
+      values[i] = result;
+    }
+    return values;
+  };
+
+
+  //Shapes
+
+
+  var _loadShp = function (file)
+  {
+    var reader = new FileReader();
+
+    reader.onloadend = function(e)
+    {
+      var dv      = new DataView (e.target.result);
+      _dvParser   = new _parser (dv);
+      var shpType = _readShpHeader ();
+
+      if (shpType === 3 || shpType === 5) // Polygon or polyline
+      {
+        _shapes = [];
+        while (true)
+        {
+          try { _shapes.push(_readShpRecord ()); }
+          catch (e)
+          {
+            if (!e.success) console.log (e.message);
+            break;
+          }
+        }
+      }
+
+      if (typeof _callback === "function") _callback (_fileShp);
+      else pooch.log ("no callback specified");
+    };
+    reader.onerror = function(e)
+    {
+      //console.log(e);
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  var _readShpHeader = function ()
+  {
+    var sig = _dvParser.getInt32 ();
+
+    if (sig === 9994)
+    {
+      _dvParser.skip (20);
+      _dvParser.len (_dvParser.getInt32 () * 2);
+      _dvParser.isLittleEndian (true);
+      _dvParser.skip (4);
+      var typ = _dvParser.getInt32 ();
+      _dvParser.skip (64);
+      return (typ);
+    }
+    else
+    {
+      //console.log ("signature is not recognized as a shapefile");
+      return -1;
+    }
+  };
+
+  var _readShpRecord = function ()
+  {
+    var bytesRem = _dvParser.len () - _dvParser.position ();
+    if (bytesRem === 0) throw ({ success: true, message: "success" });
+    if (bytesRem < 8) throw ({ success: false, message: "shape record too small" });
+    _dvParser.skip (12);
+
+    return _readShpPoly ();
+  };
+
+  var _readShpPoly = function ()
+  {
+    var rings   = [],
+        removed = 0,
+        shifted = null;             
+
+    if (_dvParser.len () - _dvParser.position () < 16) throw ({ success: false, message: "poly too small" });
+    
+    _dvParser.isLittleEndian (true);
+    _dvParser.skip (32);
+
+    var ringLen  = _dvParser.getInt32 (),
+        pointLen = _dvParser.getInt32 (),
+        ringOff = [];
+
+    while (ringLen--) ringOff.push (_dvParser.getInt32 ());
+    
+    var points = [];                 
+    while (pointLen--) points.push ([_dvParser.getFloat64 (), _dvParser.getFloat64 ()]); // Should test for size at some point. Must equal 16.
+    
+    ringOff.shift ();
+
+    while (ringOff.length)
+    {
+      shifted = ringOff.shift ();
+      rings.push (points.splice (0, shifted - removed));
+      removed = shifted;
+    }
+
+    rings.push(points);                                     
+
+    return rings;
+  };
+
+  var _parser = function (dv)
+  {
+    var _dvScope = this,
+        _dv      = dv,
+        _pos     = 0,
+        _len     = 0,
+        _ltlEnd  = false;
+
+    _dvScope.len = function (val)
+    {
+      if (!arguments.length) return _len;
+      _len = val;
+      return _dvScope;
+    };
+
+    _dvScope.skip = function (val)
+    {
+      if (!arguments.length) return _pos;
+      _pos += val;
+      return _dvScope;
+    };
+
+    _dvScope.position = function (val)
+    {
+      if (!arguments.length) return _pos;
+      _pos = val;
+      return _dvScope;
+    };
+
+    _dvScope.isLittleEndian = function (bool)
+    {
+      if (!arguments.length) return _ltlEnd;
+      _ltlEnd = bool;
+      return _dvScope;
+    };
+
+    _dvScope.getString = function (len)
+    {
+      var currPos = _pos,
+          aStr    = [],
+          count   = 0;
+
+      for (var i = currPos; i < currPos + len; i++)
+      {
+        aStr[count] = String.fromCharCode(_dvScope.getInt8At (i));
+        count++;
+      }
+
+      _pos += len;
+      return aStr.join("");
+    };
+
+    _dvScope.getInt8At = function (index)
+    {
+      var val = _dv.getInt8 (index);
+      return val;
+    };
+
+    _dvScope.getInt8 = function ()
+    {
+      var val = _dv.getInt8 (_pos);
+      _pos++;
+      return val;
+    };
+
+    _dvScope.getInt16 = function ()
+    {
+      var val = _dv.getInt16 (_pos, _ltlEnd);
+      _pos += 2;
+      return val;
+    };
+
+    _dvScope.getInt32 = function ()
+    {
+      var val = _dv.getInt32 (_pos, _ltlEnd);
+      _pos += 4;
+      return val;
+    };
+
+    _dvScope.getFloat64 = function ()
+    {
+      var val = _dv.getFloat64 (_pos, _ltlEnd);
+      _pos += 8;
+      return val;
+    };
+  };
+
+  var _shapes     = [],
+      _fields     = [],
+      _cols       = [],
+      _attrs      = [],
+      _fileShp    = null,
+      _fileDbf    = null,
+      _callback   = null,
+      _dbfRecOff  = 0,
+      _dbfRecCnt  = 0,
+      _dbfRecSize = 0,
+      _dataView   = null,
+      _dvParser   = null;
+
+})();

@@ -1,3 +1,7 @@
+html {
+  overflow-y: scroll;
+}
+
 body {
   background-color: #E6E6E6;
 }
@@ -9,7 +13,26 @@ input[type="text"], textarea {
     margin: 0;
     resize: none;
     border: 1px solid #ccc;
-    }
+}
+
+.cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.2;
+  z-index: 500;
+  background-color: #000;
+  visibility: hidden;
+}
+
+.hidden-elem {
+  position: absolute;
+  top: -1000px;
+  left: -1000px;
+  visibility: hidden;
+}
 
 .header-container {
   position: relative;
@@ -49,6 +72,15 @@ input[type="text"], textarea {
   cursor: pointer;
 }
 
+.ghosted {
+  color: #BBB;
+}
+
+.ghosted:hover {
+  font-weight: 300;
+  cursor: default;
+}
+
 .main-container {
   position: relative;
   width: 970px;
@@ -69,7 +101,12 @@ input[type="text"], textarea {
   border-style: solid;
   border-width: 1px;
   border-color: #888888;
+  overflow: hidden;
   visibility: hidden;
+  transition: height 0.4s ease-out;
+  -moz-transition: height 0.4s ease-out;
+  -webkit-transition: height 0.4s ease-out;
+  -o-transition: height 0.4s ease-out;
 }
 
 .main-shape {
@@ -202,7 +239,7 @@ input[type="text"], textarea {
   position: relative;
   width: 800px;
   height: 400px;
-  margin: 20px auto 8px auto;
+  margin: 40px auto 8px auto;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;

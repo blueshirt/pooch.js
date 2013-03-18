@@ -26,10 +26,7 @@
     </script>
 
     <script type="text/javascript" src="../src/pooch.js"></script>
-    <script type="text/javascript" src="scripts/binaryajax.js"></script>
-    <script type="text/javascript" src="scripts/binarywrapper.js"></script>
     <script type="text/javascript" src="scripts/shapefile.js"></script>
-    <script type="text/javascript" src="scripts/dbf.js"></script>
     <script type="text/javascript" src="scripts/dhtmlxcommon.js"></script>
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato:300,400,700" />
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
@@ -42,9 +39,9 @@
     <div class="header-button-container">
       <div id="header_button_data" class="header-button">data</div>
       <div id="header_button_shape" class="header-button">shapefiles</div>
-      <div id="header_button_graph" class="header-button">scene graph</div>
-      <div id="header_button_preview" class="header-button">preview</div>
-      <div id="header_button_export" class="header-button">export</div>
+      <div id="header_button_graph" class="header-button ghosted">scene graph</div>
+      <div id="header_button_preview" class="header-button ghosted">preview</div>
+      <div id="header_button_export" class="header-button ghosted">export</div>
     </div>
   </div>
 
@@ -84,28 +81,36 @@
 
     </div>
 
-    <div id="main_shape_container" class="main-sub-container" style="height: 1030px;">
+    <div id="main_shape_container" class="main-sub-container" style="height: 100px;">
       <div class="main-shape">
 
         <div class="ui-row-container">
-          <div class="ui-row-inline" style="width: 450px;">
-            <div class="ui-label-above">relative path to .shp file</div>
-            <div class="ui-text-area-container">
-              <textarea class="ui-text-area">shapefiles/ne_50m_coastline.shp</textarea>
+          <div class="ui-row-inline" style="width: 270px;">
+            <div class="ui-label-above">shapefile name</div>
+            <div class="ui-text-container">
+              <div id="shapefile_name" class="ui-text-value">---</div>
             </div>
           </div>
+
           <div class="ui-row-inline" style="width: 136px;">
             <div class="ui-label-above"></div>
-            <button class="pooch-button" onclick="designer.shapefiles.loadShapefile ()">import shapefile</button>
+            <button class="pooch-button" onclick="designer.shapefiles.loadShapefile ()">select .dbf & .shp</button>
           </div>
 
           <div class="ui-row-spacer"></div>
 
           <div class="ui-row-inline" style="width: 156px; margin-right: 0;">
             <div class="ui-label-above">shape key</div>
-
               <div id="shape_key_drop" class="ui-select">
-              </div>
+            </div>
+          </div>
+
+          <div class="ui-row-spacer"></div>
+
+          <div class="ui-row-inline" style="width: 156px; margin-right: 0;">
+            <div class="ui-label-above">additional fields</div>
+              <div id="fields_key_drop" class="ui-select">
+            </div>
           </div>
         </div>
 
@@ -157,14 +162,15 @@
           <textarea rows="26" cols="111" id="shapeText" onfocus="this.select ()" onMouseUp="return false"></textarea>
         </div>
 
-
+        <input id="selectDbfShp" type="file" class="hidden-elem" multiple="" onchange="shapefile.load('selectDbfShp')">
       </div>
-      <div id="main_graph_container" class="main-sub-container" style="height: 200px;"><div class="ui-row-inline" style="width: 790px;margin-left: 50px;"><div class="ui-text-value-large" style="width: 400px;">not quite yet...</div></div></div>
-      <div id="main_preview_container" class="main-sub-container" style="height: 200px;"><div class="ui-row-inline" style="width: 790px;margin-left: 50px;"><div class="ui-text-value-large" style="width: 400px;">all in good time...</div></div></div>
-      <div id="main_export_container" class="main-sub-container" style="height: 200px;"><div class="ui-row-inline" style="width: 790px;margin-left: 50px;"><div class="ui-text-value-large" style="width: 400px;">at some point...</div></div></div>
     </div>
+    <div id="main_graph_container" class="main-sub-container" style="height: 200px;"><div class="ui-row-inline" style="width: 790px;margin-left: 50px;"><div class="ui-text-value-large" style="width: 400px;">not quite yet...</div></div></div>
+    <div id="main_preview_container" class="main-sub-container" style="height: 200px;"><div class="ui-row-inline" style="width: 790px;margin-left: 50px;"><div class="ui-text-value-large" style="width: 400px;">all in good time...</div></div></div>
+    <div id="main_export_container" class="main-sub-container" style="height: 200px;"><div class="ui-row-inline" style="width: 790px;margin-left: 50px;"><div class="ui-text-value-large" style="width: 400px;">at some point...</div></div></div>
   </div>
 
+  <div id="cover" class="cover"></div>
   <script type="text/javascript" src="scripts/designer.js"></script>
   </body>
 
