@@ -195,7 +195,7 @@ designer.shapefiles = new (function ()
     //var binaryAjax = new BinaryAjax (file + ".shp", _shpScope.onBinaryAjaxComplete, _shpScope.onBinaryAjaxFail);
     if (!document.location.href.match(/(http:\/\/[^\/]+\/([^\s]+[^,.?!:;])?)/))
     {
-      alert("pooch.js designer must run from webserver in order to use the File API\r\r\n\nyou can use this url:\r\r\n\nhttp://htmlpreview.github.com/?https://github.com/blueshirt/pooch.js/blob/master/utilities/index.html");
+      alert("the pooch.js designer utility must run on a webserver in order to use the File API\r\r\n\nbut you're in luck... because it's on a server here:\r\r\n\nhttp://www.blueshirt.com/utilities/index.html\r\n");
       return;
     }
     shapefile.callbackComplete (_loaded);

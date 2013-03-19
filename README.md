@@ -1,6 +1,6 @@
 pooch.js
 =====
 
-Mapping and charting JavaScript library
+Charting and mapping JavaScript library
 
 More information and api documentation can be [found here](http://www.blueshirt.com/pooch)
