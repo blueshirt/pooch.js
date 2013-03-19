@@ -2,7 +2,7 @@
 {
   if (!(window.File && window.FileReader && window.FileList && window.Blob)) alert("browser does not support File API");
 
-  shapefile = {};
+  shapefile = { version: "0.0.1" , author: "Jeremy White" };
 
   shapefile.load = function (str)
   {
@@ -183,7 +183,7 @@
           try { _shapes.push(_readShpRecord ()); }
           catch (e)
           {
-            if (!e.success) console.log (e.message);
+            if (!e.success) pooch.log (e.message);
             break;
           }
         }
@@ -234,10 +234,10 @@
   {
     var rings   = [],
         removed = 0,
-        shifted = null;             
+        shifted = null;
 
     if (_dvParser.len () - _dvParser.position () < 16) throw ({ success: false, message: "poly too small" });
-    
+
     _dvParser.isLittleEndian (true);
     _dvParser.skip (32);
 
@@ -246,10 +246,10 @@
         ringOff = [];
 
     while (ringLen--) ringOff.push (_dvParser.getInt32 ());
-    
-    var points = [];                 
+
+    var points = [];
     while (pointLen--) points.push ([_dvParser.getFloat64 (), _dvParser.getFloat64 ()]); // Should test for size at some point. Must equal 16.
-    
+
     ringOff.shift ();
 
     while (ringOff.length)
@@ -259,7 +259,7 @@
       removed = shifted;
     }
 
-    rings.push(points);                                     
+    rings.push(points);
 
     return rings;
   };
