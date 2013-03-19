@@ -1,0 +1,610 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>pooch.js by blueshirt</title>
+
+    <link rel="stylesheet" href="docs/css/styles.css">
+    <link rel="stylesheet" href="docs/css/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+
+    <div class="wrapper">
+      <header>
+        <h1>pooch.js</h1>
+        <p>The main components for the pooch.js charting and mapping library are:</p>
+        
+        <p>pooch.<strong><a href="#chart">chart()</a></strong> <br />
+        pooch.<strong><a href="#data">data()</a></strong> <br />
+        pooch.<strong><a href="#fetch">fetch()</a></strong> <br />
+        pooch.<strong><a href="#helpers">helpers</a></strong> <br />
+        pooch.<strong><a href="#map">map()</a></strong> <br />
+        pooch.<strong><a href="#popup">popup()</a></strong> <br />
+        pooch.<strong><a href="#symbolGroup">symbolGroup()</a></strong> <br />
+        pooch.<strong><a href="#zoomControl">zoomControl()</a></strong>  </p>
+
+        <p class="view"><a href="https://github.com/blueshirt/pooch.js">View the Project on GitHub <small>blueshirt/pooch.js</small></a></p>
+
+        <ul>
+          <li><a href="https://github.com/blueshirt/pooch.js/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/blueshirt/pooch.js/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/blueshirt/pooch.js">View On <strong>GitHub</strong></a></li>
+        </ul>
+
+      </header>
+      <section>
+        <h3>When a pet project becomes a reality... pooch.js</h3>
+
+<p>Create an interactive chart or map in just a few lines with the pooch.js JavaScript library:</p>
+
+<pre><code>var chart1 = pooch.chart (".container").symbolGroup ([symGrp1, symGrp2])
+                                       .height (400)
+                                       .width (800)
+                                       .bounds (symGrp1)
+                                       .zoomControl (zoomControl1);
+</code></pre>
+
+<br>
+
+<hr />
+
+<h1>examples</h1>
+
+
+<div class="thumb-container height-adj">
+  <div class="thumb">
+    <a href="examples/thematic_counties.html" target="_blank">
+      <img src="docs/images/thumb-counties.gif" alt="">
+      counties map
+    </a>
+  </div>
+
+  <div class="thumb">
+    <a href="examples/hexadogs.html" target="_blank">
+      <img src="docs/images/thumb-hexadogs.gif" alt="">
+      hexadogs!
+    </a>
+  </div>
+
+  <div class="thumb">
+    <a href="examples/interactive-globe.html" target="_blank">
+      <img src="docs/images/thumb-interactive-globe.gif" alt="">
+      interactive globe
+    </a>
+  </div>
+
+  <div class="thumb">
+    <a href="examples/slippy_google.html" target="_blank">
+      <img src="docs/images/thumb-slippy-google.gif" alt="">
+      animated slippy
+    </a>
+  </div>
+
+  <div class="thumb">
+    <a href="examples/pie_simple.html" target="_blank">
+      <img src="docs/images/thumb-pie-simple.gif" alt="">
+      simple pie chart
+    </a>
+  </div>
+
+  <div class="thumb">
+    <a href="examples/pie_multi.html" target="_blank">
+      <img src="docs/images/thumb-pie-multi.gif" alt="">
+      many pie charts
+    </a>
+  </div>
+</div>
+
+<br>
+
+<hr />
+
+<h1>pooch.js api documentation</h1>
+
+<p><br></p>
+
+<p><a id="chart"></a></p>
+
+<h2>pooch.chart ( <em><span class="arguments">div</span></em> )</h2>
+
+<p><strong><em><span class="arguments">div</span></em></strong>  - string or dom element to use as a chart container</p>
+
+<p>Charts are the basis for all drawing in pooch.  Elements (<a href="#symbolGroup">symbolGroup</a>, <a href="#zoomControl">zoom controls</a>, etc.) are added to the chart and then <a href="#chartDraw">drawn</a> and potentially animated.</p>
+
+<p>examples</p>
+
+<pre><code>    var myChart = pooch.chart("#divID")';                     //sets the chart's container using a div's ID
+    var myChart = pooch.chart(".divClassName")';              //sets the chart's container using a div's class ID
+    var myChart = pooch.chart(pooch.fetch("#divID").dom())';  //sets the chart's container using a fetched div
+</code></pre>
+
+<ul>
+<li><strong>Properties and methods</strong> <br />
+<a href="#chartActiveSymbol">.activeSymbol()</a> <br />
+<a href="#chartAxisMaxX">.axisMaxX()</a> <br />
+<a href="#chartAxisMinX">.axisMinX()</a> <br />
+<a href="#chartAxisMaxY">.axisMaxY()</a> <br />
+<a href="#chartAxisMinY">.axisMinY()</a> <br />
+<a href="#chartBounds">.bounds()</a> <br />
+<a href="#chartDraw">.draw()</a> <br />
+<a href="#chartHeight">.height()</a> <br />
+<a href="#chartHouse">.house()</a> <br />
+<a href="#chartMouseMove">.mouseMove()</a> <br />
+<a href="#chartMouseOut">.mouseOut()</a> <br />
+<a href="#chartMouseOver">.mouseOver()</a> <br />
+<a href="#chartReset">.reset()</a> <br />
+<a href="#chartsymbolGroup">.symbolGroup()</a> <br />
+<a href="#chartWidth">.width()</a> <br />
+<a href="#chartZoom">.zoom()</a> <br />
+<a href="#chartControl">.zoomControl()</a> <br />
+<a href="#chartZoomIn">.zoomIn()</a> <br />
+<a href="#chartZoomLevels">.zoomLevels()</a> <br />
+<a href="#chartZoomOut">.zoomOut()</a>  </li>
+</ul>
+
+<p><a id="chartActiveSymbol"></a></p>
+
+<h3>.activeSymbol( <em><span class="arguments">symbolGroup, key</span></em> )</h3>
+
+<p><strong><em><span class="arguments">symbolGroup</span></em></strong>  - <a href="#symbolGroup">symbolGroup</a> object containing the individual symbol to make active <br />
+<strong><em><span class="arguments">key</span></em></strong>  - string of the individual symbol name, defined in the <a href="#dataKey">data key</a></p>
+
+<p>Gets or sets the active symbol in the chart.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.activeSymbol(symGrp1, "montana");   //sets the active symbol
+    myChart.activeSymbol();                      //gets the active symbol
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartAxisMaxX"></a></p>
+
+<h3>.axisMaxX( <em><span class="arguments">number</span></em> )</h3>
+
+<p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as maximum x value</p>
+
+<p>Gets or sets the maximum x value (right) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the maximum x value to use for placing the chart's symbols. Zooming in or out will update this value.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.axisMaxX(50000);   //sets the chart's maximum x value
+    myChart.axisMaxX();        //gets the chart's maximum x value
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartAxisMinX"></a></p>
+
+<h3>.axisMinX( <em><span class="arguments">number</span></em> )</h3>
+
+<p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as minimum x value</p>
+
+<p>Gets or sets the minimum x value (left) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the minimum x value to use for placing the chart's symbols. Zooming in or out will update this value.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.axisMinX(0);   //sets the chart's minimum x value
+    myChart.axisMinX();    //gets the chart's minimum x value
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartAxisMaxY"></a></p>
+
+<h3>.axisMaxY( <em><span class="arguments">number</span></em> )</h3>
+
+<p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as maximum y value</p>
+
+<p>Gets or sets the maximum y value (top) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the maximum y value to use for placing the chart's symbols. Zooming in or out will update this value.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.axisMaxY(3000);   //sets the chart's maximum y value
+    myChart.axisMaxY();       //gets the chart's maximum y value
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartAxisMinY"></a></p>
+
+<h3>.axisMinY( <em><span class="arguments">number</span></em> )</h3>
+
+<p><strong><em><span class="arguments">number</span></em></strong>  - integer to use as minimum y value</p>
+
+<p>Gets or sets the minimum y value (bottom) of current chart viewing area.  This does not set the position of the chart on the page, but rather sets the minimum y value to use for placing the chart's symbols. Zooming in or out will update this value.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.axisMinY(0);   //sets the chart's minimum y value
+    myChart.axisMinY();    //gets the chart's minimum y value
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartBounds"></a></p>
+
+<h3>.bounds( <em><span class="arguments">symbolGroup</span></em> )</h3>
+
+<p><strong><em><span class="arguments">symbolGroup</span></em></strong>  - <a href="#symbolGroup">symbolGroup</a> for framing the current chart view</p>
+
+<p>Gets or sets the viewable bounds of the chart.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.bounds(symGrp1);   //sets the viewable extent of the chart
+    myChart.bounds();           //gets the viewable extent of the chart
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartDraw"></a></p>
+
+<h3>.draw( <em><span class="arguments">steps, layer</span></em> )</h3>
+
+<p><strong><em><span class="arguments">steps</span></em></strong> <span class="optional"><em>optional</span></em> - number of tweening steps <br />
+<strong><em><span class="arguments">layer</span></em></strong> <span class="optional"><em>optional</span></em> - string defining which chart layer to draw, either "back" or "main"</p>
+
+<p>Draws the symbols and chart. Calling draw() with no arguments will draw all layers, and therefore all symbols, in one step. Passing in the number of steps will animate the symbols to their end state using the <a href="#symbolGroupEasing">symbol's easing</a> property.  Valid values for the layer argument are "back" and "main."</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.draw();           //draws all layers in one step
+    myChart.draw(10);         //draws all layers in 10 steps, animating symbols from their start position to their end position
+    myChart.draw(5, "main");  //draws only the symbols on the main layer, in 5 steps
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartHeight"></a></p>
+
+<h3>.height( <em><span class="arguments">number</span></em> )</h3>
+
+<p><strong><em><span class="arguments">number</span></em></strong>  - height of the chart</p>
+
+<p>Gets or sets the height of the chart.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.height(800); //sets the height of the chart
+    myChart.height();    //gets the height of the chart
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartHouse"></a></p>
+
+<h3>.house( <em><span class="arguments">element</span></em> )</h3>
+
+<p><strong><em><span class="arguments">element</span></em></strong>  - DOM element (div) or string of the container ID to house the chart</p>
+
+<p>Gets or sets the container for the chart. Typically, the chart is initialized with a container, but this method can also be used.  This method is the best way to retrieve the chart's container after initialization.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.house("#divID")';                     //sets the chart's container using a div's ID
+    myChart.house(".divClassName")';              //sets the chart's container using a div's class ID
+    myChart.house(pooch.fetch("#divID").dom())';  //sets the chart's container using a fetched div
+    myChart.house();                              //gets the chart's containing DOM element (div)
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartMouseMove"></a></a></p>
+
+<h3>.mouseMove( <em><span class="arguments">callback</span></em> )</h3>
+
+<p><strong><em><span class="arguments">callback</span></em></strong>  - function to call on mouse move</p>
+
+<p>Custom mouse event initializer which adds two new variables, localX and localY, to javaScipt's existing mousemove event. The custom variables are useful for tracking mouse movement while also taking into account the chart's scroll offsets and other layout attributes.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.mouseMove(myCallback);       //passes a callback function to trigger on mouse move
+
+    function myCallback(e)               //called when mouse moves on the chart
+    {
+      console.log(e.localX, e.localY);   //shows pooch's custom mouse event variables, localX and localY
+    }
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartMouseOver"></a></p>
+
+<h3>.mouseOver( <em><span class="arguments">callback</span></em> )</h3>
+
+<p><strong><em><span class="arguments">callback</span></em></strong>  - function to call when the cursor enters the chart</p>
+
+<p>Custom mouse event initializer for when the cursor enters the chart.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.mouseOver(myCallback);   //passes a callback function to trigger on mouse over
+
+    function myCallback()
+    {
+      console.log("cursor is now over the chart");
+    }
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartMouseOut"></a></p>
+
+<h3>.mouseOut( <em><span class="arguments">callback</span></em> )</h3>
+
+<p><strong><em><span class="arguments">callback</span></em></strong>  - function to call when the cursor leaves the chart</p>
+
+<p>Custom mouse event initializer for when the cursor leaves the chart.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.mouseOut(myCallback);   //passes a callback function to trigger on mouse out
+
+    function myCallback()
+    {
+      console.log("cursor has left the chart");
+    }
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartReset"></a></a></p>
+
+<h3>.reset(  )</h3>
+
+<p>Resets the chart's view to the default extent and zoom level.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.reset();   //draws the chart at its default extent and zoom level 
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartsymbolGroup"></a></p>
+
+<h3>.symbolGroup( <em><span class="arguments">array</span></em> )</h3>
+
+<p><strong><em><span class="arguments">array</span></em></strong>  - collection of <a href="#symbolGroup">symbolGroups</a> to add to the chart</p>
+
+<p>Adds <a href="#symbolGroup">symbolGroups</a> to the chart for display and animation.  The symbolGroups are drawn in the order they are placed into the array, so the symbolGroup at index 0 is drawn before the symbolGroup at index 2.  Layering of the symbolGroups is achieved using a combination of the symbol's order in the array and the <a href="#symbolGroupLayer">symbolGroup's layer</a> method.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.symbolGroup([symGrp1]);                     //adds a symbolGroup to the chart
+    myChart.symbolGroup([symGrp1, symGrp2, symGrp3]);   //adds multiple symbolGroups to the chart
+</code></pre>
+
+<p><br>
+</a>
+<a id="chartWidth"></a></p>
+
+<h3>.width( <em><span class="arguments">number</span></em> )</h3>
+
+<p><strong><em><span class="arguments">number</span></em></strong>  - width of the chart</p>
+
+<p>Gets or sets the width of the chart.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.width(800);   //sets the width of the chart
+    myChart.width();      //gets the width of the chart  
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartZoom"></a></p>
+
+<h3>.zoom( <em><span class="arguments">level</span></em> )</h3>
+
+<p><strong><em><span class="arguments">level</span></em></strong>  - index of the <a href="#chartZoomLevels">zoom levels</a> array</p>
+
+<p>Gets or sets the zoom level for the chart. The level index starts at 0. The <a href="#chartZoomLevels">zoom levels</a> array may contain several levels that you define, and the five default levels are [1, 2, 4, 8, 16].</p>
+
+<p>examples</p>
+
+<pre><code>                       //assumes a zoom level array of [1, 2, 4, 8, 16]  
+    myChart.zoom(3);   //sets the zoom level to 3 (8 times original size, in this case)
+    myChart.zoom();    //gets the zoom level
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartZoomIn"></a></p>
+
+<h3>.zoomIn()</h3>
+
+<p>Zooms the chart in one <a href="#chartZoomLevels">zoom level</a>.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.zoomIn();   //zooms the chart in
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartZoomLevels"></a></p>
+
+<h3>.zoomLevels( <em><span class="arguments">array</span></em> )</h3>
+
+<p><strong><em><span class="arguments">array</span></em></strong>  - array of zoom levels </p>
+
+<p>Gets or sets the array of zoom levels for the chart. The array may contain several levels that you define, and the five default levels are [1, 2, 4, 8, 16]. The levels can be called through the <a href="#chartZoom">zoom</a> method.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.zoomLevels([1, 4, 16, 48]);   //sets the zoom levels array to [1, 4, 16, 48]
+    myChart.zoomLevels();                 //gets the zoom levels array
+</code></pre>
+
+<p><br></p>
+
+<p><a id="chartZoomOut"></a></p>
+
+<h3>.zoomOut()</h3>
+
+<p>Zooms the chart out one <a href="#chartZoomLevels">zoom level</a>.</p>
+
+<p>examples</p>
+
+<pre><code>    myChart.zoomOut();   //zooms the chart out
+</code></pre>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="data"></a></p>
+
+<h2>pooch.data ( <em><span class="arguments">array</span></em> )</h2>
+
+<p><strong><em><span class="arguments">array</span></em></strong>  - array of JSON objects containing information to use as a <a href="#symbolGroup">symbolGroup's</a> properties</p>
+
+<p>Data objects provide the information necessary to draw a symbolGroup. Data objects are intialized with an array of JSON objects that then need to be combined with a <a href="#dataKey">key</a>.  Data objects are ready to be used as <a href="#symbolGroupData">symbolGroup data</a> after the <a href="#dataKey">key</a> has been set.</p>
+
+<p>examples</p>
+
+<pre><code>    var myData = pooch.data([markerAttrData])';               //creates a data object using a single JSON object
+    var myData = pooch.data([polyShapeData, polyAttrData])';  //creates a data object using a multiple JSON objects
+</code></pre>
+
+<ul>
+<li><strong>Properties and methods</strong> <br />
+<a href="#dataKey">.key()</a> <br />
+<a href="#dataKeys">.keys()</a> <br />
+<a href="#dataDatum">.datum()</a>  </li>
+</ul>
+
+<p><br></p>
+
+<p><a id="dataKey"></a></p>
+
+<h3>.key( <em><span class="arguments">id</span></em> )</h3>
+
+<p><strong><em><span class="arguments">id</span></em></strong>  - string   </p>
+
+<p>Gets or sets the key name for any symbolGroup created from the data.</p>
+
+<p>examples</p>
+
+<pre><code>    myData.key("names");   //structures the data object to use the names field as keys
+    myData.key();          //gets the field used as a key name
+</code></pre>
+
+<p><br></p>
+
+<p><a id="dataKeys"></a></p>
+
+<h3>.keys( )</h3>
+
+<p>Gets an array of key names for the data, created when the <a href="#dataKey">data key</a> is set.</p>
+
+<p>examples</p>
+
+<pre><code>    myData.keys();   //gets an array of the key names in the data object
+</code></pre>
+
+<p><br></p>
+
+<p><a id="dataDatum"></a></p>
+
+<h3>.datum( <em><span class="arguments">key, value</span></em> )</h3>
+
+<p><strong><em><span class="arguments">id</span></em></strong>  - string ID of the symbol to get or set <br />
+<strong><em><span class="arguments">value</span></em></strong>  <span class="optional"><em>optional</span></em> - object containing the new values for an individual symbol     </p>
+
+<p>Gets or sets the data for an individual symbol.  Calling datum() with no arguments will return all of the data for the data object. Including a value argument will set the object defined by the key argument.</p>
+
+<p>examples</p>
+
+<pre><code>    myData.datum();                                  //gets all of the objects in the data object
+    myData.datum("wisconsin");                       //gets the data object with the "wisconsin" key
+    myData.datum("wisconsin", {squareMiles: 65503}); //sets the "wisconsin" object with a new set of key/value pairs
+</code></pre>
+
+<p><br>
+<br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="fetch"></a></p>
+
+<h2>pooch.fetch ( <em><span class="arguments">id</span></em> )</h2>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="helpers"></a></p>
+
+<h2>pooch.helpers</h2>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="map"></a></p>
+
+<h2>pooch.map ( <em><span class="arguments">div</span></em> )</h2>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="popup"></a></p>
+
+<h2>pooch.popup ( <em><span class="arguments">id</span></em> )</h2>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="symbolGroup"></a></p>
+
+<h2>pooch.symbolGroup ( <em><span class="arguments">shape</span></em> )</h2>
+
+<p><br></p>
+
+<hr />
+
+<p><br></p>
+
+<p><a id="zoomControl"></a></p>
+
+<h2>pooch.zoomControl ( <em><span class="arguments">id</span></em> )</h2>
+
+<p><br></p>
+
+<hr />
+
+<h3>Authors and Contributors</h3>
+
+<p>Jeremy White (<a href="https://github.com/blueshirt" class="user-mention">@blueshirt</a>), graphics editor for The New York Times, started pooch.js in his spare time.</p>
+<p>This project is maintained by <a href="https://github.com/blueshirt">blueshirt</a></p>
+<small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small>
+      </section>
+    </div>
+    <script src="docs/scripts/scale.fix.js"></script>
+    
+  </body>
+</html>
