@@ -18,6 +18,7 @@ designer.main = new (function ()
       }) ();
     }
     _mainScope.navButtonDown (null, "data");
+    pooch.fetch (document).mouseUp (function (e) { designer.shapefiles.checkPointSlider (); });
   };
 
   _mainScope.navButtonDown = function (e, id)
@@ -77,7 +78,7 @@ designer.data = new (function ()
   {
     delim = delim || "\t";
 
-    var re      = new RegExp(("(\\" + delim + "|\\r?\\n|\\r|^)" + "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" + "([^\"\\" + delim + "\\r\\n]*))"), "gi"),
+    var re      = new RegExp (("(\\" + delim + "|\\r?\\n|\\r|^)" + "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" + "([^\"\\" + delim + "\\r\\n]*))"), "gi"),
         matches = null;
     _input      = [[]];
 
@@ -183,12 +184,18 @@ designer.shapefiles = new (function ()
     else pooch.log ("no dbf fields to show");
   };
 
-  _shpScope.pointSliderChange = function (val, slider)
+  _shpScope.checkPointSlider = function ()
   {
-    _shpScope.fillPolyArray (val);
-    data1 = pooch.data ([shapeData]).key (_shapeKey);
-    symbolGroup1.data (data1);
-    chart1.draw ();
+    var curVal = _slider.getValue ();
+
+    if (typeof shapeData !== "undefined" && _pntSliderVal !== curVal)
+    {
+      _pntSliderVal = curVal;
+      _shpScope.fillPolyArray (curVal);
+      data1 = pooch.data ([shapeData]).key (_shapeKey);
+      symbolGroup1.data (data1);
+      chart1.draw ();
+    }
   };
   _shpScope.loadShapefile = function ()
   {
@@ -263,9 +270,13 @@ designer.shapefiles = new (function ()
         }
       //}
     }
+  };
+
+  _shpScope.adjustPrecision = function (val, slider)
+  {
     var absPntVal  = Math.abs (_hghPntVal) > Math.abs (_lowPntVal) ? Math.abs (_hghPntVal) : Math.abs (_lowPntVal),
-        absValTxt  = hasFixed ? absPntVal.toFixed (fixedSize) : absPntVal,
-        grtPrecTxt = hasFixed ?_grtPrec.toFixed (fixedSize) : _grtPrec;
+        absValTxt  = absPntVal.toFixed (val),
+        grtPrecTxt = _grtPrec.toFixed (val);
     pooch.fetch ("#highest_abs_val").html (absValTxt);
     pooch.fetch ("#greatest_precision").html (grtPrecTxt);
   };
@@ -297,7 +308,7 @@ designer.shapefiles = new (function ()
     _shpScope.fillPolyArray ();
     _shpScope.createMap ();
     pooch.fetch ("#main_shape_container").css ({ height: "1030px" });
-    _slider.attachEvent ("onChange", _shpScope.pointSliderChange);
+    _slider.attachEvent ("onChange", _shpScope.adjustPrecision);
     designer.main.cover (false);
   };
 
@@ -396,18 +407,19 @@ designer.shapefiles = new (function ()
       shapeData,
       jsonFileString,
       _toFixed = 20,
-      _stepAmount = 10,
+      _stepAmount = 14,
       _grtPrecLen = 0,
       _grtPrec = 0.0,
       _hghPntVal = Number.MIN_VALUE,
       _lowPntVal = Number.MAX_VALUE;
+      _pntSliderVal = 14;
 
   window.dhx_globalImgPath = "images/";
   _slider = new dhtmlxSlider ("point_res_slider", 424, "plain");
   _slider.setStep (1);
   _slider.setMax (_stepAmount);
   _slider.init ();
-  _slider.setValue (10);
+  _slider.setValue (_pntSliderVal);
 
   var zoomControl1  = pooch.zoomControl ("pooch-zoom-layout").reset (".pooch-zoom-reset")
                                                              .zoomIn (".pooch-zoom-zoomIn")
