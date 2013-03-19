@@ -284,12 +284,13 @@ designer.shapefiles = new (function ()
   _shpScope.shapeKeysFillDrop = function ()
   {
     _fields     = shapefile.fields ().slice (0);
+    _keys       = shapefile.keys ().slice (0);
     var dropArr = ["<select id='shapeKeysDrop' onchange='designer.shapefiles.shapeKeysDropChange ();'><option value='-1'>Select...</option>"],
-        i       = _fields.length;
+        i       = _keys.length;
 
     while (i--)
     {
-      var name = _fields[i];
+      var name = _keys[i];
       dropArr.push ("<option value='" + name + "'>" + name + "</option>");
     }
 
