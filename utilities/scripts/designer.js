@@ -194,7 +194,11 @@ designer.shapefiles = new (function ()
       _shpScope.fillPolyArray (curVal);
       data1 = pooch.data ([shapeData]).key (_shapeKey);
       symbolGroup1.data (data1);
-      chart1.draw ();
+      if (_bndsDivisor > 1)
+      {
+        _chart.bounds ([ _bndsOrig[0] / _bndsDivisor, _bndsOrig[1] / _bndsDivisor, _bndsOrig[2] / _bndsDivisor, _bndsOrig[3] / _bndsDivisor ]);
+      }
+      _chart.draw ();
     }
   };
   _shpScope.loadShapefile = function ()
@@ -230,53 +234,72 @@ designer.shapefiles = new (function ()
     _shapes      = shapefile.shapes ().slice (0);
     _records     = shapefile.records ().slice (0);
 
-    var hasFixed = typeof fixedSize !== "undefined" ? true : false,
-        keyIndex = pooch.helpers.indexOf (_fields, _shapeKey);
+    var hasFixed  = typeof fixedSize !== "undefined" ? true : false,
+        fixCap    = fixedSize > 20 ? 20 : fixedSize,
+        keyIndex  = pooch.helpers.indexOf (_fields, _shapeKey),
+        findPrec  = (_grtPrec === 0.0 && _hghPntVal === Number.MIN_VALUE) ? true : false;
+    _bndsDivisor  = hasFixed ? 100 : 1;
 
     for (var i = 0; i < _shapes.length; i++)
     {
       shapeData[_shapeKey][i] = _records[i][keyIndex];
+      shapeData.polygons[i]   = [];
 
-      var keyString = _records[i][keyIndex].replace (/^\s*/, '').replace (/\s*$/, '');
-      shapeData[_shapeKey][i] = keyString === "" ? "KEY-ERROR-" + keyErrorCnt++ : keyString;
-      shapeData.polygons[i] = [];
+      for (var j = 0; j < _shapes[i].length; j++)
+      {
+        shapeData.polygons[i][j] = [];
 
-        for (var j = 0; j < _shapes[i].length; j++)
+        for (var k = 0; k < _shapes[i][j].length; k++)
         {
-          shapeData.polygons[i][j] = [];
-
-          for (var k = 0; k < _shapes[i][j].length; k++)
+          if (findPrec)
           {
-            var parseFlt = [parseFloat (_shapes[i][j][k][0]), parseFloat (_shapes[i][j][k][1])],
-                l        = 2;
+            var coords = [_shapes[i][j][k][0], _shapes[i][j][k][1]],
+                l      = 2;
 
             while (l--)
             {
-              var floor       = parseFlt[l] - Math.floor (parseFlt[l]),
+              var floor       = coords[l] - Math.floor (coords[l]),
                   floorStr    = floor.toString (),
                   floorDecLen = floorStr.length - 2;
               if (floorDecLen > _grtPrecLen)
               {
                 _grtPrecLen = floorDecLen;
-                _grtPrec = parseFlt[l];
+                _grtPrec    = coords[l];
               }
-              if (parseFlt[l] > _hghPntVal) _hghPntVal = parseFlt[l];
-              else if (parseFlt[l] < _lowPntVal) _lowPntVal = parseFlt[l];
+              if (coords[l] > _hghPntVal) _hghPntVal = coords[l];
+              else if (coords[l] < _lowPntVal) _lowPntVal = coords[l];
 
             }
-            if (hasFixed) shapeData.polygons[i][j][k] = [parseFloat (_shapes[i][j][k][0].toFixed (fixedSize)), parseFloat (_shapes[i][j][k][1].toFixed (fixedSize))]; //.toFixed (_toFixed)
-            else shapeData.polygons[i][j][k] = [parseFloat (_shapes[i][j][k][0]), parseFloat (_shapes[i][j][k][1])]; //
           }
+          var x = _shapes[i][j][k][0] / _bndsDivisor,
+              y = _shapes[i][j][k][1] / _bndsDivisor;
+
+          if (hasFixed) shapeData.polygons[i][j][k] = [x.toFixed (fixCap), y.toFixed (fixCap)];
+          else shapeData.polygons[i][j][k] = [x, y];
         }
-      //}
+      }
     }
+    if (findPrec)
+    {
+      _grtIntLen = (Math.floor (_hghPntVal).toString ()).length;
+      _createSliderSteps ();
+    }
+    _shpScope.adjustPrecision (_pntSliderVal);
   };
 
-  _shpScope.adjustPrecision = function (val, slider)
+  var _createSliderSteps = function ()
   {
-    var absPntVal  = Math.abs (_hghPntVal) > Math.abs (_lowPntVal) ? Math.abs (_hghPntVal) : Math.abs (_lowPntVal),
-        absValTxt  = absPntVal.toFixed (val),
-        grtPrecTxt = _grtPrec.toFixed (val);
+    var totalSteps = _grtIntLen + _grtPrecLen + 1;
+    _slider.setMax (totalSteps);
+    _slider.setValue (totalSteps);
+  };
+
+  _shpScope.adjustPrecision = function (val)
+  {
+    var valCap     = val > 20 ? 20 : val;
+        absPntVal  = Math.abs (_hghPntVal) > Math.abs (_lowPntVal) ? Math.abs (_hghPntVal) / _bndsDivisor : Math.abs (_lowPntVal) / _bndsDivisor,
+        absValTxt  = absPntVal.toFixed (valCap),
+        grtPrecTxt = (_grtPrec / _bndsDivisor).toFixed (valCap);
     pooch.fetch ("#highest_abs_val").html (absValTxt);
     pooch.fetch ("#greatest_precision").html (grtPrecTxt);
   };
@@ -389,9 +412,11 @@ designer.shapefiles = new (function ()
                                               .batch (true)
                                               .popup (popup1);
 
-    chart1.symbolGroup ([symbolGroup1])
+    _chart.symbolGroup ([symbolGroup1])
           .bounds (symbolGroup1)
           .draw ();
+
+    _bndsOrig = _chart.bounds ();
 
   };
 
@@ -401,16 +426,19 @@ designer.shapefiles = new (function ()
       _fields   = null,
       _shapes   = null,
       _records  = null,
+      _bndsDivisor  = 1,
+      _bndsOrig = [],
       keyErrorCnt = 1,
       data1,
       symbolGroup1,
-      chart1,
+      _chart,
       shapeData,
       jsonFileString,
       _toFixed = 20,
       _stepAmount = 14,
       _grtPrecLen = 0,
       _grtPrec = 0.0,
+      _grtIntLen = 0,
       _hghPntVal = Number.MIN_VALUE,
       _lowPntVal = Number.MAX_VALUE;
       _pntSliderVal = 14;
@@ -432,7 +460,7 @@ designer.shapefiles = new (function ()
 
   var popup1    = pooch.popup ("popupLayout1");
 
-  chart1    = pooch.chart (".stage-shape").height (400)
+  _chart    = pooch.chart (".stage-shape").height (400)
                                               .width (800)
                                               .zoomControl (zoomControl1);
 

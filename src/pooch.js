@@ -899,7 +899,8 @@
         _chartScope.axisMaxX (arr[1]);
         _chartScope.axisMinY (arr[2]);
         _chartScope.axisMaxY (arr[0]);
-        _axisDefaults = { minX: arr[3], maxSetX: arr[1], minY: arr[2], maxY: arr[0] };
+        _bounds       = [arr[0], arr[1], arr[2], arr[3]];
+        _axisDefaults = { minX: arr[3], maxX: arr[1], minY: arr[2], maxY: arr[0] };
         _setUnitsPerPx ();
         _setCenter ();
       }
@@ -953,6 +954,7 @@
         _chartScope.axisMaxX (bndsE);
         _chartScope.axisMinY (bndsS);
         _chartScope.axisMaxY (bndsN);
+        _bounds       = [bndsN, bndsE, bndsS, bndsW];
         _axisDefaults = { minX: bndsW, maxX: bndsE, minY: bndsS, maxY: bndsN };
         _setUnitsPerPx ();
         _setCenter ();
@@ -1670,7 +1672,6 @@
         }
 
         _symState[obj].poochID = obj;
-        //console.log ("ssffd");
       }
 
       return _symState;
