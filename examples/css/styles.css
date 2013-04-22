@@ -8,7 +8,7 @@
   -moz-user-select: none;
   -o-user-select: none;
   user-select: none;
-  overflow: hidden;
+/*  overflow: hidden;*/
   -webkit-transform: translatez(0);
   -moz-transform: translatez(0);
   -ms-transform: translatez(0);

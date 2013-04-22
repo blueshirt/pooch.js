@@ -1,20 +1,20 @@
 (function ()
 {
-  pooch = { version: "0.0.3" , author: "Jeremy White"};
+  pooch = { version: "0.1.0" , author: "Jeremy White"};
 
   pooch.chart = function (id)
   {
-    return new _chart (id);
+    return new __chart (id);
   };
 
   pooch.data = function (obj)
   {
-    return new _data (obj);
+    return new __data (obj);
   };
 
   pooch.fetch = function (elem)
   {
-    return _fetch (elem);
+    return new __fetch (elem);
   };
 
   pooch.log = function (obj)
@@ -29,24 +29,25 @@
 
   pooch.popup = function (elem)
   {
-    return new _popup (elem);
+    return new __popup (elem);
   };
 
   pooch.symbolGroup = function (shape)
   {
-    return new _symbolGroup (shape);
+    return new __symbolGroup (shape);
   };
 
   pooch.zoomControl = function (elem)
   {
-    return new _zoomControl (elem);
+    return new __zoomControl (elem);
   };
 
   pooch.supportsCanvas = !!document.createElement ('canvas').getContext;
 
-  var _chart = function (id)
+  var __chart = function (id)
   {
     var _chartScope   = this,
+        _bounds       = [],
         _height       = 0,
         _width        = 0,
         _house        = null,
@@ -61,18 +62,25 @@
         _axisMinY     = 0,
         _axisMaxY     = 100,
         _axisDefaults = { minX: 0, maxX: 100, minY: 0, maxY: 100 },
-        _unitsPerPx   = { x: 1, y: 1 };
+        _unitsPerPx   = { x: 1, y: 1 },
         _zoom         = 0,
         _zoomLevels   = [1, 2, 4, 8, 16],
+        _zoomStep     = 1,
+        _zoomSteps    = 1,
+        _isZooming    = false,
         _center       = { x: 50, y: 50 },
         _offsetX      = 0,
         _offsetY      = 0,
+        _usesBack     = false,
+        _usesMain     = false,
         _ctxBack      = null,
-        _ctxHltBack   = null,
+        _ctxBackHlt   = null,
         _ctxMain      = null,
-        _ctxHltMain   = null,
-        _ctxHidden    = null,
-        _cvsHidden    = null,
+        _ctxMainHlt   = null,
+        _ctxMainHdn   = null,
+        _cvsMainHdn   = null,
+        _ctxBackHdn   = null,
+        _cvsBackHdn   = null,
         _isAnimating  = false,
         _isInteract   = true,
         _isMouseDown  = false,
@@ -87,20 +95,37 @@
         _symCur       = null,
         _symAction    = "over",
         _timeOut      = null,
+        _layersHdn    = [],
         _layersPre    = [{_container: "div"}],
-        _layersMain   = [{_highlightMain: "canvas"}, {_main: "canvas"}, {_highlightBack: "canvas"}, {_back: "canvas"}],
+        _layersMain   = [{_highlightMain: "canvas"}, {_main: "canvas"}, {_highlightBack: "canvas"}, {_back: "canvas"}, {_base: "div"}],
         _layersPost   = [{_mouse: "div"}, {_popup: "div"}];
 
     var _adjustLayout = function (obj)
     {
       var attrKey = pooch.helpers.keyFromObj (obj),
-          px      = obj[attrKey] === 0 ? 0 : "px";
-          cssObj  = {};
+          px      = obj[attrKey] === 0 ? 0 : "px",
+          cssObj  = {},
+          ndxHdn  = _layersHdn.length,
           ndxPre  = _layersPre.length,
           ndxMain = _layersMain.length,
           ndxPost = _layersPost.length;
 
       cssObj[attrKey] = obj[attrKey] + px;
+
+      if (pooch.supportsCanvas)
+      {
+        while (ndxHdn--)
+        {
+          _layersHdn[ndxHdn].width        = _width * 3;
+          _layersHdn[ndxHdn].style.width  = (_width * 3) + "px";
+          _layersHdn[ndxHdn].height       = _height * 3;
+          _layersHdn[ndxHdn].style.height = (_height * 3) + "px";
+        }
+      }
+      else
+      {
+        // TODO: Add non-canvas layout changes
+      }
 
       while (ndxPre--)
       {
@@ -108,8 +133,6 @@
             fetchPre = pooch.fetch ("#pooch" + keyPre + "_" + _id);
 
         fetchPre.css (cssObj).dom ()[attrKey] = obj[attrKey];
-        if (attrKey == "width") fetchPre.css ({ left: -(obj.width / 3) + "px" });
-        if (attrKey == "height") fetchPre.css ({ top: -(obj.height / 3) + "px" });
       }
 
       if (pooch.supportsCanvas)
@@ -151,21 +174,21 @@
     {
       var xAdj    = 0,
           yAdj    = 0,
+          xLoc    = x - _width,
+          yLoc    = y - _height,
           popOffX = symGrp.popup ().offsetX (),
           popOffY = symGrp.popup ().offsetY (),
           width   = symGrp.popup ().width (),
-          height  = symGrp.popup ().height (),
-          visHgt  = _height / 3,
-          visWid  = _width / 3;
+          height  = symGrp.popup ().height ();
 
-      if (y - height - popOffY - 10 < visHgt) yAdj = popOffY;
+      if (yLoc - height - popOffY - 2 < 0) yAdj = popOffY;
       else yAdj = -height - popOffY;
-      if (x + popOffX - (width / 2) - 10 < visWid) xAdj = visWid + -x + 10;
-      else if (x + popOffX + (width / 2) + 10 > visWid * 2) xAdj = visWid * 2 - (x + width) - 10;
+      if (xLoc + popOffX - (width / 2) - 2 < 0) xAdj = -xLoc + 2;
+      else if (xLoc + popOffX + (width / 2) + 2 > _width) xAdj = _width - (xLoc + width) - 2;
       else xAdj = popOffX + (width / -2);
 
-      symGrp.popup ().x (x + xAdj)
-                    .y (y + yAdj);
+      symGrp.popup ().x (xLoc + xAdj)
+                     .y (yLoc + yAdj);
     };
 
     var _findSymGrp = function (ndx)
@@ -182,7 +205,7 @@
       }
     };
 
-    var _loopThroughPolys = function (shape, point)
+    var _pntInPoly= function (shape, point)
     {
       var pntInPoly = function (poly, pt)
           {
@@ -202,15 +225,15 @@
     {
       if (!ignore)
       {
-        var x             = e.localX,
-            y             = e.localY,
+        var x             = e.localX + _width,
+            y             = e.localY + _height,
             found         = false,
             symFnd        = false,
             symGrpsFnd    = [],
             symsFnd       = [],
             count         = 0,
             len           = _symGrp.length,
-            closestDist   = _width,
+            closestDist   = _width * 3,
             symGrpClosest = null,
             symClosest    = null;
 
@@ -241,11 +264,11 @@
                   break;
 
                   case "poly":
-                    found = _loopThroughPolys (sym[obj].shapePoints, [x, y]);
+                    found = _pntInPoly (sym[obj].shapePoints, [x, y]);
                     break;
 
                   case "custom":
-                    found = _symGrp[i].customShape ().hitTest (sym[obj], x, y);
+                    found = _symGrp[i].customShape ().hitTest (sym[obj], { x: -x, y: -y });
                     break;
 
                   default:
@@ -276,7 +299,6 @@
                   symsFnd[count]    = sym[obj];
                   symFnd            = true;
                   count++;
-
                 }
               }
             }
@@ -301,18 +323,17 @@
               }
             }
 
-            var symGrpCur   = symGrpClosest;
+            var symGrpCur   = symGrpClosest,
                 symCur      = symClosest;
-                symFnd      = true;
 
             if (_symCur !== symCur && symCur)
             {
               if (_symGrpCur)
               {
                 // TODO Clean this up. No need to clear ctx here and then from _drawSymGrps ().
-                _symGrpCur.popup ().hide ();
-                if (_symGrpCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxHltMain, _width, _height);
-                else _clearCtx (_ctxHltBack, _width, _height);
+                if (_symGrpCur.popup ()) _symGrpCur.popup ().hide ();
+                if (_symGrpCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxMainHlt, _width, _height);
+                else _clearCtx (_ctxBackHlt, _width, _height);
               }
 
               var keyObj              = {},
@@ -321,13 +342,13 @@
               _symCur                 = symCur;
               keyObj[_symCur.poochID] = _symCur;
               _stepCnt                = _stepTot     = 1;
-              _fillPop (_symGrpCur, _symGrpCur.state (), _symCur.poochID, x, y);
+              if (_symGrpCur.popup ()) _fillPop (_symGrpCur, _symGrpCur.state (), _symCur.poochID, x, y);
               pooch.fetch (_house).css ({ cursor: "pointer"});
               _drawSymGrps (null, layer, { obj: _symGrpCur, key: keyObj });
             }
             else if (_symCur === symCur && symCur)
             {
-              _movePop (symGrpCur, x, y);
+              if (_symGrpCur.popup ()) _movePop (symGrpCur, x, y);
             }
           }
 
@@ -335,10 +356,10 @@
           {
             if (_symCur)
             {
-              _symGrpCur.popup ().hide ();
+              if (_symGrpCur.popup ()) _symGrpCur.popup ().hide ();
               pooch.fetch (_house).css ({ cursor: "default"});
-              if (_symGrpCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxHltMain, _width, _height);
-              else _clearCtx (_ctxHltBack, _width, _height);
+              if (_symGrpCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxMainHlt, _width, _height);
+              else _clearCtx (_ctxBackHlt, _width, _height);
               //else var TODO = "add swf clearing"; //document[_swfID].clearHighlights ();
             }
             _symGrpCur = null;
@@ -352,71 +373,71 @@
       }
     };
 
-    var _frameCalc = function (symGrp, sym, key, time, dur)
+    var _frameCalc = function (symGrp, key, time, dur)
     {
-      var returnObj = {},
-          symState  = symGrp.state ();
+      var sym       = symGrp.datum (key),
+          symState  = symGrp.state (),
+          data      = symGrp.data ().datum (),
+          symAttrs  = symGrp.symAttrs ();
 
       if (time === 1)
       {
-        var data      = symGrp.data ().datum (),
-            symAttrs  = symGrp.symAttrs ();
-        sym[key].list = [];
+        sym.changeList = {};
 
-        for (var attr in symAttrs)
+        for (var attr in symGrp.changeList ())
         {
-          if (typeof symAttrs[attr] === "function") sym[key][attr] = symAttrs[attr](sym[key], data[key]);
-          else sym[key][attr] = symAttrs[attr] !== null ? symAttrs[attr] : sym[key][attr];
-          if (sym[key][attr] !== symState[key][attr]) sym[key].list.push (attr);
+          sym.changeList[attr] = typeof symAttrs[attr] === "function" ? symAttrs[attr](sym, data[key]) : symAttrs[attr] !== null ? symAttrs[attr] : sym[attr];
         }
       }
 
-      var i = sym[key].list.length;
-
-      while (i--)
+      for (var change in symGrp.changeList ())
       {
-        var item        = sym[key].list[i],
-            stepFunc    = symGrp.stepFunc (item);
-        returnObj[item] = stepFunc (time, symState[key][item], sym[key][item], dur, sym[key].easing);
+        var stepFunc = symGrp.stepFunc (change);
+        sym[change]  = stepFunc (symState[key][change], sym.changeList[change], time, dur, sym.easing);
       }
-
-      return returnObj;
     };
 
-    var _shapeCalc = function (symGrp, key, attrs, ctx)
+    var _shapeCalc = function (symGrp, key, ctx, isHlt)
     {
-      var isMap   = symGrp.map (),
-          horVar  = isMap ? attrs.lng : attrs.x,
-          vertVar = isMap ? attrs.lat : attrs.y,
+      var sym     = symGrp.datum (key),
+          isMap   = symGrp.map (),
+          horVar  = isMap ? sym.lng : sym.x,
+          vertVar = isMap ? sym.lat : sym.y,
           x       = !_wholeNums ? horVar : horVar >> 0,
           y       = !_wholeNums ? vertVar : vertVar >> 0;
 
-      switch (attrs.shape)
+      if (isHlt)
+      {
+        x -= _width;
+        y -= _height;
+      }
+
+      switch (sym.shape)
       {
         case "circle":
-          var size = !_wholeNums ? attrs.size : attrs.size >> 0;
+          var size = !_wholeNums ? sym.size : sym.size >> 0;
           ctx.arc (x + _offsetX, y + _offsetY, size, 0, _circle, false);
         break;
 
         case "rect":
-          var width      = !_wholeNums ? attrs.width : attrs.width >> 0,
-              height     = !_wholeNums ? attrs.height : attrs.height >> 0,
-              halfWidth  = !_wholeNums ? attrs.width / 2 : (attrs.width / 2) >> 0,
-              halfHeight = !_wholeNums ? attrs.height / 2 : (attrs.height / 2) >> 0;
+          var width      = !_wholeNums ? sym.width : sym.width >> 0,
+              height     = !_wholeNums ? sym.height : sym.height >> 0,
+              halfWidth  = !_wholeNums ? sym.width / 2 : (sym.width / 2) >> 0,
+              halfHeight = !_wholeNums ? sym.height / 2 : (sym.height / 2) >> 0;
           ctx.rect (x - halfWidth + _offsetX, y - halfHeight + _offsetY, width, height);
         break;
 
         case "bezcurve":
-          // var multiplier = (attrs["xEnd"] < x) ? true : false;
-          // var firstX = (multiplier) ? x - ((x - attrs["xEnd"]) * .5) : x + ((attrs["xEnd"] - x) * .5);
-          // //var secondX = (multiplier) ? attrs["xEnd"] + (attrs["xEnd"] - (x / 2)) : x + (x - (attrs["xEnd"] / 2));
+          // var multiplier = (sym["xEnd"] < x) ? true : false;
+          // var firstX = (multiplier) ? x - ((x - sym["xEnd"]) * .5) : x + ((sym["xEnd"] - x) * .5);
+          // //var secondX = (multiplier) ? sym["xEnd"] + (sym["xEnd"] - (x / 2)) : x + (x - (sym["xEnd"] / 2));
           // ctx.moveTo (x, y);
           // ctx.bezierCurveTo (firstX,
           //                       y,
           //                       firstX,
-          //                       attrs["yEnd"],
-          //                       attrs["xEnd"],
-          //                       attrs["yEnd"]);
+          //                       sym["yEnd"],
+          //                       sym["xEnd"],
+          //                       sym["yEnd"]);
         break;
 
         case "line":
@@ -428,8 +449,8 @@
         break;
 
         case "hex":
-          var halfWidHex  = !_wholeNums ? attrs.width / 2 : (attrs.width / 2) >> 0,
-              halfHghtHex = !_wholeNums ? attrs.height / 2 : (attrs.height / 2) >> 0,
+          var halfWidHex  = !_wholeNums ? sym.width / 2 : (sym.width / 2) >> 0,
+              halfHghtHex = !_wholeNums ? sym.height / 2 : (sym.height / 2) >> 0,
               quartWidth  = !_wholeNums ? halfWidHex / 2 : (halfWidHex / 2) >> 0;
           ctx.moveTo (x - quartWidth + _offsetX, y - halfHghtHex + _offsetY);
           ctx.lineTo (x + quartWidth + _offsetX, y - halfHghtHex + _offsetY);
@@ -441,50 +462,59 @@
         break;
 
         case "poly":
-          var polys = attrs.shapePoints,
+          var polys = sym.shapePoints,
               brds  = polys.length;
 
           while (brds--)
           {
-            var pts = polys[brds].length - 1;
-            ctx.moveTo (polys[brds][pts][0], polys[brds][pts][1]);
-            while (pts--) ctx.lineTo (polys[brds][pts][0], polys[brds][pts][1]);
+            var pts   = polys[brds].length - 1,
+                moveX = isHlt ? polys[brds][pts][0] - _width : polys[brds][pts][0],
+                moveY = isHlt ? polys[brds][pts][1] - _height : polys[brds][pts][1];
+            ctx.moveTo (moveX, moveY);
+            while (pts--)
+            {
+              var lineX = isHlt ? polys[brds][pts][0] - _width : polys[brds][pts][0],
+                  lineY = isHlt ? polys[brds][pts][1] - _height : polys[brds][pts][1];
+              ctx.lineTo (lineX, lineY);
+            }
           }
           // if (!scope.supportsCanvas) drawString.push ("^");
         break;
 
         case "custom":
-          var sym  = symGrp.datum (key),
-              data = symGrp.data ().datum (key);
-          symGrp.customShape ().process (sym, attrs, { x: _offsetX, y: _offsetY });
+          var xAdj = isHlt ? _offsetX - _width : _offsetX,
+              yAdj = isHlt ? _offsetY - _height : _offsetY;
+          symGrp.customShape ().process (sym, { x: xAdj, y: yAdj });
         break;
 
         default:
-          var sizeDef = !_wholeNums ? attrs.size : attrs.size >> 0;
+          var sizeDef = !_wholeNums ? sym.size : sym.size >> 0;
           ctx.arc (x + _offsetX, y + _offsetY, sizeDef, 0, _circle, false);
       }
     };
 
-    var _drawCalc = function (symGrp, key, attrs, ctx, isHlt)
+    var _drawCalc = function (symGrp, key, ctx, isHlt)
     {
+      var sym = symGrp.datum (key);
+
       if (pooch.supportsCanvas)
       {
-        var drawFill      = isHlt ? attrs.drawFillHighlight : attrs.drawFill,
-            fillColor     = isHlt ? attrs.fillColorHighlight : attrs.fillColor,
-            fillOpacity   = isHlt ? attrs.fillOpacityHighlight : attrs.fillOpacity,
-            drawStroke    = isHlt ? attrs.drawStrokeHighlight : attrs.drawStroke,
-            strokeWidth   = isHlt ? attrs.strokeWidthHighlight : attrs.strokeWidth,
-            strokeColor   = isHlt ? attrs.strokeColorHighlight : attrs.strokeColor,
-            strokeOpacity = isHlt ? attrs.strokeOpacityHighlight : attrs.strokeOpacity;
+        var drawFill      = isHlt ? sym.drawFillHighlight : sym.drawFill,
+            fillColor     = isHlt ? sym.fillColorHighlight : sym.fillColor,
+            fillOpacity   = isHlt ? sym.fillOpacityHighlight : sym.fillOpacity,
+            drawStroke    = isHlt ? sym.drawStrokeHighlight : sym.drawStroke,
+            strokeWidth   = isHlt ? sym.strokeWidthHighlight : sym.strokeWidth,
+            strokeColor   = isHlt ? sym.strokeColorHighlight : sym.strokeColor,
+            strokeOpacity = isHlt ? sym.strokeOpacityHighlight : sym.strokeOpacity;
 
-        if (drawFill) ctx.fillStyle = "rgba(" + fillColor + "," + fillOpacity + ")";
+        if (drawFill) ctx.fillStyle = "rgba(" + fillColor + ", " + fillOpacity + ")";
 
         if (drawStroke)
         {
           ctx.lineWidth = strokeWidth;
-          ctx.strokeStyle = "rgba(" + strokeColor + "," + strokeOpacity + ")";
+          ctx.strokeStyle = "rgba(" + strokeColor + ", " + strokeOpacity + ")";
         }
-        _shapeCalc (symGrp, key, attrs, ctx);
+        _shapeCalc (symGrp, key, ctx, isHlt);
       }
     };
 
@@ -510,7 +540,8 @@
               {
                 clrBack = true;
                 _clearCtx (_ctxBack, _width, _height);
-                _clearCtx (_ctxHltBack, _width, _height);
+                _clearCtx (_ctxBackHlt, _width, _height);
+                _clearCtx (_ctxBackHdn, _width * 3, _height * 3);
               }
               break;
 
@@ -519,7 +550,8 @@
               {
                 clrMain = true;
                 _clearCtx (_ctxMain, _width, _height);
-                _clearCtx (_ctxHltMain, _width, _height);
+                _clearCtx (_ctxMainHlt, _width, _height);
+                _clearCtx (_ctxMainHdn, _width * 3, _height * 3);
               }
               break;
 
@@ -527,8 +559,8 @@
               if (!clrHlt)
               {
                 clrHlt = true;
-                _clearCtx (_ctxHltMain, _width, _height);
-                _clearCtx (_ctxHltBack, _width, _height);
+                _clearCtx (_ctxMainHlt, _width, _height);
+                _clearCtx (_ctxBackHlt, _width, _height);
               }
           }
         }
@@ -536,19 +568,25 @@
       else
       {
         symLayer = layer.toUpperCase ();
-        var isHlt = hlt ? true : false,
-            ctx   = isHlt ? symLayer === "HIGHLIGHTMAIN" ? _ctxHltMain : _ctxHltBack : symLayer === "MAIN" ? _ctxMain : _ctxBack;
+        var isHlt  = hlt ? true : false,
+            ctx    = isHlt ? symLayer === "HIGHLIGHTMAIN" ? _ctxMainHlt : _ctxBackHlt : symLayer === "MAIN" ? _ctxMain : _ctxBack,
+            ctxHid = isHlt ? null : symLayer === "MAIN" ? _ctxMainHdn : _ctxBackHdn;
         _clearCtx (ctx, _width, _height);
+        if (ctxHid !== null) _clearCtx (ctxHid, _width * 3, _height * 3);
       }
     };
 
-    var _drawSymGrps = function (time, layer, hlt)
+    var _drawSymGrps = function (time, layer, hlt, callback)
     {
       clearTimeout (_timeOut);
+
+      if (typeof time === "undefined" || typeof time === null || isNaN (time)) _stepTot = 1;
 
       var isHlt     = hlt ? true : false,
           len       = isHlt ? 1 : _symGrp.length;
       _isAnimating  = true;
+      _usesBack     = isHlt ? _usesBack : false;
+      _usesMain     = isHlt ? _usesMain : false;
 
       //var drawString = [];
       if (_house)
@@ -556,7 +594,6 @@
         if (pooch.supportsCanvas)
         {
           _clearLayers (layer, hlt);
-
         }
         else
         {
@@ -566,19 +603,25 @@
 
         for (var i = 0; i < len; ++i)
         {
-          var drawOK = (layer !== undefined && symLayer !== layer.toUpperCase ()) ? isHlt ? true : false : true;
+          var symGrp   = isHlt ? hlt.obj : _symGrp[i],
+              symLayer = symGrp.layer ().toUpperCase (),
+              drawOK   = true; //(typeof layer !== "undefined" && layer !== null && symLayer !== layer.toUpperCase ()) ? isHlt ? true : false : true;
 
           if (drawOK)
           {
-            var sym       = isHlt ? hlt.key : _symGrp[i].datum (),
-                symGrp    = isHlt ? hlt.obj : _symGrp[i],
+            var sym       = isHlt ? hlt.key : symGrp.datum (),
                 symOrder  = isHlt ? [pooch.helpers.keyFromObj (hlt.key)] : symGrp.order (),
                 orderLen  = isHlt ? 1 : symOrder.length,
-                symLayer  = symGrp.layer ().toUpperCase (),
-                ctx       = isHlt ? symLayer === "MAIN" ? _ctxHltMain : _ctxHltBack : symLayer === "MAIN" ? _ctxMain : _ctxBack,
+                symShape  = symGrp.shape ().toUpperCase (),
+                ctx       = isHlt ? symLayer === "MAIN" ? _ctxMainHlt : _ctxBackHlt : symLayer === "MAIN" ? _ctxMainHdn : _ctxBackHdn,
+                custShp   = symShape === "CUSTOM" ? true : false,
                 batch     = symGrp.batch () ? true : false;
 
+            if (ctx === _ctxMainHdn) _usesMain = true;
+            else if (ctx === _ctxBackHdn) _usesBack = true;
+
             symGrp.context (ctx);
+            if (_projection) symGrp.changeList ()["shapePoints"] = null; // TODO find a better home for this situation.
 
             if (batch && !isHlt)
             {
@@ -588,20 +631,17 @@
               for (var group in batchObj)
               {
                 var groupLen = batchObj[group].length;
-                ctx.beginPath ();
+                if (!custShp) ctx.beginPath ();
 
                 while (groupLen--)
                 {
-                  var key        = batchObj[group][groupLen],
-                      attrsBatch = _frameCalc (symGrp, sym, key, _stepCnt, _stepTot);
-
-                  for (var attrBatch in symGrp.symAttrs ()) attrsBatch[attrBatch] = attrsBatch[attrBatch] || sym[key][attrBatch];
-
-                  _drawCalc (symGrp, key, attrsBatch, ctx, isHlt);
+                  var key = batchObj[group][groupLen];
+                  _frameCalc (symGrp, key, _stepCnt, _stepTot);
+                  _drawCalc (symGrp, key, ctx, isHlt);
                 }
 
-                ctx.fill ();
-                ctx.stroke ();
+                if (!custShp) ctx.fill ();
+                if (!custShp) ctx.stroke ();
               }
             }
 
@@ -609,24 +649,39 @@
             {
               for (var j = 0; j < orderLen; ++j)
               {
-                ctx.beginPath ();
-                var attrs = _frameCalc (symGrp, sym, symOrder[j], _stepCnt, _stepTot);
-                for (var attr in symGrp.symAttrs ()) attrs[attr] = attrs[attr] || sym[symOrder[j]][attr];
-                _drawCalc (symGrp, symOrder[j], attrs, ctx, isHlt);
-                 var drawFill   = isHlt ? attrs.drawFillHighlight : attrs.drawFill,
-                     drawStroke = isHlt ? attrs.drawStrokeHighlight : attrs.drawStroke;
-                 if (drawFill) ctx.fill ();
-                 if (drawStroke) ctx.stroke ();
+                if (!custShp) ctx.beginPath ();
+                _frameCalc (symGrp, symOrder[j], _stepCnt, _stepTot);
+                _drawCalc (symGrp, symOrder[j], ctx, isHlt);
+                var drawFill   = isHlt ? sym[symOrder[j]].drawFillHighlight : sym[symOrder[j]].drawFill,
+                    drawStroke = isHlt ? sym[symOrder[j]].drawStrokeHighlight : sym[symOrder[j]].drawStroke;
+                if (drawFill && !custShp) ctx.fill ();
+                if (drawStroke && !custShp) ctx.stroke ();
               }
             }
+            if (_stepCnt === _stepTot) symGrp.changeList ({});
           }
+        }
+
+        if ((_usesMain || _usesBack) && !isHlt)
+        {
+          var sX      = _width,
+              sY      = _height,
+              sWidth  = _width,
+              sHeight = _height,
+              x       = 0,
+              y       = 0,
+              width   = _width,
+              height  = _height;
+
+          if (_usesMain) _ctxMain.drawImage (_cvsMainHdn, sX, sY, sWidth, sHeight, x, y, width, height);
+          if (_usesBack) _ctxBack.drawImage (_cvsBackHdn, sX, sY, sWidth, sHeight, x, y, width, height);
         }
 
         _stepCnt++;
 
         if (_stepCnt <= _stepTot && _stepTot > 1)
         {
-          _timeOut = setTimeout (_drawSymGrps, 1);
+          _timeOut = setTimeout (function () { _drawSymGrps (_stepTot); }, 1);
         }
         else
         {
@@ -640,6 +695,7 @@
           while (k--) if (!isHlt) _symGrp[k].state (true);
           if (_zoomControl) _zoomControl.update ();
           _isAnimating  = false;
+          if (typeof callback === "function") callback ();
         }
       }
     };
@@ -664,6 +720,8 @@
     var _assignDrag = function (domElem)
     {
       var releaseCap = false,
+          offX       = 0,
+          offY       = 0,
           drag       =
       {
         elem : null,
@@ -697,22 +755,17 @@
           {
             var layer    = _symGrpCur.layer ().toUpperCase (),
                 layerHlt = layer === "MAIN" ? "highlightMain" : "highlightBack";
-            _symGrpCur.popup ().hide ();
+            if (_symGrpCur.popup ()) _symGrpCur.popup ().hide ();
             _clearLayers (layerHlt, true);
             _symGrpCur = _symCur = null;
           }
 
-          drag.elem     = this;
-          var parseLeft = parseInt (drag.elem.style.left, 10),
-              parseTop  = parseInt (drag.elem.style.top, 10);
-
-          if (isNaN (parseLeft)) drag.elem.style.left = "0px";
-          if (isNaN (parseTop)) drag.elem.style.top = "0px";
-          if (typeof window.webkitURL === "function") drag.elem.style.webkitTransform = "matrix(1, 0, 0, 1, 0, 0)";
-
-          e                     = e ? e : window.event;
-          drag.elem.mouseX      = e.clientX;
-          drag.elem.mouseY      = e.clientY;
+          drag.elem         = this;
+          e                 = e ? e : window.event;
+          drag.elem.mouseX  = e.clientX;
+          drag.elem.mouseY  = e.clientY;
+          offX              = 0;
+          offY              = 0;
 
           if (window.navigator.msPointerEnabled) // new Microsoft model
           {
@@ -750,23 +803,33 @@
             _isDragging   = true;
             e             = e.changedTouches ? e.changedTouches : [e];
 
-            if (typeof window.webkitURL === "function")
-            {
-              var matrix = pooch.helpers.parseWebkitMatrix (drag.elem.style.webkitTransform),
-                  tX     = parseInt (matrix.tX, 10) + (e[0].clientX - drag.elem.mouseX),
-                  tY     = parseInt (matrix.tY, 10) + (e[0].clientY - drag.elem.mouseY);
-              drag.elem.style.webkitTransform = "matrix(1, 0, 0, 1, " + tX + ", " + tY + ")";
-            }
-            else
-            {
-              var left = parseInt (drag.elem.style.left, 10) + (e[0].clientX - drag.elem.mouseX),
-                  top  = parseInt (drag.elem.style.top, 10) + (e[0].clientY - drag.elem.mouseY);
-              drag.elem.style.left = left + "px";
-              drag.elem.style.top  = top + "px";
-            }
+            var adjX = e[0].clientX - drag.elem.mouseX,
+                adjY = e[0].clientY - drag.elem.mouseY;
 
-            drag.elem.mouseX       = e[0].clientX;
-            drag.elem.mouseY       = e[0].clientY;
+            offX += isNaN (adjX) ? 0 : adjX;
+            offY += isNaN (adjY) ? 0 : adjY;
+
+            var sX       = _width - offX < 0 ? 0 : _width - offX,
+                sY       = _height - offY < 0 ? 0 : _height - offY,
+                dX       = _width - offX < 0 ? -(_width - offX) : 0,
+                dY       = _height - offY < 0 ? -(_height - offY) : 0,
+                widX3    = _width * 3,
+                hgtX3    = _height * 3,
+                limitWid = sX + _width > widX3 ? widX3 - ((sX + _width) - _width) : _width,
+                limitHgt = sY + _height > hgtX3 ? hgtX3 - ((sY + _height) - _height) : _height;
+
+            if (_usesMain)
+            {
+              _clearCtx (_ctxMain, _width, _height);
+              _ctxMain.drawImage (_cvsMainHdn, sX, sY, limitWid, limitHgt, dX, dY, limitWid, limitHgt);
+            }
+            if (_usesBack)
+            {
+              _clearCtx (_ctxBack, _width, _height);
+              _ctxBack.drawImage (_cvsBackHdn, sX, sY, limitWid, limitHgt, dX, dY, limitWid, limitHgt);
+            }
+            drag.elem.mouseX = e[0].clientX;
+            drag.elem.mouseY = e[0].clientY;
           }
           return false;
         },
@@ -775,26 +838,9 @@
         {
           if (drag.elem === null) return;
           _isDragging = false;
-          var x,
-              y,
-              viewWid = -(_width / 3),
-              viewHgt = -(_height / 3);
 
-          if (typeof window.webkitURL === "function")
-          {
-            var matrix = pooch.helpers.parseWebkitMatrix (drag.elem.style.webkitTransform);
-            x          = viewWid + parseInt (matrix.tX, 10);
-            y          = viewHgt + parseInt (matrix.tY, 10);
-          }
-          else
-          {
-            x = parseInt (drag.elem.style.left, 10);
-            y = parseInt (drag.elem.style.top, 10);
-          }
-
-
-          var adjX    = (x - viewWid) * (_unitsPerPx.x * 3),
-              adjY    = (y - viewHgt) * (_unitsPerPx.y * 3);
+          var adjX    = offX * _unitsPerPx.x,
+              adjY    = offY * _unitsPerPx.y;
           _axisMinX   -= adjX;
           _axisMaxX   -= adjX;
           _axisMinY   += adjY;
@@ -802,11 +848,18 @@
 
           _setCenter ();
 
-          if (x !== 0 && y !== 0)
+          if (offX !== 0 || offY !== 0)
           {
+            offX  = 0;
+            offY  = 0;
+            var i = _symGrp.length;
+
+            while (i--)
+            {
+              if (_symGrp[i].shapeData ()) _symGrp[i].changeList ()["shapePoints"] = null;
+              else { _symGrp[i].changeList ()["x"] = null; _symGrp[i].changeList ()["y"] = null; }
+            }
             _drawSymGrps ();
-            if (typeof window.webkitURL === "function") drag.elem.style.webkitTransform = "matrix(1, 0, 0, 1, 0, 0)";
-            else pooch.fetch ("#pooch_container_" + _id).css ({ "top": viewHgt + "px", "left": viewWid + "px" });
           }
 
           if (releaseCap) document.releaseCapture ();
@@ -819,7 +872,6 @@
             document.removeEventListener ("touchcancel", drag.end, false);
             document.removeEventListener ("touchleave", drag.end, false);
           }
-
           drag.elem = null;
         }
       };
@@ -863,8 +915,8 @@
             var x                   = obj.val[brds][pts][0],
                 y                   = obj.val[brds][pts][1],
                 proj                = hasProj ? _projection (x, y, initial) : { x: x, y: y },
-                locX                = _width * ((proj.x - minX) / (maxX - minX)),
-                locY                = _height - (_height * ((proj.y - minY) / (maxY - minY)));
+                locX                = (_width * 3) * ((proj.x - minX) / (maxX - minX)),
+                locY                = (_height * 3) - ((_height * 3) * ((proj.y - minY) / (maxY - minY)));
 
             returnArr[brds][pts][0] = !_wholeNums ? locX : locX >> 0;
             returnArr[brds][pts][1] = !_wholeNums ? locY : locY >> 0;
@@ -876,14 +928,15 @@
       else
       {
         var isWidth = obj.dim === "width",
-            dim     = isWidth ? _width : _height,
+            dim     = isWidth ? _width * 3: _height * 3,
             valWid  = _axisMaxX - _axisMinX,
             valHgt  = _axisMaxY - _axisMinY,
             min     = isWidth ? _axisMinX - valWid : _axisMinY - valHgt,
             max     = isWidth ? _axisMaxX + valWid : _axisMaxY + valHgt,
+            value   = typeof obj.val === "function" ? obj.val (obj.sym, obj.data) : obj.val,
             loc;
-        if (isWidth) loc = dim * ((obj.val - min) / (max - min));
-        else loc = dim - (dim * ((obj.val - min) / (max - min)));
+        if (isWidth) loc = dim * ((value - min) / (max - min));
+        else loc = dim - (dim * ((value - min) / (max - min)));
         return loc;
       }
       return _chartScope;
@@ -995,15 +1048,27 @@
       return _chartScope;
     };
 
+    _chartScope.stepCount = function (val)
+    {
+      if (!arguments.length) return _stepCnt;
+      _stepCnt = val;
+      return _chartScope;
+    };
+
+    _chartScope.stepTotal = function (val)
+    {
+      if (!arguments.length) return _stepTot;
+      _stepTot = val;
+      return _chartScope;
+    };
+
     _chartScope.width = function (val)
     {
-      if (!arguments.length) return _width / 3;
-      _width = val * 3;
+      if (!arguments.length) return _width;
+      _width = val;
       if (_house)
       {
         _adjustLayout ({ width: _width });
-        _cvsHidden.width        = _width;
-        _cvsHidden.style.width  = _width + "px";
       }
       else _funcQueue.push ( { func: _adjustLayout, arg: { width: _width } } );
       return _chartScope;
@@ -1011,13 +1076,11 @@
 
     _chartScope.height = function (val)
     {
-      if (!arguments.length) return _height / 3;
-      _height = val * 3;
+      if (!arguments.length) return _height;
+      _height = val;
       if (_house)
       {
         _adjustLayout ({ height: _height });
-        _cvsHidden.height       = _height;
-        _cvsHidden.style.height = _height + "px";
       }
       else _funcQueue.push ( { func: _adjustLayout, arg: { height: _height } } );
       return _chartScope;
@@ -1051,6 +1114,20 @@
       return _chartScope;
     };
 
+    _chartScope.baseAPI = function (val)
+    {
+      if (!arguments.length) return _baseAPI;
+      _baseAPI = val;
+      var map = pooch.map ("#pooch_base_chart0")
+                             .api ("google")
+                             //.symbolGroup ([symbols1])
+                             .chart (_chartScope)
+                             .defaultView ({ lat: 37.090238, lng: -95.7129, zoom: 4 })
+                             ////////.draw ();
+                             //.zoomControl (zoomControl1);
+      return _chartScope;
+    };
+
     _chartScope.projection = function (func)
     {
       if (!arguments.length) return _projection;
@@ -1061,12 +1138,15 @@
 
     _chartScope.reset = function ()
     {
-      _axisMinX = _axisDefaults.minX;
-      _axisMaxX = _axisDefaults.maxX;
-      _axisMinY = _axisDefaults.minY;
-      _axisMaxY = _axisDefaults.maxY;
-      _setCenter ();
-      _chartScope.zoom (0);
+      if (_house && !_isZooming)
+       {
+        _axisMinX = _axisDefaults.minX;
+        _axisMaxX = _axisDefaults.maxX;
+        _axisMinY = _axisDefaults.minY;
+        _axisMaxY = _axisDefaults.maxY;
+        _setCenter ();
+        _chartScope.zoom (0);
+      }
       return _chartScope;
     };
 
@@ -1084,13 +1164,13 @@
 
     _chartScope.zoomIn = function ()
     {
-      if (_house) if (_zoom + 1 < _zoomLevels.length) _chartScope.zoom (_zoom + 1);
+      if (_house && !_isZooming) if (_zoom + 1 < _zoomLevels.length) _chartScope.zoom (_zoom + 1);
       return _chartScope;
     };
 
     _chartScope.zoomOut = function ()
     {
-      if (_house)
+      if (_house && !_isZooming)
       {
         if (_zoom - 1 === 0) _chartScope.reset ();
         else if (_zoom - 1 >= 0) _chartScope.zoom (_zoom - 1);
@@ -1101,16 +1181,92 @@
     _chartScope.zoom = function (val)
     {
       if (!arguments.length) return _zoom;
-      _zoom = val;
-      // TODO Tidy this up
-      _axisMinX = _center.x - ((_axisDefaults.maxX - _axisDefaults.minX) / 2) / _zoomLevels[_zoom];
-      _axisMaxX = _center.x + ((_axisDefaults.maxX - _axisDefaults.minX) / 2) / _zoomLevels[_zoom];
-      _axisMinY = _center.y - ((_axisDefaults.maxY - _axisDefaults.minY) / 2) / _zoomLevels[_zoom];
-      _axisMaxY = _center.y + ((_axisDefaults.maxY - _axisDefaults.minY) / 2) / _zoomLevels[_zoom];
-      _setCenter ();
-      _setUnitsPerPx ();
-      _drawSymGrps ();
+
+      if (_zoomSteps > 1 && _zoom !== val && val !== 0)
+      {
+        _zoomStep = 1;
+        _zoomAnim (_zoom, val);
+      }
+      else
+      {
+        _zoom = val;
+        // TODO Tidy this up
+        _axisMinX = _center.x - ((_axisDefaults.maxX - _axisDefaults.minX) / 2) / _zoomLevels[_zoom];
+        _axisMaxX = _center.x + ((_axisDefaults.maxX - _axisDefaults.minX) / 2) / _zoomLevels[_zoom];
+        _axisMinY = _center.y - ((_axisDefaults.maxY - _axisDefaults.minY) / 2) / _zoomLevels[_zoom];
+        _axisMaxY = _center.y + ((_axisDefaults.maxY - _axisDefaults.minY) / 2) / _zoomLevels[_zoom];
+        _setCenter ();
+        _setUnitsPerPx ();
+        var i = _symGrp.length;
+        while (i--)
+        {
+          if (_symGrp[i].shapeData ()) _symGrp[i].changeList ()["shapePoints"] = null;
+          else { _symGrp[i].changeList ()["x"] = null; _symGrp[i].changeList ()["y"] = null; }
+        }
+        _isZooming = false;
+        _drawSymGrps ();
+      }
       return _chartScope;
+    };
+
+    _chartScope.zoomSteps = function (val)
+    {
+      if (!arguments.length) return _zoomSteps;
+      _zoomSteps = val;
+      return _chartScope;
+    };
+
+    _chartScope.refresh = function (offset)
+    {
+      if (!arguments.length) offset = {x: 0, y: 0, width: _width, height: _height};
+      if (_usesMain)
+      {
+       _ctxMain.clearRect (0, 0, _width, _height);
+       _ctxMain.drawImage (_cvsMainHdn, offset.x + _width, offset.y + _height, offset.width, offset.height, 0, 0, _width, _height);
+      }
+      else if (_usesBack)
+      {
+       _ctxBack.clearRect (0, 0, _width, _height);
+       _ctxBack.drawImage (_cvsBackHdn, offset.x + _width, offset.y + _height, offset.width, offset.height, 0, 0, _width, _height);
+      }
+      return _chartScope;
+    };
+
+    var _zoomAnim = function (sPos, ePos)
+    {
+      _isZooming = true;
+
+      var change     = _zoomLevels[ePos] - _zoomLevels[sPos],
+          time       = _zoomStep,
+          zoomInterp = change * ((time = time / _zoomSteps - 1) * time * time + 1) + _zoomLevels[sPos],
+          ratio      = _zoomLevels[sPos] / zoomInterp,
+          offHdnWid  = _width * ratio,
+          offHdnHgt  = _height * ratio,
+          offHdnX    = (_width - offHdnWid) / 2,
+          offHdnY    = (_height - offHdnHgt) / 2;
+
+      if (offHdnWid > 0 &&
+          offHdnHgt > 0 &&
+          offHdnX   > 0 - _width &&
+          offHdnX   < _width * 3 &&
+          offHdnY   > 0 - _height &&
+          offHdnY   < _height * 3)
+      {
+        _chartScope.refresh ({ x: offHdnX, y: offHdnY, width: offHdnWid, height: offHdnHgt });
+        _zoomStep++;
+      }
+      else (_zoomStep = _zoomSteps + 2);
+
+      if (_zoomStep - 1 <= _zoomSteps)
+      {
+        _timeOut = setTimeout (function () { _zoomAnim (sPos, ePos); }, 30);
+      }
+      else
+      {
+        _zoomStep = 1;
+        _zoom     = ePos;
+        _chartScope.zoom (_zoom);
+      }
     };
 
     _chartScope.zoomLevels = function (arr)
@@ -1142,7 +1298,7 @@
     {
       if (typeof func === "function")
       {
-        var checkParams = function (e) { var ignore = function () { return _isAnimating || _isDragging || _mouseIgnore; } (); func (e, ignore); };
+        var checkParams = function (e) { var ignore = function () { return _isAnimating || _isDragging || _mouseIgnore || _isZooming; } (); func (e, ignore); };
         if (_house) pooch.fetch ("#pooch_mouse_" + _id).mouseMove (checkParams);
         else _funcQueue.push ( { func: func, arg: checkParams } );
       }
@@ -1183,6 +1339,12 @@
     _chartScope.activeSymbol = function (obj)
     {
       if (!arguments.length) return _symCur;
+      if (obj === null)
+      {
+        if (_symCur && _symCur.symbolGroup.popup ()) _symCur.symbolGroup.popup ().hide ();
+        if (_symCur && _symCur.symbolGroup.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxMainHlt, _width, _height);
+        else _clearCtx (_ctxBackHlt, _width, _height);
+      }
       _symCur = obj;
       return _chartScope;
     };
@@ -1223,13 +1385,24 @@
                         _width + "px;height:" + _height + "px;'></" + _layersMain[ndxMain][keyMain] + ">");
 
           }
-          _cvsHidden              = document.createElement ('canvas');
-          _cvsHidden.id           = "poochCvsHidden_" + _id;
-          _cvsHidden.width        = _width;
-          _cvsHidden.height       = _height;
-          _cvsHidden.style.width  = _width + "px";
-          _cvsHidden.style.height = _height + "px";
-          _ctxHidden              = _cvsHidden.getContext ("2d");
+
+          _cvsBackHdn              = document.createElement ('canvas');
+          _cvsBackHdn.id           = "poochCvsBackHdn_" + _id;
+          _cvsBackHdn.width        = _width;
+          _cvsBackHdn.height       = _height;
+          _cvsBackHdn.style.width  = _width + "px";
+          _cvsBackHdn.style.height = _height + "px";
+          _ctxBackHdn              = _cvsBackHdn.getContext ("2d");
+
+          _cvsMainHdn              = document.createElement ('canvas');
+          _cvsMainHdn.id           = "poochCvsMainHdn_" + _id;
+          _cvsMainHdn.width        = _width;
+          _cvsMainHdn.height       = _height;
+          _cvsMainHdn.style.width  = _width + "px";
+          _cvsMainHdn.style.height = _height + "px";
+          _ctxMainHdn              = _cvsMainHdn.getContext ("2d");
+
+          _layersHdn = [_cvsBackHdn, _cvsMainHdn];
         }
         else
         {
@@ -1250,8 +1423,8 @@
         _house.innerHTML = join;
         _ctxBack         = pooch.fetch ("#pooch_back_" + _id).dom ().getContext ("2d");
         _ctxMain         = pooch.fetch ("#pooch_main_" + _id).dom ().getContext ("2d");
-        _ctxHltMain      = pooch.fetch ("#pooch_highlightMain_" + _id).dom ().getContext ("2d");
-        _ctxHltBack      = pooch.fetch ("#pooch_highlightBack_" + _id).dom ().getContext ("2d");
+        _ctxMainHlt      = pooch.fetch ("#pooch_highlightMain_" + _id).dom ().getContext ("2d");
+        _ctxBackHlt      = pooch.fetch ("#pooch_highlightBack_" + _id).dom ().getContext ("2d");
         _id              = "chart" + _chartNdx++;
 
         var qLen = _funcQueue.length;
@@ -1265,54 +1438,33 @@
       return _chartScope;
     };
 
-    if (!arguments.length || id === undefined) return _chartScope;
+    if (!arguments.length || typeof id === "undefined") return _chartScope;
     _chartScope.house (id);
     return _chartScope;
   };
 
-  _symbolGroup = function (shape)
+  var __symbolGroup = function (shape)
   {
     var _symGrpScope = this;
 
-    var _stepInt = function (time, sPos, ePos, dur, ease)
-    {
-      var change = ePos - sPos;
-
-      if (!dur || dur === 1 || time === dur) return ePos;
-      switch (ease) //Based on Robert Penner's Easing Functions
-      {
-        case "linear":
-          return sPos + (change * (time / dur));
-        case "easeIn":
-          return change * (time /= dur) * time * time + sPos;
-        case "easeOut":
-          return change * ((time = time / dur - 1) * time * time + 1) + sPos;
-        case "easeInOut":
-          if ((time /= dur / 2) < 1) return change / 2 * time * time * time + sPos;
-          return change / 2 * ((time -= 2) * time * time + 2) + sPos;
-        default:
-          return sPos + (change * (time / dur));
-      }
-    };
-
-    var _stepSwitch = function (time, sVal, eVal, dur, ease)
+    var _stepSwitch = function (sVal, eVal, time, dur, ease)
     {
       return eVal;
     };
 
-    var _stepPoints = function (time, sPts, ePts, dur, ease)
+    var _stepPoints = function (sPts, ePts, time, dur, ease)
     {
       return ePts;
     };
 
-    var _stepColor = function (time, sCol, eCol, dur, ease)
+    var _stepColor = function (sCol, eCol, time, dur, ease)
     {
       if (!dur || dur === 1 || time === dur) return eCol;
       var sColSpl   = sCol.split (","),
           eColSpl   = eCol.split (","),
-          interpR   = _stepInt (time, sColSpl[0]|0, eColSpl[0]|0, dur, ease) >> 0,
-          interpG   = _stepInt (time, sColSpl[1]|0, eColSpl[1]|0, dur, ease) >> 0,
-          interpB   = _stepInt (time, sColSpl[2]|0, eColSpl[2]|0, dur, ease) >> 0;
+          interpR   = _stepInt (sColSpl[0]|0, eColSpl[0]|0, time, dur, ease) >> 0,
+          interpG   = _stepInt (sColSpl[1]|0, eColSpl[1]|0, time, dur, ease) >> 0,
+          interpB   = _stepInt (sColSpl[2]|0, eColSpl[2]|0, time, dur, ease) >> 0;
 
       return interpR + "," + interpG + "," + interpB;
     };
@@ -1374,22 +1526,47 @@
 
     var _assignAttrs = function (attr, val)
     {
-      if (arguments.length === 1) return _attrs[attr];
-      if (_dataObjExists (val)) attr = function (sym, data) { return data[val]; };
+      if (typeof val === "undefined") return _attrs[attr];
+      if (_dataObjExists (val)) _attrs[attr] = function (sym, data) { return data[val]; };
       else _attrs[attr] = val;
+      _changeList[attr] = null;
       return _symGrpScope;
     };
 
     var _dataObjExists = function (val)
     {
       var firstKey = null;
-      for (var first in _symGrpScope.state ())
-      {
-        firstKey = first;
-        break;
-      }
-      return (typeof val === "string" && typeof _info.datum (firstKey)[val]  !== "undefined");
+      for (var first in _info.datum ()) { firstKey = first; break; }
+      return (typeof val === "string" && typeof _info.datum (firstKey)[val] !== "undefined");
     };
+
+    var _false = function (val) { return false; };
+
+    _symGrpScope.drawFill               = function (val) { return _assignAttrs ("drawFill", val); };
+    _symGrpScope.drawStroke             = function (val) { return _assignAttrs ("drawStroke", val); };
+    _symGrpScope.drawFillHighlight      = function (val) { return _assignAttrs ("drawFillHighlight", val); };
+    _symGrpScope.fillColorHighlight     = function (val) { return _assignAttrs ("fillColorHighlight", val); };
+    _symGrpScope.fillOpacityHighlight   = function (val) { return _assignAttrs ("fillOpacityHighlight", val); };
+    _symGrpScope.drawStrokeHighlight    = function (val) { return _assignAttrs ("drawStrokeHighlight", val); };
+    _symGrpScope.strokeWidthHighlight   = function (val) { return _assignAttrs ("strokeWidthHighlight", val); };
+    _symGrpScope.strokeColorHighlight   = function (val) { return _assignAttrs ("strokeColorHighlight", val); };
+    _symGrpScope.strokeOpacityHighlight = function (val) { return _assignAttrs ("strokeOpacityHighlight", val); };
+    _symGrpScope.size                   = function (val) { return _assignAttrs ("size", val); };
+    _symGrpScope.fillOpacity            = function (val) { return _assignAttrs ("fillOpacity", val); };
+    _symGrpScope.strokeOpacity          = function (val) { return _assignAttrs ("strokeOpacity", val); };
+    _symGrpScope.strokeColor            = function (val) { return _assignAttrs ("strokeColor", val); };
+    _symGrpScope.strokeWidth            = function (val) { return _assignAttrs ("strokeWidth", val); };
+
+    _symGrpScope.shape                  = function (val) { return !arguments.length ? _attrs.shape : _false (_attrs.shape  = val) || _symGrpScope; };
+    _symGrpScope.order                  = function (val) { return !arguments.length ? _order : _false (_order = val) || _symGrpScope; };
+    _symGrpScope.layer                  = function (val) { return !arguments.length ? _layer : _false (_layer = val) || _symGrpScope; };
+    _symGrpScope.easing                 = function (val) { return !arguments.length ? _attrs.easing : _false (_attrs.easing  = val) || _symGrpScope; };
+    _symGrpScope.interactive            = function (val) { return !arguments.length ? _interactive : _false (_interactive = val) || _symGrpScope; };
+    _symGrpScope.batch                  = function (val) { return !arguments.length ? _batch : _false (_batch = val) || _symGrpScope; };
+    _symGrpScope.map                    = function (val) { return !arguments.length ? _map : _false (_map = val) || _symGrpScope; };
+    _symGrpScope.context                = function (val) { return !arguments.length ? _ctx : _false (_ctx = val) || _symGrpScope; };
+    _symGrpScope.changeList             = function (val) { return !arguments.length ? _changeList : _false (_changeList = val) || _symGrpScope; };
+    _symGrpScope.customShape            = function (val) { return !arguments.length ? _customShape : _false (_customShape = val) || _symGrpScope; };
 
     _symGrpScope.sort = function ()
     {
@@ -1426,13 +1603,6 @@
       return _symGrpScope;
     };
 
-    _symGrpScope.batch = function (bool)
-    {
-      if (!arguments.length) return _batch;
-      _batch = bool;
-      return _symGrpScope;
-    };
-
     _symGrpScope.chart = function (obj, func)
     {
       if (!arguments.length) return _chart;
@@ -1444,7 +1614,7 @@
     _symGrpScope.symAttrs = function (obj)
     {
       if (!arguments.length) return _attrs;
-      for (var attr in obj) { _attr[attr] = obj[attr]; }
+      for (var attr in obj) { _attrs[attr] = obj[attr]; }
       return _symGrpScope;
     };
 
@@ -1469,53 +1639,10 @@
       return _symGrpScope;
     };
 
-    _symGrpScope.drawFill               = function (val) { return _assignAttrs ("drawFill", val); };
-    _symGrpScope.drawStroke             = function (val) { return _assignAttrs ("drawStroke", val); };
-    _symGrpScope.drawFillHighlight      = function (val) { return _assignAttrs ("drawFillHighlight", val); };
-    _symGrpScope.fillColorHighlight     = function (val) { return _assignAttrs ("fillColorHighlight", val); };
-    _symGrpScope.fillOpacityHighlight   = function (val) { return _assignAttrs ("fillOpacityHighlight", val); };
-    _symGrpScope.drawStrokeHighlight    = function (val) { return _assignAttrs ("drawStrokeHighlight", val); };
-    _symGrpScope.strokeWidthHighlight   = function (val) { return _assignAttrs ("strokeWidthHighlight", val); };
-    _symGrpScope.strokeColorHighlight   = function (val) { return _assignAttrs ("strokeColorHighlight", val); };
-    _symGrpScope.strokeOpacityHighlight = function (val) { return _assignAttrs ("strokeOpacityHighlight", val); };
-    _symGrpScope.size                   = function (val) { return _assignAttrs ("size", val); };
-    _symGrpScope.fillOpacity            = function (val) { return _assignAttrs ("fillOpacity", val); };
-    _symGrpScope.strokeOpacity          = function (val) { return _assignAttrs ("strokeOpacity", val); };
-    _symGrpScope.strokeColor            = function (val) { return _assignAttrs ("strokeColor", val); };
-    _symGrpScope.strokeWidth            = function (val) { return _assignAttrs ("strokeWidth", val); };
-
     _symGrpScope.shapeData = function (val)
     {
       if (!arguments.length) return _shapeData;
       if (typeof val === "string") _shapeData = val;
-      return _symGrpScope;
-    };
-
-    _symGrpScope.shape = function (val)
-    {
-      if (!arguments.length) return _attrs.shape;
-      _attrs.shape = val;
-      return _symGrpScope;
-    };
-
-    _symGrpScope.order = function (val)
-    {
-      if (!arguments.length) return _order;
-      _order = val;
-      return _symGrpScope;
-    };
-
-    _symGrpScope.layer = function (val)
-    {
-      if (!arguments.length) return _layer;
-      _layer = val;
-      return _symGrpScope;
-    };
-
-    _symGrpScope.easing = function (val)
-    {
-      if (!arguments.length) return _attrs.easing;
-      _attrs.easing = val;
       return _symGrpScope;
     };
 
@@ -1524,58 +1651,31 @@
       if (!arguments.length) return _attrs.fillColor;
       _attrs.fillColor = val;
       _batchMod = true;
+      _changeList["fillColor"] = null;
       return _symGrpScope;
     };
 
     _symGrpScope.width = function (val)
     {
       if (!arguments.length) return _attrs.width;
-      if (typeof val === "string")
+      if (_dataObjExists (val))
       {
-        _fitVarX = val;
         _attrs.width = function (sym, data) { return data[val]; };
       }
       else _attrs.width = val;
+      _changeList["width"] = null;
       return _symGrpScope;
     };
 
     _symGrpScope.height = function (val)
     {
       if (!arguments.length) return _attrs.height;
-      if (typeof val === "string")
+      if (_dataObjExists (val))
       {
-        _fitVarY = val;
         _attrs.height = function (sym, data) { return data[val]; };
       }
       else _attrs.height = val;
-      return _symGrpScope;
-    };
-
-    _symGrpScope.interactive = function (bool)
-    {
-      if (!arguments.length) return _interactive;
-      _interactive = bool;
-      return _symGrpScope;
-    };
-
-    _symGrpScope.map = function (val)
-    {
-      if (!arguments.length) return _map;
-      _map = val;
-      return _symGrpScope;
-    };
-
-    _symGrpScope.context = function (ctx)
-    {
-      if (!arguments.length) return _ctx;
-      _ctx = ctx;
-      return _symGrpScope;
-    };
-
-    _symGrpScope.customShape = function (func)
-    {
-      if (!arguments.length) return _customShape;
-      _customShape = func;
+      _changeList["height"] = null;
       return _symGrpScope;
     };
 
@@ -1600,23 +1700,22 @@
       if (!arguments.length) return _attrs.x;
       if (_dataObjExists (val))
       {
-        _fitVarX = val;
-        _attrs.x = function (sym, data) { return _fitFunc ({ dim: "width", val: data[_fitVarX] }); };
+        _attrs.x = function (sym, data) { return _fitFunc ({ dim: "width", val: data[val] }); };
       }
-      else _attrs.x = function () { return _fitFunc ({ dim: "width", val: val }); };
+      else _attrs.x = function (sym, data) { return _fitFunc ({ dim: "width", val: val, sym: sym, data: data }); };
+      _changeList["x"] = null;
       return _symGrpScope;
     };
 
     _symGrpScope.y = function (val)
     {
-      //TODO See if the lack of _fitVarY is messing up the bounds method in chart
       if (!arguments.length) return _attrs.y;
       if (_dataObjExists (val))
       {
-        _fitVarY = val;
         _attrs.y = function (sym, data) { return _fitFunc ({ dim:"height", val: data[val] }); };
       }
-      else _attrs.y = function () { return _fitFunc ({ dim: "height", val: val }); };
+      else _attrs.y = function (sym, data) { return _fitFunc ({ dim: "height", val: val, sym: sym, data: data }); };
+      _changeList["y"] = null;
       return _symGrpScope;
     };
 
@@ -1629,6 +1728,7 @@
         else _funcQueue.push ( { func: _setLat, arg: val } );
       }
       else _attrs.lat = pooch.helpers.latToMercator (val);
+      _changeList["lat"] = null;
       return _symGrpScope;
     };
 
@@ -1641,6 +1741,7 @@
         else _funcQueue.push ( { func: _setLng, arg: val } );
       }
       else _attrs.lng = pooch.helpers.lngToMercator (val);
+      _changeList["lng"] = null;
       return _symGrpScope;
     };
 
@@ -1654,6 +1755,7 @@
         else _funcQueue.push ( { func: _symGrpScope.shapePoints, arg: val } );
       }
       else _attrs.shapePoints = val;
+      _changeList["shapePoints"] = null;
       return _symGrpScope;
     };
 
@@ -1682,7 +1784,7 @@
         //_boundsInView = {},
         _info        = null,
         _pop         = null,
-        _ctx         = null,
+        _ctx,
         _order       = [],
         _layer       = "main",
         _popup       = null,
@@ -1695,11 +1797,11 @@
         _batchObj    = {},
         _interactive = false,
         _map         = null,
-        _fitVarX     = null,
-        _fitVarY     = null,
         _shapeData   = "",
+        _changeList  = {},
         _funcQueue   = [],
         _symState    = {},
+        _stepInt     = pooch.helpers.valueTween,
         _attrs       = { symbolGroup: _symGrpScope, x: 0, y: 0, lat: 0, lng: 0, visible: true, shape: "circle",
                         easing: "easeInOut", drawFill: true, drawStroke: true,
                         size: 6, height: 6, width: 6, fillColor: "200,200,200",
@@ -1723,7 +1825,7 @@
     return _symGrpScope;
   };
 
-  _zoomControl= function (elem)
+  var __zoomControl= function (elem)
   {
     var _zoomScope   = this,
         _template    = null,
@@ -1887,7 +1989,7 @@
 
     if (typeof elem === "string" &&
         document.getElementById (elem) !== null &&
-        document.getElementById (elem) !== undefined)
+        typeof document.getElementById (elem) !== "undefined")
     {
       _template = document.getElementById (elem);
       _domElem  = document.createElement ('div');
@@ -1904,7 +2006,7 @@
 
   };
 
-  _popup = function (elem)
+  var __popup = function (elem)
   {
     var _popupScope = this,
         _domElem    = null,
@@ -2023,8 +2125,8 @@
     _popupScope.data = function (symGrp, data)
     {
       if (!arguments.length) return _info;
-      if (symGrp !== null && symGrp !== undefined) _symGrp = symGrp;
-      if (data !== null && data !== undefined) _info = data;
+      if (symGrp !== null && typeof symGrp !== "undefined") _symGrp = symGrp;
+      if (data !== null && typeof data !== "undefined") _info = data;
       return _popupScope;
     };
 
@@ -2032,20 +2134,20 @@
 
     if (typeof elem === "string" &&
         document.getElementById (elem) !== null &&
-        document.getElementById (elem) !== undefined)
+        typeof document.getElementById (elem) !== "undefined")
     {
       _template = document.getElementById (elem);
       _domElem  = document.createElement ('div');
       _domElem.style.borderStyle = 'none';
       _domElem.style.borderWidth = '0px';
-      _domElem.style.position = 'absolute';
-      _domElem.style.display = 'block';
+      _domElem.style.position    = 'absolute';
+      _domElem.style.display     = 'block';
     }
 
     return _popupScope;
   };
 
-  _data = function (obj)
+  var __data = function (obj)
   {
     var _dataScope = this,
         _dataOrig  = [ null ],
@@ -2402,9 +2504,36 @@
         _funcQueue     = funcQueue,
         _map           = mapObj.map (),
         _chart         = mapObj.chart (),
+        _mouseIgnore   = false,
         _div           = null;
 
     _overlayScope.prototype = new google.maps.OverlayView ();
+
+    var _dragStartEvent = function ()
+    {
+      _mouseIgnore = _chart.mouseIgnore ();
+      _chart.activeSymbol (null);
+    };
+
+    var _dragEvent = function ()
+    {
+      //_bounds       = _map.getBounds ();
+      _chart.mouseIgnore (true);
+
+      var overProj  = _overlayScope.prototype.getProjection (),
+          bounds    = _map.getBounds (),
+          //mapNW     = new google.maps.LatLng (_bounds.getNorthEast ().lat (), _bounds.getSouthWest ().lng ()),
+          //divPix    = overProj.fromLatLngToDivPixel (mapNW),
+          curNW     = new google.maps.LatLng (bounds.getNorthEast ().lat (), bounds.getSouthWest ().lng ()),
+          prevNW    = new google.maps.LatLng (_bounds.getNorthEast ().lat (), _bounds.getSouthWest ().lng ()),
+          curPix    = overProj.fromLatLngToDivPixel (curNW),
+          prevPix   = overProj.fromLatLngToDivPixel (prevNW),
+          diffX     = curPix.x - prevPix.x >> 0,
+          diffY     = curPix.y - prevPix.y >> 0;
+
+      pooch.fetch (_chart.house ()).css ({ top: curPix.y + "px", left: curPix.x + "px" });
+      _chart.refresh ({ x: diffX, y: diffY, width: _chart.width (), height: _chart.height () });
+    };
 
     var _dragEndEvent = function ()
     {
@@ -2439,26 +2568,20 @@
             .axisMaxY (pooch.helpers.latToMercator (chartNW.lat ()))
             .axisMinY (pooch.helpers.latToMercator (chartSE.lat ()));
 
-      if (_isSafari)
-      {
-        pooch.fetch (_chart.house ()).css ({ display: "none" });
-        _mapObj.draw ();
-        setTimeout (function (){ _moveAndDraw (divPix); }, 1);
-      }
-      else
-      {
-        _mapObj.draw ();
-        pooch.fetch (_chart.house ()).css ({ top: divPix.y + "px", left: divPix.x + "px", display: "block" });
-        _mapObj.zoom (_map.getZoom ());
-        _mapObj.zoomControl ().update ();
-      }
-    };
+      var symGrp = _mapObj.symbolGroup (),
+          i = symGrp.length;
 
-    var _moveAndDraw = function (divPix)
-    {
+      while (i--)
+      {
+        if (symGrp[i].shapeData ()) symGrp[i].changeList ()["shapePoints"] = null;
+        else { symGrp[i].changeList ()["lat"] = null; symGrp[i].changeList ()["lng"] = null; }
+      }
       pooch.fetch (_chart.house ()).css ({ top: divPix.y + "px", left: divPix.x + "px", display: "block" });
+      _mapObj.draw ();
       _mapObj.zoom (_map.getZoom ());
       _mapObj.zoomControl ().update ();
+      if (_mouseIgnore) _chart.mouseIgnore (true);
+      else _chart.mouseIgnore (false);
     };
 
     _overlayScope.bounds = function (obj)
@@ -2486,6 +2609,8 @@
             .width (_mapObj.width ());
       _updateChart ();
 
+      google.maps.event.addListener (_map, 'dragstart', function () { _dragStartEvent (); });
+      google.maps.event.addListener (_map, 'drag', function () { _dragEvent (); });
       google.maps.event.addListener (_map, 'dragend', function () { _dragEndEvent (); });
       google.maps.event.addListener (_map, 'zoom_changed', function () { _zoomChangedEvent (); });
     };
@@ -2503,7 +2628,7 @@
     _overlayScope.prototype.setMap (_map);
   };
 
-  _fetch = function (elem)
+  var __fetch = function (elem)
   {
     var _fetchScope = this,
         _domElem = null;
@@ -2566,7 +2691,7 @@
     _fetchScope.removeClass = function (str)
     {
       var currCls        = _domElem.className,
-          re             = new RegExp("(?:^|\\s)" + str + "(?!\\S)","g"),
+          re             = new RegExp ("(?:^|\\s)" + str + "(?!\\S)","g"),
           replace        = currCls.replace (re, "");
       _domElem.className = replace;
       return _domElem;
@@ -2638,13 +2763,13 @@
       return _fetchScope;
     };
 
-    if (!arguments.length || elem === undefined) return _fetchScope;
+    if (!arguments.length || typeof elem === "undefined") return _fetchScope;
 
     if (typeof elem === "string")
     {
       if (elem.substr (0, 1) === "#") _domElem = document.getElementById (elem.substr (1, elem.length));
       else if (elem.substr (0, 1) === ".") _domElem = document.getElementsByClassName (elem.substr (1, elem.length))[0];
-      else if (document.getElementById (elem) !== null && document.getElementById (elem) !== undefined) document.getElementById (elem);
+      else if (document.getElementById (elem) !== null && typeof document.getElementById (elem) !== "undefined") document.getElementById (elem);
     }
     else if (elem.tagName || elem.nodeName)
     {
@@ -2696,6 +2821,28 @@
       while (arrLen--) if (arr[arrLen] === val) return arrLen;
     },
 
+    valueTween: function (sPos, ePos, time, dur, ease)
+    {
+      var change  = ePos - sPos,
+          locTime = time;
+
+      if (!dur || dur === 1 || time === dur) return ePos;
+      switch (ease) //Based on Robert Penner's Easing Functions
+      {
+        case "linear":
+          return sPos + (change * (time / dur));
+        case "easeIn":
+          return change * (locTime /= dur) * locTime * locTime + sPos;
+        case "easeOut":
+          return change * ((locTime = time / dur - 1) * locTime * locTime + 1) + sPos;
+        case "easeInOut":
+          if ((locTime /= dur / 2) < 1) return change / 2 * locTime * locTime * locTime + sPos;
+          return change / 2 * ((locTime -= 2) * locTime * locTime + 2) + sPos;
+        default:
+          return sPos + (change * (time / dur));
+      }
+    },
+
     parseWebkitMatrix: function (val)
     {
       var matrixRE = /\([0-9epx\.\, \t\-]+/gi,
@@ -2744,21 +2891,24 @@
           return _pieScope;
         };
 
-        _pieScope.process = function (sym, attrs, offset) //TODO delete data argument
+        _pieScope.process = function (sym, offset)
         {
           var pieVars = _pieVars (sym);
           pieVars.ctx.beginPath ();
-          pieVars.ctx.moveTo (attrs.x, attrs.y);
-          pieVars.ctx.arc (attrs.x, attrs.y, attrs.size, pieVars.sAngle, pieVars.eAngle, false);
+          pieVars.ctx.moveTo (sym.x + offset.x, sym.y + offset.y);
+          pieVars.ctx.arc (sym.x + offset.x, sym.y + offset.y, sym.size, pieVars.sAngle, pieVars.eAngle, false);
           pieVars.ctx.closePath ();
+          pieVars.ctx.fill ();
+          pieVars.ctx.stroke ();
         };
 
-        _pieScope.hitTest = function (sym, x, y)
+        _pieScope.hitTest = function (sym, offset)
         {
+
           var pieVars   = _pieVars (sym),
-              fromCntrX = sym.x - x,
-              fromCntrY = sym.y - y,
-              distCntr  = Math.sqrt( Math.pow( fromCntrX, 2 ) + Math.pow( fromCntrY , 2 ) );
+              fromCntrX = sym.x + offset.x,
+              fromCntrY = sym.y + offset.y,
+              distCntr  = Math.sqrt (Math.pow (fromCntrX, 2) + Math.pow (fromCntrY , 2));
 
           if (distCntr < sym.size)
           {
@@ -2782,7 +2932,7 @@
   };
 
   window.pooch_baseMap = null;
-  var _isSafari        = (typeof (navigator.vendor) === "object" && navigator.vendor.indexOf ("Apple") !== -1) ? true : false;
+  var _isSafari        = (typeof (navigator.vendor) === "object" && navigator.vendor.indexOf ("Apple") !== -1) ? true : false,
       _chartNdx        = 0,
       _css2js          = { "float":"styleFloat",
                            "text-decoration: blink":"textDecorationBlink",

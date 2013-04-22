@@ -51,10 +51,11 @@
                                                    .y (pieYPos[i])
                                                    .size (80)
                                                    .fillColor (function (sym, data) { return data.color; })
+                                                   .fillColorHighlight (function (sym, data) { return data.color; })
                                                    .fillOpacity (0.4)
+                                                   .fillOpacityHighlight (0.7)
                                                    .easing ("easeInOut")
                                                    .popup (popup1)
-                                                   .drawFillHighlight (false)
                                                    .strokeOpacityHighlight (0.7)
                                                    .customShape (pie);
       }

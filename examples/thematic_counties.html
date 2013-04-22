@@ -9,7 +9,7 @@
   </head>
 
   <body onload="chart1.draw()">
-
+    
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato" />
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
 
@@ -84,6 +84,7 @@
       var chart1    = pooch.chart (".pooch-stage").symbolGroup ([symbols1, symbols2])
                                                   .height (400)
                                                   .width (800)
+                                                  .zoomSteps (10)
                                                   .bounds (symbols1)
                                                   .zoomControl (zoomControl1);
 

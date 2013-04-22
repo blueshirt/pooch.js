@@ -37,6 +37,10 @@
           offsetLat   = 0,
           lastMouseX  = 0,
           lastMouseY  = 0,
+          spinTime    = 0,
+          spinDur     = 10,
+          symCur      = null,
+          isAnimating = false,
           initialPos  = { x: 0, y: 0 },
           mouseIsDown = false,
           radians     = Math.PI / 180;
@@ -46,15 +50,15 @@
           popup1       = pooch.popup ("popupLayout1"),
 
           symbols1     = pooch.symbolGroup ("poly").data (data1)
-                                               .shapePoints ("polygons")
-                                               .fillColor ("190, 190, 190")
-                                               .strokeColor ("150,150,150")
-                                               .fillColorHighlight ("194, 171, 168")
-                                               .strokeColorHighlight ("130, 130, 130")
-                                               .strokeWidthHighlight (1)
-                                               .batch (true)
-                                               .layer ("back")
-                                               .popup (popup1),
+                                                   .shapePoints ("polygons")
+                                                   .fillColor ("190, 190, 190")
+                                                   .strokeColor ("150,150,150")
+                                                   .fillColorHighlight ("194, 171, 168")
+                                                   .strokeColorHighlight ("130, 130, 130")
+                                                   .strokeWidthHighlight (1)
+                                                   .batch (true)
+                                                   .layer ("back")
+                                                   .popup (popup1),
 
           chart1       = pooch.chart (".pooch-stage").symbolGroup ([symbols1])
                                                      .height (500)
@@ -68,8 +72,8 @@
         chart1.mouseMove (onMouseMove);
         pooch.fetch (document).mouseUp(function () { mouseIsDown = false; chart1.mouseIgnore (false); });
         pooch.fetch ("#pooch_back_chart0").css ({ "background-color": "#c6ddff" });
-        pooch.fetch ("#pooch_main_chart0").css ({ "background-image": "url(./images/globe-cover.png)" });
-        chart1.draw ();
+        pooch.fetch ("#pooch_main_chart0").css ({ "background-image": "url(./images/globe-cover.png)", "background-position": "center center" });
+        setTimeout (chart1.draw, 500);
       }
 
       function onMouseDown (e)
@@ -83,7 +87,7 @@
 
       function onMouseMove (e)
       {
-        if (mouseIsDown)
+        if (mouseIsDown && !isAnimating)
         {
           var distX = (lastMouseX - e.localX) * 0.005;
           var distY = (lastMouseY - e.localY) * 0.005;
@@ -94,11 +98,42 @@
             else if (distX > 0) offsetLng = offsetLng + distX > -3.15 ? offsetLng + distX : 3.15;
             if (distY < 0) offsetLat      = offsetLat - distY < 0.8 ? offsetLat - distY : 0.8;
             else if (distY > 0) offsetLat = offsetLat - distY > -0.8 ? offsetLat - distY : -0.8;
+            symbols1.fillColor ("190, 190, 190");
             chart1.draw ();
           }
 
           lastMouseX = e.localX;
           lastMouseY = e.localY;
+        }
+      }
+
+      function spinToLocation (endX, endY, sym)
+      {
+        function spin (startX, startY, endX, endY)
+        {
+          if (spinTime <= spinDur)
+          {
+            offsetLng = pooch.helpers.valueTween (startX, endX, spinTime, spinDur, "easeOut");
+            offsetLat = pooch.helpers.valueTween (startY, endY, spinTime, spinDur, "easeOut");
+            symbols1.fillColor (function (sym, data) { return data.adm0_a3 === symCur ? "194, 171, 168" : "190, 190, 190" });
+            chart1.draw ();
+            spinTime++;
+            setTimeout (function () { spin (startX, startY, endX, endY); }, 50);
+          }
+          else
+          {
+            isAnimating = false;
+            spinTime    = 0;
+            chart1.mouseIgnore (false);
+          }
+        }
+
+        if (!isAnimating)
+        {
+          symCur      = sym;
+          isAnimating = true;
+          chart1.mouseIgnore (true);
+          spin (offsetLng, offsetLat, endX, endY);
         }
       }
 
@@ -149,6 +184,13 @@
       }
 
     </script>
+
+    <div class="pooch-button-container">
+      <button class="pooch-button" onclick="spinToLocation (1.325, 0.425, 'IND')">india</button>
+      <button class="pooch-button" onclick="spinToLocation (2.315, -0.465, 'AUS')">australia</button>
+      <button class="pooch-button" onclick="spinToLocation (-1.634, 0.35, 'MEX')">mexico</button>
+      <button class="pooch-button" onclick="spinToLocation (0.03, 0.7, 'FRA')">france</button>
+    </div>
 
     <div class="pooch-title-source-code">page source</div>
 

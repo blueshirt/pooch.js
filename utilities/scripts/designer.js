@@ -238,7 +238,7 @@ designer.shapefiles = new (function ()
         fixCap    = fixedSize > 20 ? 20 : fixedSize,
         keyIndex  = pooch.helpers.indexOf (_fields, _shapeKey),
         findPrec  = (_grtPrec === 0.0 && _hghPntVal === Number.MIN_VALUE) ? true : false;
-    _bndsDivisor  = hasFixed ? 100 : 1;
+    _bndsDivisor  = hasFixed ? 1 : 1; // TODO change true back to 100
 
     for (var i = 0; i < _shapes.length; i++)
     {

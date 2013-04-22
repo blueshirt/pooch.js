@@ -79,7 +79,7 @@
 
       function adjustSize (data, attribute)
       {
-        var mapZoom    = map1 ? map1.zoom () : 4;
+        var mapZoom    = map1 ? map1.zoom () : 4, //map1 ? map1.zoom () : 4;
             adjForZoom = 16 - mapZoom,
             scaleDown  = (data[attribute] / 200) / adjForZoom,
             size       = scaleDown < 5 ? 5 : scaleDown;
