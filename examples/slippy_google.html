@@ -68,7 +68,7 @@
                                                       .strokeOpacity (0.5)
                                                       .strokeOpacityHighlight (0.9)
                                                       .strokeColorHighlight ("255,255,255")
-                                                      .sort ()
+                                                      .sort ("size")
                                                       .popup (popup1);
 
       var map1          = pooch.map (".pooch-stage")
@@ -91,7 +91,7 @@
         popupLabel   = label;
         popupDataKey = attribute;
         symbols1.size (function (sym, data) { return adjustSize (data, attribute); })
-                .sort ();
+                .sort ("size");
         map1.draw (10);
       }
 

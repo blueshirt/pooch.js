@@ -332,8 +332,8 @@
               {
                 // TODO Clean this up. No need to clear ctx here and then from _drawSymGrps ().
                 if (_symGrpCur.popup ()) _symGrpCur.popup ().hide ();
-                if (_symGrpCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxMainHlt, _width, _height);
-                else _clearCtx (_ctxBackHlt, _width, _height);
+                if (_symGrpCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxMainHlt, 0, 0, _width, _height);
+                else _clearCtx (_ctxBackHlt, 0, 0, _width, _height);
               }
 
               var keyObj              = {},
@@ -358,8 +358,8 @@
             {
               if (_symGrpCur.popup ()) _symGrpCur.popup ().hide ();
               pooch.fetch (_house).css ({ cursor: "default"});
-              if (_symGrpCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxMainHlt, _width, _height);
-              else _clearCtx (_ctxBackHlt, _width, _height);
+              if (_symGrpCur.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxMainHlt, 0, 0, _width, _height);
+              else _clearCtx (_ctxBackHlt, 0, 0, _width, _height);
               //else var TODO = "add swf clearing"; //document[_swfID].clearHighlights ();
             }
             _symGrpCur = null;
@@ -378,9 +378,10 @@
       var sym       = symGrp.datum (key),
           symState  = symGrp.state (),
           data      = symGrp.data ().datum (),
-          symAttrs  = symGrp.symAttrs ();
+          symAttrs  = symGrp.symAttrs (),
+          frameCalc = symGrp.frameCalculation ();
 
-      if (time === 1)
+      if (time === 1 || frameCalc)
       {
         sym.changeList = {};
 
@@ -393,7 +394,8 @@
       for (var change in symGrp.changeList ())
       {
         var stepFunc = symGrp.stepFunc (change);
-        sym[change]  = stepFunc (symState[key][change], sym.changeList[change], time, dur, sym.easing);
+        if (frameCalc) sym[change] = sym.changeList[change];
+        else sym[change] = stepFunc (symState[key][change], sym.changeList[change], time, dur, sym.easing);
       }
     };
 
@@ -445,6 +447,13 @@
           var orderNdx = symGrp.datum (key).order,
               symPrev  = orderNdx > 0 ? symGrp.state (symGrp.order ()[orderNdx - 1]) : symGrp.datum (key);
           ctx.lineTo (symPrev.x + _offsetX, symPrev.y + _offsetY);
+
+        break;
+
+        case "linkLine":
+          ctx.moveTo (x + _offsetX, y + _offsetX);
+          var symLink  = symGrp.datum (key).link || sym;
+          ctx.lineTo (symLink.x + _offsetX, symLink.y + _offsetY);
 
         break;
 
@@ -518,9 +527,13 @@
       }
     };
 
-    var _clearLayers = function (layer, hlt)
+    var _clearLayers = function (layer, hlt, isAnim)
     {
-      var symLayer  = "";
+      var symLayer  = "",
+          hdnX      = isAnim ? _width : 0,
+          hdnY      = isAnim ? _height : 0,
+          hdnWid    = isAnim ? _width : _width * 3,
+          hdnHgt    = isAnim ? _height : _height * 3;
 
       if (!layer)
       {
@@ -539,9 +552,9 @@
               if (!clrBack)
               {
                 clrBack = true;
-                _clearCtx (_ctxBack, _width, _height);
-                _clearCtx (_ctxBackHlt, _width, _height);
-                _clearCtx (_ctxBackHdn, _width * 3, _height * 3);
+                _clearCtx (_ctxBack, 0, 0, _width, _height);
+                _clearCtx (_ctxBackHlt, 0, 0, _width, _height);
+                _clearCtx (_ctxBackHdn, hdnX, hdnY, hdnWid, hdnHgt);
               }
               break;
 
@@ -549,9 +562,9 @@
               if (!clrMain)
               {
                 clrMain = true;
-                _clearCtx (_ctxMain, _width, _height);
-                _clearCtx (_ctxMainHlt, _width, _height);
-                _clearCtx (_ctxMainHdn, _width * 3, _height * 3);
+                _clearCtx (_ctxMain, 0, 0, _width, _height);
+                _clearCtx (_ctxMainHlt, 0, 0, _width, _height);
+                _clearCtx (_ctxMainHdn, hdnX, hdnY, hdnWid, hdnHgt);
               }
               break;
 
@@ -559,8 +572,8 @@
               if (!clrHlt)
               {
                 clrHlt = true;
-                _clearCtx (_ctxMainHlt, _width, _height);
-                _clearCtx (_ctxBackHlt, _width, _height);
+                _clearCtx (_ctxMainHlt, 0, 0, _width, _height);
+                _clearCtx (_ctxBackHlt, 0, 0, _width, _height);
               }
           }
         }
@@ -571,8 +584,8 @@
         var isHlt  = hlt ? true : false,
             ctx    = isHlt ? symLayer === "HIGHLIGHTMAIN" ? _ctxMainHlt : _ctxBackHlt : symLayer === "MAIN" ? _ctxMain : _ctxBack,
             ctxHid = isHlt ? null : symLayer === "MAIN" ? _ctxMainHdn : _ctxBackHdn;
-        _clearCtx (ctx, _width, _height);
-        if (ctxHid !== null) _clearCtx (ctxHid, _width * 3, _height * 3);
+        _clearCtx (ctx, 0, 0, _width, _height);
+        if (ctxHid !== null) _clearCtx (ctxHid, hdnX, hdnY, hdnWid, hdnHgt);
       }
     };
 
@@ -583,7 +596,8 @@
       if (typeof time === "undefined" || typeof time === null || isNaN (time)) _stepTot = 1;
 
       var isHlt     = hlt ? true : false,
-          len       = isHlt ? 1 : _symGrp.length;
+          len       = isHlt ? 1 : _symGrp.length,
+          clearHdn  = _stepCnt < _stepTot;
       _isAnimating  = true;
       _usesBack     = isHlt ? _usesBack : false;
       _usesMain     = isHlt ? _usesMain : false;
@@ -593,7 +607,7 @@
       {
         if (pooch.supportsCanvas)
         {
-          _clearLayers (layer, hlt);
+          _clearLayers (layer, hlt, clearHdn);
         }
         else
         {
@@ -681,7 +695,7 @@
 
         if (_stepCnt <= _stepTot && _stepTot > 1)
         {
-          _timeOut = setTimeout (function () { _drawSymGrps (_stepTot); }, 1);
+          _timeOut = setTimeout (function () { _drawSymGrps (_stepTot, layer, null, callback); }, 1);
         }
         else
         {
@@ -700,9 +714,9 @@
       }
     };
 
-    var _clearCtx = function (ctx, width, height)
+    var _clearCtx = function (ctx, x, y, width, height)
     {
-      if (ctx) ctx.clearRect (0, 0, width, height);
+      if (ctx) ctx.clearRect (x, y, width, height);
     };
 
     var _setUnitsPerPx = function ()
@@ -820,12 +834,12 @@
 
             if (_usesMain)
             {
-              _clearCtx (_ctxMain, _width, _height);
+              _clearCtx (_ctxMain, 0, 0, _width, _height);
               _ctxMain.drawImage (_cvsMainHdn, sX, sY, limitWid, limitHgt, dX, dY, limitWid, limitHgt);
             }
             if (_usesBack)
             {
-              _clearCtx (_ctxBack, _width, _height);
+              _clearCtx (_ctxBack, 0, 0, _width, _height);
               _ctxBack.drawImage (_cvsBackHdn, sX, sY, limitWid, limitHgt, dX, dY, limitWid, limitHgt);
             }
             drag.elem.mouseX = e[0].clientX;
@@ -940,6 +954,11 @@
         return loc;
       }
       return _chartScope;
+    };
+
+    _chartScope.fit = function (obj)
+    {
+      return _fit (obj);
     };
 
     _chartScope.bounds = function (arr)
@@ -1276,13 +1295,13 @@
       return _chartScope;
     };
 
-    _chartScope.draw = function (count, layer)
+    _chartScope.draw = function (count, layer, callback)
     {
       _stepCnt = 1;
       if (!arguments.length) _stepTot = 1;
       else _stepTot = count;
 
-      if (_house) _drawSymGrps (count, layer);
+      if (_house) _drawSymGrps (count, layer, null, callback);
       else _funcQueue.push ( { func: _drawSym, arg: null } );
       return _chartScope;
     };
@@ -1342,8 +1361,8 @@
       if (obj === null)
       {
         if (_symCur && _symCur.symbolGroup.popup ()) _symCur.symbolGroup.popup ().hide ();
-        if (_symCur && _symCur.symbolGroup.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxMainHlt, _width, _height);
-        else _clearCtx (_ctxBackHlt, _width, _height);
+        if (_symCur && _symCur.symbolGroup.layer ().toUpperCase () === "MAIN") _clearCtx (_ctxMainHlt, 0, 0, _width, _height);
+        else _clearCtx (_ctxBackHlt, 0, 0, _width, _height);
       }
       _symCur = obj;
       return _chartScope;
@@ -1567,22 +1586,18 @@
     _symGrpScope.context                = function (val) { return !arguments.length ? _ctx : _false (_ctx = val) || _symGrpScope; };
     _symGrpScope.changeList             = function (val) { return !arguments.length ? _changeList : _false (_changeList = val) || _symGrpScope; };
     _symGrpScope.customShape            = function (val) { return !arguments.length ? _customShape : _false (_customShape = val) || _symGrpScope; };
+    _symGrpScope.frameCalculation       = function (val) { return !arguments.length ? _frameCalc : _false (_frameCalc  = val) || _symGrpScope; };
 
-    _symGrpScope.sort = function ()
+    _symGrpScope.sort = function (attr, bool)
     {
       if (_info)
       {
-        //TODO add calculations for objects other than circles
-        if (typeof _attrs.size === "function")
+        _order.sort (function (b, a)
         {
-          _order.sort (function (a, b)
-          {
-            var sizeA = _attrs.size (_symGrp[a], _info.datum (_symGrp[a].poochID));
-                sizeB = _attrs.size (_symGrp[b], _info.datum (_symGrp[b].poochID));
-            var compare = _symGrp[b].shape === "circle" ? sizeB - sizeA : (_symGrp[b].height * _symGrp[b].width) - (_symGrp[a].height * _symGrp[a].width);
-            return sizeB - sizeA;
-          });
-        }
+          var sizeA = _symGrp[bool ? a : b][attr],
+              sizeB = _symGrp[bool ? b : a][attr];
+          return sizeB - sizeA;
+        });
       }
       return _symGrpScope;
     };
@@ -1793,6 +1808,7 @@
         _fitFunc     = null,
         _batch       = false,
         _batchMod    = false,
+        _frameCalc   = false,
         _customShape = null,
         _batchObj    = {},
         _interactive = false,
@@ -2781,11 +2797,17 @@
 
   pooch.helpers =
   {
-
     keyFromObj: function (obj)
     {
       for (var key in obj) { if (obj.hasOwnProperty (key)) return key; }
       return null;
+    },
+
+    objectCount: function (obj)
+    {
+      var count = 0;
+      for (var key in obj) { count++; }
+      return count;
     },
 
     formatNumber: function (num)
@@ -2922,6 +2944,246 @@
         return _pieScope;
       };
       return new pieChartObj (val);
+    },
+
+    forceDirected: function (data) // Based on Fruchterman and Reingold and the JUNG implementation, modeled after David Piegza's work
+    {
+      var forceDirectedObj = function (field)
+      {
+        var _fdScope    = this,
+            _nodes      = {},
+            _edges      = {},
+            _nodeIDs    = [],
+            _edgeIDs    = [],
+            _nodeLim    = 1000,
+            _false      = function (val) { return false; },
+            _attraction = 5,
+            _repulsion  = 0.75,
+            _iterations = 100000,
+            _width      = 600,
+            _height     = 600,
+            _depth      = 2000,
+            _done       = false,
+            _callback   = null,
+            _strain     = 0.000001,
+            _itrCnt     = 0,
+            _temp       = 0,
+            _nodeLen    = 0,
+            _edgeLen    = 0,
+            _attract, _repulCon, _forceCon;
+
+        _fdScope.attraction = function (val) { return !arguments.length ? _attraction : _false (_attraction = val) || _fdScope; };
+        _fdScope.repulsion  = function (val) { return !arguments.length ? _repulsion  : _false (_repulsion = val)  || _fdScope; };
+        _fdScope.iterations = function (val) { return !arguments.length ? _iterations : _false (_iterations = val) || _fdScope; };
+        _fdScope.width      = function (val) { return !arguments.length ? _width      : _false (_width = val)      || _fdScope; };
+        _fdScope.height     = function (val) { return !arguments.length ? _height     : _false (_height = val)     || _fdScope; };
+        _fdScope.depth      = function (val) { return !arguments.length ? _depth      : _false (_depth = val)      || _fdScope; };
+        _fdScope.done       = function (val) { return !arguments.length ? _done       : _false (_done = val)       || _fdScope; };
+        _fdScope.nodes      = function (val) { return !arguments.length ? _nodes      : _false (_nodes = val)      || _fdScope; };
+        _fdScope.edges      = function (val) { return !arguments.length ? _edges      : _false (_edges = val)      || _fdScope; };
+        _fdScope.nodeIDs    = function (val) { return !arguments.length ? _nodeIDs    : _false (_nodeIDs = val)    || _fdScope; };
+        _fdScope.edgeIDs    = function (val) { return !arguments.length ? _edgeIDs    : _false (_edgeIDs = val)    || _fdScope; };
+        _fdScope.nodeLimit  = function (val) { return !arguments.length ? _nodeLim    : _false (_nodeLim = val)    || _fdScope; };
+
+        _fdScope.edge = function (start, dest)
+        {
+          var edgeScope   = this;
+          edgeScope.start = start;
+          edgeScope.dest  = dest;
+          edgeScope.data  = {};
+
+          edgeScope.toLayout = function ()
+          {
+            if (edgeScope.start.connectTo (edgeScope.dest))
+            {
+              _edgeIDs.push (edgeScope.dest.id);
+              _edges[edgeScope.dest.id] = edgeScope;
+              return true;
+            }
+            return false;
+          };
+        };
+
+        _fdScope.node = function (id)
+        {
+          var nodeScope       = this;
+          nodeScope.id        = id;
+          nodeScope.nodesTo   = [];
+          nodeScope.nodesFrom = [];
+          nodeScope.pos       = {};
+          nodeScope.data      = {};
+
+          nodeScope.connectTo = function (node)
+          {
+            if (!nodeScope.isConnected (node))
+            {
+              nodeScope.nodesTo.push (node);
+              return true;
+            }
+            return false;
+          };
+
+          nodeScope.isConnected = function (node)
+          {
+            var i = nodeScope.nodesTo.length;
+
+            while (i--)
+            {
+              var connNode = nodeScope.nodesTo[i];
+              if (connNode.id == node.id) return true;
+            }
+            return false;
+          };
+
+          nodeScope.toLayout = function ()
+          {
+            if (typeof _nodes[nodeScope.id] === "undefined" && _nodeIDs.length <= _nodeLim)
+            {
+              _nodeIDs.push (nodeScope.id);
+              _nodes[nodeScope.id] = nodeScope;
+              return true;
+            }
+            return false;
+          };
+        };
+
+      _fdScope.build = function ()
+      {
+        _done     = false;
+        _temp     = _width / 10.0;
+        _nodeLen  = _nodeIDs.length;
+        _edgeLen  = _edgeIDs.length;
+        _forceCon = Math.sqrt (_height * _width / _nodeLen);
+        _attract  = _attraction * _forceCon;
+        _repulCon = _repulsion * _forceCon;
+      };
+
+      _fdScope.update = function ()
+      {
+        var i = _nodeLen,
+            k = _edgeLen,
+            l = i;
+
+        if (_itrCnt < _iterations && _temp > 0.000001)
+        {
+          while (i--)
+          {
+            var j          = i + 1,
+                nodeVrt    = _nodes[_nodeIDs[i]];
+            nodeVrt.layout = nodeVrt.layout || {};
+
+            if (i === _nodeLen - 1)
+            {
+              nodeVrt.layout.offX = 0;
+              nodeVrt.layout.offY = 0;
+              nodeVrt.layout.offZ = 0;
+            }
+
+            nodeVrt.layout.force   = 0;
+            nodeVrt.layout.tmpPosX = nodeVrt.layout.tmpPosX || nodeVrt.pos.x;
+            nodeVrt.layout.tmpPosY = nodeVrt.layout.tmpPosY || nodeVrt.pos.y;
+            nodeVrt.layout.tmpPosZ = nodeVrt.layout.tmpPosZ || nodeVrt.pos.z;
+
+            while (j--)
+            {
+              var nodeHrz = _nodes[_nodeIDs[j]];
+
+              if (i !== j)
+              {
+                nodeHrz.layout         = nodeHrz.layout || {};
+                nodeHrz.layout.tmpPosX = nodeHrz.layout.tmpPosX || nodeHrz.pos.x;
+                nodeHrz.layout.tmpPosY = nodeHrz.layout.tmpPosY || nodeHrz.pos.y;
+                nodeHrz.layout.tmpPosZ = nodeHrz.layout.tmpPosZ || nodeHrz.pos.z;
+
+                var delX    = nodeVrt.layout.tmpPosX - nodeHrz.layout.tmpPosX,
+                    delY    = nodeVrt.layout.tmpPosY - nodeHrz.layout.tmpPosY,
+                    delZ    = nodeVrt.layout.tmpPosZ - nodeHrz.layout.tmpPosZ,
+                    delLen  = Math.max (_strain, Math.sqrt ((delX * delX) + (delY * delY))),
+                    delLenZ = Math.max (_strain, Math.sqrt ((delZ * delZ) + (delY * delY))),
+                    force   = (_repulCon * _repulCon) / delLen,
+                    forceZ  = (_repulCon * _repulCon) / delLenZ;
+
+                nodeVrt.layout.force += force;
+                nodeHrz.layout.force += force;
+                nodeVrt.layout.offX  += (delX / delLen)  * force;
+                nodeVrt.layout.offY  += (delY / delLen)  * force;
+                nodeVrt.layout.offZ  += (delZ / delLenZ) * forceZ;
+
+                if (i === _nodeLen - 1)
+                {
+                  nodeHrz.layout.offX = 0;
+                  nodeHrz.layout.offY = 0;
+                  nodeHrz.layout.offZ = 0;
+                }
+
+                nodeHrz.layout.offX -= (delX / delLen)  * force;
+                nodeHrz.layout.offY -= (delY / delLen)  * force;
+                nodeHrz.layout.offZ -= (delZ / delLenZ) * forceZ;
+              }
+            }
+          }
+
+          while (k--)
+          {
+            var edge     = _edges[_edgeIDs[k]],
+                eLaySrt  = edge.start.layout,
+                eLayDst  = edge.dest.layout,
+                eDltX    = eLaySrt.tmpPosX - eLayDst.tmpPosX,
+                eDltY    = eLaySrt.tmpPosY - eLayDst.tmpPosY,
+                eDltZ    = eLaySrt.tmpPosZ - eLayDst.tmpPosZ,
+                eDltLen  = Math.max (_strain, Math.sqrt ((eDltX * eDltX) + (eDltY * eDltY))),
+                eDltLenZ = Math.max (_strain, Math.sqrt ((eDltZ * eDltZ) + (eDltY * eDltY))),
+                eFrc     = (eDltLen * eDltLen) / _attract,
+                eFrcZ    = (eDltLenZ * eDltLenZ) / _attract;
+
+            eLaySrt.eFrc -= eFrc;
+            eLayDst.eFrc += eFrc;
+
+            eLaySrt.offX -= (eDltX / eDltLen)  * eFrc;
+            eLaySrt.offY -= (eDltY / eDltLen)  * eFrc;
+            eLaySrt.offZ -= (eDltZ / eDltLenZ) * eFrcZ;
+
+            eLayDst.offX += (eDltX / eDltLen)  * eFrc;
+            eLayDst.offY += (eDltY / eDltLen)  * eFrc;
+            eLayDst.offZ += (eDltZ / eDltLenZ) * eFrcZ;
+          }
+
+          while (l--)
+          {
+            var nodePos        = _nodes[_nodeIDs[l]],
+                nodePosLay     = nodePos.layout,
+                nodePosDelLen  = Math.max (_strain, Math.sqrt (nodePosLay.offX * nodePosLay.offX + nodePosLay.offY * nodePosLay.offY)),
+                nodePosDelLenZ = Math.max (_strain, Math.sqrt (nodePosLay.offZ * nodePosLay.offZ + nodePosLay.offY * nodePosLay.offY));
+
+            nodePosLay.tmpPosX += (nodePosLay.offX / nodePosDelLen) * Math.min (nodePosDelLen, _temp);
+            nodePosLay.tmpPosY += (nodePosLay.offY / nodePosDelLen) * Math.min (nodePosDelLen, _temp);
+            nodePosLay.tmpPosZ += (nodePosLay.offZ / nodePosDelLenZ) * Math.min (nodePosDelLenZ, _temp);
+
+            nodePos.pos.x -= (nodePos.pos.x - nodePosLay.tmpPosX) / 10;
+            nodePos.pos.y -= (nodePos.pos.y - nodePosLay.tmpPosY) / 10;
+            nodePos.pos.z -= (nodePos.pos.z - nodePosLay.tmpPosZ) / 10;
+
+            if (typeof _callback === "function")
+            {
+              _callback (nodePos);
+            }
+          }
+          _temp *= (1 - (_itrCnt / _iterations));
+          _itrCnt++;
+
+        }
+        else
+        {
+          _done = true;
+          return false;
+        }
+        return true;
+      };
+
+
+      };
+
+      return new forceDirectedObj (data);
     }
 
   };

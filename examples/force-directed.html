@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>force directed - pooch.js</title>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato" />
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+
+    <script type="text/javascript" src="data/force-data.js"></script>
+    <script type="text/javascript" src="../src/pooch.js"></script>
+
+    <script id="popupLayout1" type="text/html">
+      <div class="pooch-popup1" style="width: 140px;">
+        <div class="pooch-popup1-title">data.label</div>
+        <div class="pooch-popup1-heightAdj"></div>
+      </div>
+    </script>
+
+    <script type="text/javascript">
+
+      var lastMouseX  = 0,
+          lastMouseY  = 0,
+          isAnimating = false,
+          mouseIsDown = false,
+          angleX      = 0,
+          angleY      = 0,
+          angleZ      = 0,
+          points      = [],
+          colors      = { m: { r: 123, g: 88, b: 132 }, l: { r: 93, g: 159, b: 128 }, t: { r: 178, g: 95, b: 84 }, p: { r: 132, g: 161, b: 180 } },
+          layout      = pooch.helpers.forceDirected (),
+          data1, symbols1, symbols2, chart1, popup1;
+
+      function assignPoints ()
+      {
+        var i = layout.nodeIDs ().length;
+
+        while (i--)
+        {
+          var node   = layout.nodes ()[layout.nodeIDs ()[i]],
+              coords = { x: node.pos.x, y: node.pos.y, z: node.pos.z };
+          points[i]  = coords;
+        }
+      }
+
+      function spin ()
+      {
+        var i = layout.nodeIDs ().length;
+        
+        while (i--)
+        {
+          var x    = points[i].x,
+              y    = points[i].y,
+              z    = points[i].z,
+              cosX = Math.cos (angleX),
+              cosY = Math.cos (angleY),
+              cosZ = Math.cos (angleZ),
+              sinX = Math.sin (angleX),
+              sinY = Math.sin (angleY),
+              sinZ = Math.sin (angleZ),
+              xy   = cosX * y - sinX * z,
+              xz   = sinX * y + cosX * z,
+              yz   = cosY * xz - sinY * x,
+              yx   = sinY * xz + cosY * x,
+              zx   = cosZ * yx - sinZ * xy,
+              zy   = sinZ * yx + cosZ * xy,
+              node = layout.nodes ()[layout.nodeIDs ()[i]];
+        
+          node.pos.x = points[i].x = zx;
+          node.pos.y = points[i].y = zy;
+          node.pos.z = points[i].z = yz;
+        }
+      }
+
+      function onMouseDown (e)
+      {
+        lastMouseX  = e.localX;
+        lastMouseY  = e.localY;
+        chart1.mouseIgnore (true);
+        popup1.hide ();
+        mouseIsDown = true;
+      }
+
+      function onMouseMove (e)
+      {
+        if (mouseIsDown && !isAnimating)
+        {
+          var distX = (lastMouseX - e.localX) * 0.005;
+          var distY = (lastMouseY - e.localY) * 0.005;
+
+          if (distX || distY)
+          {
+            angleX = -distY;
+            angleY = -distX;
+            spin ();
+            updateSymbols ()
+            chart1.draw ();
+          }
+
+          lastMouseX = e.localX;
+          lastMouseY = e.localY;
+        }
+      }
+
+      function createLayout ()
+      {
+        var nodes    = [],
+            nodeObjs = {},
+            depth    = layout.depth (),
+            i        = forceData.id.length,
+            j        = i;
+
+        while (i--)
+        {
+          var id           = forceData.id[i],
+              node         = new layout.node (id);
+          node.data.title  = forceData.label[i];
+          node.pos.x       = Math.floor (Math.random () * (depth + depth + 1) - depth);
+          node.pos.z       = Math.floor (Math.random () * (depth + depth + 1) - depth);
+          node.pos.y       = i;
+          nodes[i]         = nodeObjs[id] = node;
+          node.toLayout ();
+        }
+
+        while (j--)
+        {
+          var link = forceData.link[j];
+          if (nodeObjs[link])
+          {
+            nodes[j].nodesFrom.push (nodeObjs[link]);
+            var edge = new layout.edge (nodeObjs[link], nodes[j]);
+            edge.toLayout ();
+          }
+        }
+
+        layout.width (700)
+              .height (800)
+              .build ();
+
+        createChart ();
+      }
+
+      function createChart ()
+      {
+        data1     = pooch.data ([forceData]).key ("id");
+        popup1    = pooch.popup ("popupLayout1");
+        symbols1  = pooch.symbolGroup ("linkLine").data (data1)
+                                                  .drawFill (false)
+                                                  .strokeOpacity (0.4)
+                                                  .frameCalculation (true)
+                                                  .interactive (false);
+        symbols2  = pooch.symbolGroup ("circle").data (data1)
+                                                 .strokeOpacity (0.5)
+                                                 .frameCalculation (true)
+                                                 .popup (popup1);
+        chart1    = pooch.chart (".pooch-stage").symbolGroup ([symbols1, symbols2])
+                                                .height (400)
+                                                .width (800)
+                                                .bounds ([2000,2000,-2000,-2000])
+                                                .mouseDown (onMouseDown)
+                                                .mouseMove (onMouseMove);
+                                                
+        pooch.fetch (document).mouseUp (function () { mouseIsDown = false; chart1.mouseIgnore (false); });
+        updateSymbols ();
+        chart1.draw (140, "main", assignPoints);
+      }
+
+      function updateSymbols ()
+      {
+        function determineColor (sym, data)
+        {
+          var size  = (layout.nodes ()[sym.poochID].pos.z / 500) + 9 >> 0, 
+              color = 255 - (size * 18),
+              r = colors[data.type].r + ((230 - colors[data.type].r) / (size / 5)) >> 0,
+              g = colors[data.type].g + ((230 - colors[data.type].g) / (size / 5)) >> 0,
+              b = colors[data.type].b + ((230 - colors[data.type].b) / (size / 5)) >> 0;
+          return r + "," + g + "," + b; 
+        }
+
+        function determineX (sym, data, update)
+        {
+          var node = layout.nodes ()[sym.poochID],
+              link = node.nodesFrom[0];
+          if (link) sym.link = sym.symbolGroup.datum (link.id);
+          if (node.id === "n1" && !mouseIsDown && update) layout.update ();
+          sym.depth = node.pos.z;
+          return node.pos.x;
+        }
+
+        symbols1.x (function (sym, data) { return determineX (sym, data, false); })
+                .y (function (sym, data) { return layout.nodes ()[sym.poochID].pos.y; })
+                .strokeColor ("200,200,200")
+                .strokeWidth (function (sym, data) { return 1.8 + (layout.nodes ()[sym.poochID].pos.z / 1000); });
+
+        symbols2.x (function (sym, data) { return determineX (sym, data, true); })
+                .y (function (sym, data) { return layout.nodes ()[sym.poochID].pos.y; })
+                .size (function (sym, data) { var adj = { m: 14, l: 9, t: 8, p: 6 }; return (layout.nodes ()[sym.poochID].pos.z / 600) + adj[data.type]; })
+                .fillColorHighlight (function (sym, data) { return sym.fillColor; })
+                .fillColor (function (sym, data) { return determineColor (sym, data) })
+                .sort ("depth", true);
+      }
+
+    </script>
+        
+  </head>
+  <body onload="createLayout ()">
+
+    <div class="pooch-title" style="margin-bottom:24px">3d force directed layout<span style="font-size:18px;color:#AAA;"> &nbsp;(click and drag to rotate)</span></div>
+
+    <div class="pooch-stage"></div>
+
+    <div class="pooch-title-source-code">page source</div>
+
+    <div class="pooch-gist-container">
+      <script src="https://gist.github.com/blueshirt/5471003.js"></script>
+    </div>
+
+    <style type="text/css">.gist-syntax .err { color:#000; background-color: #FFF; } </style>
+
+  </body>
+</html>
